@@ -11,13 +11,44 @@ if($attribute_changer->Current_Session == null) {
 
         $Session = $attribute_changer->Current_Session;
 
+        function Build_New_Entry_Email_List() {
+            $Columns_To_Accept = array();
+            
+            foreach ($_POST['New_Entry_Attribute_Column_Select'] as $attribute_id => $include_value) {
+                if(array_key_exists($attribute_id, $Session->attribute_list)) {
+                    array_push($Columns_To_Accept, $attribute_id);
+                }
+                
+            }
+
+            foreach ($_POST['Hidden_New_Entry_List'] as $hidden_email_key => $include_value) {
+                if(!isset($_POST['New_Entry_List'][$hidden_email_key]['include'])) {
+                    unset($Session->Commited_New_Entires[$hidden_email_key]);
+                }
+                else{
+                    $Session->Commited_New_Entires[$hidden_email_key] = array();
+                    foreach ($Columns_To_Accept as $key => $attribute_id) {
+                        if(isset($_POST['New_Entry_List'][$hidden_email_key][$attribute_id])) {
+                            if(in_array($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->New_Entry_List[$attribute_id])) {
+                                $Session->Commited_New_Entires[$hidden_email_key][$attribute_id] = $_POST['New_Entry_List'][$hidden_email_key][$attribute_id];
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         $Current_New_Entry_Block;
 
         if(isset($_POST['New_Entry_Form_Submitted'])) {
 
             if(!isset($_POST['New_Entry_Attribute_Column_Select'])) {
-    //here is where only checking email
+                foreach ($_POST['Hidden_New_Entry_List'] as $hidden_email_key => $include_value) {
+                    if(!isset($_POST['New_Entry_List'][$hidden_email_key]['include'])) {
+                        unset($Session->Commited_New_Entires[$hidden_email_key]);
+
+                    }
+                }
             }
 
             else if(isset($_POST['New_Entry_Attribute_Column_Select'])) {
