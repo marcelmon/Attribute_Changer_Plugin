@@ -2,7 +2,7 @@
 
 
 	function Process_All_New_And_Modify() {
-        if(count($Commited_New_Entires) > 0) {
+        if(count($Session->Commited_New_Entires) > 0) {
             Push_New_Entries();
         }
         if(count($Commited_Modify_Entries) > 0) {
@@ -18,33 +18,40 @@
     $Failed_New_Entries;
 
     function Push_New_Entries() {
+
         foreach ($Session->Commited_New_Entires as $email_key => $new_attributes_and_values) {
             $exists = Sql_Fetch_Row_Query(sprintf('select id from %s where email = "%s"', $GLOBALS['tables']['user'],$email_key));
-            if($exists) {
+            if($exists[0]) {
                 $Failed_New_Entries[$email_key] = $new_attributes_and_values;
             }
             else{
                 $new_user_id = addNewUser($email_key);
-                foreach ($new_attributes_and_values as $this_attribute_name => $this_attribute_value) {
-                    if($Session->attribute_list[$this_attribute_name]['type'] === 'checkboxgroup') {
-                        $new_attribute_value_ids = array();
+                $new_value_array = array();
 
-                        foreach ($this_attribute_value as $this_key => $attribute_new_value) {
-                            array_push($new_attribute_value_ids, $Session->attribute_value_ids[$attribute_new_value]);
+                foreach ($new_attributes_and_values as $attribute_id => $attribute_value_id) {
+                    if($Session->attribute_list[$attribute_id]['type'] === 'checkboxgroup') {
+                        foreach ($attribute_value_id as $individual_id) {
+                            if(array_key_exists($individual_id, $Session->attribute_list[$attribute_id]['allowed_values_ids'])) {
+                                array_push($new_value_array, $individual_id);
+                            }
                         }
-
-                        $proper_this_attribute_value = implode(',', $new_attribute_value_ids);
+                        $proper_this_attribute_value = implode(',', $new_value_array);
+                        
+                        
+                    }
+                    else if($Session->attribute_list[$attribute_id]['type'] === 'checkbox'|'radio') {
+                        if(array_key_exists($attribute_value_id, $Session->attribute_list[$attribute_id]['allowed_values_ids'])) {
+                            $proper_this_attribute_value = $attribute_value_id;
+                        }
                     }
                     else{
-                        if($Session->attribute_list[$this_attribute_name]['type'] === 'checkbox'|'radio') {
-                            $proper_this_attribute_value = $Session->attribute_value_ids[$this_attribute_value];
-                        }
-                        else{
-                            $proper_this_attribute_value = $this_attribute_value;
+                        if(in_array($attribute_value_id, $Session->Current_User_Values[$email_key]) || in_array($attribute_value_id, $Session->Modify_Entries[$email_key])) {
+                            $proper_this_attribute_value = $attribute_value_id;
                         }
                     }
+                    
                     //need a way for 'STICKY' attributes
-                    saveUserAttribute($new_user_id, $Session->attribute_list[$this_attribute_name]['id'], $proper_this_attribute_value);
+                    saveUserAttribute($new_user_id, $attribute_id, $proper_this_attribute_value);
                 }   
             }
         }
