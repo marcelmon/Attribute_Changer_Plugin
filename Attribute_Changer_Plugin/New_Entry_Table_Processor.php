@@ -56,6 +56,19 @@ if($attribute_changer->Current_Session == null) {
             return;
         }
 
+
+        function Get_Allowed_Attributes($attribute_id) {
+            if(isset($Session->attribute_list[$attribute_id]) && $Session->attribute_list[$attribute_id]['type'] == ('checkboxgroup'|'checkbox'|'radio'|'select')) {
+                return $Session->attribute_list[$attribute_id]['allowed_values'];
+            }
+            else{
+                return false;
+            }
+        }
+
+
+
+
         $Current_New_Entry_Block;
 
         if(isset($_POST['New_Entry_Form_Submitted'])) {
