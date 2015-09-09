@@ -20,7 +20,11 @@ if($attribute_changer->Current_Session == null) {
                 }
                 
             }
-
+            if(!isset($_POST['Hidden_New_Entry_List'])) {
+                //error
+                print("<html><body>THERE WAS AN ERROR WITH THE HIDDEN INPUT</body></html>");
+                return false;
+            }
             foreach ($_POST['Hidden_New_Entry_List'] as $hidden_email_key => $include_value) {
                 if(!isset($_POST['New_Entry_List'][$hidden_email_key]['include'])) {
                     unset($Session->Commited_New_Entires[$hidden_email_key]);
@@ -29,118 +33,35 @@ if($attribute_changer->Current_Session == null) {
                     $Session->Commited_New_Entires[$hidden_email_key] = array();
                     foreach ($Columns_To_Accept as $key => $attribute_id) {
                         if(isset($_POST['New_Entry_List'][$hidden_email_key][$attribute_id])) {
-                            if(in_array($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->New_Entry_List[$attribute_id])) {
+
+                            if($Session->attribute_list[$attribute_id]['type'] === 'checkboxgroup') {
+
+                                foreach ($_POST['New_Entry_List'][$hidden_email_key][$attribute_id] as $checkbox_key_id => $checkbox_value_id) {
+                                    if(array_key_exists($checkbox_key_id, $Session->attribute_list[$attribute_id]['allowed_values'])) {
+
+                                        if(!isset($Session->Commited_New_Entires[$hidden_email_key][$attribute_id])) {
+                                            $Session->Commited_New_Entires[$hidden_email_key][$attribute_id] = array();
+                                        }
+                                        array_push($Session->Commited_New_Entires[$hidden_email_key][$attribute_id], $checkbox_key_id);
+                                    }
+                                }
+                            }
+                            else if(in_array($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->New_Entry_List[$attribute_id])) {
                                 $Session->Commited_New_Entires[$hidden_email_key][$attribute_id] = $_POST['New_Entry_List'][$hidden_email_key][$attribute_id];
                             }
                         }
                     }
                 }
             }
+            return;
         }
 
         $Current_New_Entry_Block;
 
         if(isset($_POST['New_Entry_Form_Submitted'])) {
-
-            if(!isset($_POST['New_Entry_Attribute_Column_Select'])) {
-                foreach ($_POST['Hidden_New_Entry_List'] as $hidden_email_key => $include_value) {
-                    if(!isset($_POST['New_Entry_List'][$hidden_email_key]['include'])) {
-                        unset($Session->Commited_New_Entires[$hidden_email_key]);
-
-                    }
-                }
-            }
-
-            else if(isset($_POST['New_Entry_Attribute_Column_Select'])) {
-         
-                $Columns_To_Accept = array();
-         
-                while($_POST['New_Entry_Attribute_Column_Select']) {
-                    $Attribute_To_Parse = array_shift($_POST['New_Entry_Attribute_Column_Select']);
-         
-                    if(array_key_exists($Attribute_To_Parse, $Session->attribute_list)) {
-                        array_push($Columns_To_Accept, $Attribute_To_Parse);
-                    }
-                }
-
-                if(count($Columns_To_Accept) == 0) {
-                    //email is not an attribute, might still have emails
-                }
-                if(!isset($_POST['Hidden_New_Entry_List'])) {
-                    //error
-                    print("<html><body>THERE WAS AN ERROR WITH THE HIDDEN INPUT</body></html>");
-
-                }
-                else foreach ($_POST['Hidden_New_Entry_List'] as $hidden_email_key => $include_value) {
-                    if(!isset($_POST['New_Entry_List'][$hidden_email_key]['include'])) {
-                        unset($Session->Commited_New_Entires[$hidden_email_key]);
-                    }
-                    else if(count($Columns_To_Accept) == 0) {
-                        $Session->Commited_New_Entires[$hidden_email_key] = array();
-                    }
-                    else{
-                        $attribute_values = $_POST['New_Entry_List'][$hidden_email_key]; 
-                        if(isset($attribute_values['include']) {
-                            if($attribute_values['include'] == 'include') {
-         
-                                unset($attribute_values['include']);
-                                $new_entry_to_commit = array();
-         
-                                foreach ($attribute_values as $attribute_name => $value) {
-                                    if(in_array($attribute_name, $Columns_To_Accept)) {
-                                        if(is_array($value)) {
-                                            if($Session->attribute_list[$attribute_name]['type'] == 'checkboxgroup') {
-                                                foreach ($value as $key => $current_value) {
-                                                    //consider doing a check here if value is already set (maybe redundant but, you know)
-                                                    if(in_array($current_value, $Session->attribute_list[$attribute_name]['allowed_values'])) {
-                                                        if(!is_array(($new_entry_to_commit[$attribute_name]))) {
-                                                            $new_entry_to_commit[$attribute_name] = array();
-                                                        }
-                                                        array_push($new_entry_to_commit[$attribute_name], $current_value); 
-                                                    }
-                                                }
-                                            }
-                                            else{
-                                                //only the checkbox group can be an array
-                                            }
-                                        }
-                                        else{
-                                            if($Session->attribute_list[$attribute_name]['type'] == 'checkboxgroup') {
-                                                if(in_array($value, $Session->attribute_list[$attribute_name]['allowed_values'])) {
-
-                                                    if(!is_array(($new_entry_to_commit[$attribute_name]))) {
-                                                         $new_entry_to_commit[$attribute_name] = array();
-                                                    }
-                                                    array_push($new_entry_to_commit[$attribute_name], $value); 
-                                                }
-                                            }
-                                            else if($Session->attribute_list[$attribute_name]['type'] == "checkbox") {
-                                                if(in_array($value, $Session->attribute_list[$attribute_name]['allowed_values'])) {
-                                                    
-                                                    $new_entry_to_commit[$attribute_name]=$value; 
-                                                }
-                                            }
-                                            else if($Session->attribute_list[$attribute_name]['type'] == "textarea"|"textline"|"hidden"|"date") {
-                                                $new_entry_to_commit[$attribute_name]=$value; 
-                                            }
-                                            else{
-         
-                                            }
-                                        }
-                                         
-                                    }
-                                    else{
-                                        //is not a currently acccepted column
-                                    }
-                                }
-                                $Session->Commited_New_Entires[$hidden_email_key] = $new_entry_to_commit;
-                            }
-                        }
-                        else{
-                            //skip this email , not included
-                        }
-                    }
-                }
+            
+            if(!Build_New_Entry_Email_List()){
+                die();
             }
         }
 

@@ -38,94 +38,59 @@ if(!isset($_POST)) {
     print('<html><head><script src="'.$javascript_src.'"></script></head><body>'.$page_print.'</body></html>');
 }
 
+
+        function Build_Modify_Entry_Email_List() {
+            $Columns_To_Accept = array();
+            
+            foreach ($_POST['Modify_Entry_Attribute_Column_Select'] as $attribute_id => $include_value) {
+                if(array_key_exists($attribute_id, $Session->attribute_list)) {
+                    array_push($Columns_To_Accept, $attribute_id);
+                }
+                
+            }
+            if(!isset($_POST['Hidden_Modify_Entry_List'])) {
+                //error
+                print("<html><body>THERE WAS AN ERROR WITH THE HIDDEN INPUT</body></html>");
+                return false;
+            }
+            foreach ($_POST['Hidden_Modify_Entry_List'] as $hidden_email_key => $include_value) {
+                if(!isset($_POST['Modify_Entry_List'][$hidden_email_key]['include'])) {
+                    unset($Session->Commited_New_Entires[$hidden_email_key]);
+                }
+                else{
+                    $Session->Commited_Modify_Entires[$hidden_email_key] = array();
+                    foreach ($Columns_To_Accept as $key => $attribute_id) {
+                        if(isset($_POST['Modify_Entry_List'][$hidden_email_key][$attribute_id])) {
+
+                            if($Session->attribute_list[$attribute_id]['type'] === 'checkboxgroup') {
+
+                                foreach ($_POST['Modify_Entry_List'][$hidden_email_key][$attribute_id] as $checkbox_key_id => $checkbox_value_id) {
+                                    if(array_key_exists($checkbox_key_id, $Session->attribute_list[$attribute_id]['allowed_values'])) {
+
+                                        if(!isset($Session->Commited_Modify_Entires[$hidden_email_key][$attribute_id])) {
+                                            $Session->Commited_Modify_Entires[$hidden_email_key][$attribute_id] = array();
+                                        }
+                                        array_push($Session->Commited_Modify_Entires[$hidden_email_key][$attribute_id], $checkbox_key_id);
+                                    }
+                                }
+                            }
+                            else if(in_array($_POST['Modify_Entry_List'][$hidden_email_key][$attribute_id], $Session->Modify_Entry_List[$attribute_id]) || in_array($_POST['Modify_Entry_List'][$hidden_email_key][$attribute_id], $Session->Current_User_Values[$hidden_email_key][$attribute_id])) {
+                                $Session->Commited_Modify_Entires[$hidden_email_key][$attribute_id] = $_POST['Modify_Entry_List'][$hidden_email_key][$attribute_id];
+                            }
+                        }
+                    }
+                }
+            }
+            return;
+        }
+
+
         if(isset($_POST['Modify_Entry_Form_Submitted'])) {
 
             if(isset($_POST['Modify_Entry_Attribute_Column_Select'])) {
          
-                $Columns_To_Accept = array();
-         
-                while($_POST['Modify_Entry_Attribute_Column_Select']) {
-                    $Attribute_To_Parse = array_shift($_POST['Modify_Entry_Attribute_Column_Select']);
-         
-                    if(array_key_exists($Attribute_To_Parse, $Session->attribute_list)) {
-                        array_push($Columns_To_Accept, $Attribute_To_Parse);
-                    }
-                }
-                if(count($Columns_To_Accept) == 0) {
-                    //change nothing or set to current set 
-
-                }
-                if(!isset($_POST['Hidden_Modify_Entry_List'])) {
-                    //error
-                    print("<html><body>THERE WAS AN ERROR WITH THE HIDDEN INPUT</body></html>");
-                }
-                else foreach ($_POST['Hidden_Modify_Entry_List'] as $hidden_email_key => $include_value) {
-                    if(!isset($_POST['Modify_Entry_List'][$hidden_email_key]['include'])) {
-                        unset($Session->Commited_Modify_Entires[$hidden_email_key]);
-                    }
-                    if(count($Columns_To_Accept) == 0) {
-                        $Session->Commited_Modify_Entires[$hidden_email_key] = array();
-                    }
-                    else{
-                        $attribute_values = $_POST['Modify_Entry_List'][$hidden_email_key]; 
-                        if(isset($attribute_values['include']) {
-                            if($attribute_values['include'] == 'include') {
-         
-                                unset($attribute_values['include']);
-                                $Modify_entry_to_commit = array();
-         
-                                foreach ($attribute_values as $attribute_name => $value) {
-                                    if(in_array($attribute_name, $Columns_To_Accept)) {
-                                        if(is_array($value)) {
-                                            if($Session->attribute_list[$attribute_name]['type'] == 'checkboxgroup') {
-                                                foreach ($value as $key => $current_value) {
-                                                    if(in_array($current_value, $Session->attribute_list[$attribute_name]['allowed_values'])) {
-                                                        if(!is_array(($Modify_entry_to_commit[$attribute_name]))) {
-                                                            $Modify_entry_to_commit[$attribute_name] = array();
-                                                        }
-                                                        array_push($Modify_entry_to_commit[$attribute_name], $current_value); 
-                                                    }
-                                                }
-                                            }
-                                            else{
-                                                //only the checkbox group can be an array
-                                            }
-                                        }
-                                        else{
-                                            if($Session->attribute_list[$attribute_name]['type'] == 'checkboxgroup') {
-                                                if(in_array($current_value, $Session->attribute_list[$attribute_name]['allowed_values'])) {
-                                                    if(!is_array(($Modify_entry_to_commit[$attribute_name]))) {
-                                                        $Modify_entry_to_commit[$attribute_name] = array();
-                                                    }
-                                                    array_push($Modify_entry_to_commit[$attribute_name], $value); 
-                                                } 
-                                            }
-                                            else if($Session->attribute_list[$attribute_name]['type'] == "checkbox") {
-                                                if(in_array($value, $Session->attribute_list[$attribute_name]['allowed_values'])) {
-                                                    $Modify_entry_to_commit[$attribute_name]=$value; 
-                                                }
-                                            }
-                                            else if($Session->attribute_list[$attribute_name]['type'] == "textarea"|"textline"|"hidden"|"date") {
-                                                $Modify_entry_to_commit[$attribute_name]=$value; 
-                                            }
-                                            else{
-         
-                                            }
-                                        }
-                                         
-                                    }
-                                    else{
-                                        //is not a currently acccepted column
-                                    }
-                                }
-                                $Session->Commited_Modify_Entires[$hidden_email_key] = $Modify_entry_to_commit;
-                            }
-                        }
-                        else{
-                            //skip this email , not included
-                        }
-                    }
-                }
+                
+                Build_Modify_Entry_Email_List();
             }
         }
 
