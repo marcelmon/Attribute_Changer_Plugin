@@ -56,73 +56,48 @@ else if(isset($_POST['submit']['File_Column_Match_Submit'])) {
         asort($_POST['attribute_to_match'], SORT_NUMERIC);
         //so that the columns are matched, easier to read the file from comma to comma
         $fp = fopen($FILE_LOCATION, 'r');
-        $current_char;
-        while(($current_char = fread($fp, 1)) !== '\n' && !feof($fp)) {
-            //skip the first row as this is just the csv defined column name
-        }
+
+        $first_line = fgets($fp);
         if(feof($fp)) {
             //....only 1 line whhaaat
         }
+        $number_columns = count(explode(',',$first_line));
 
         $file_attribute_value_array = array();
 
         $current_block = '';
         $lines = array();
 
-        $is_first = 1;
-
-        $previous_last_line = '';
-
 
         while(!feof($fp)) {
             //read 10kb at a time
-            $current_block = fread($fp, 10260);
-            $lines = explode('\n', $current_block);
 
-            //if this is not the first pass, merge the last previous line
-            if($is_first == 0) {
-                $lines[0] = $previous_last_line.$lines[0];
+            $current_line_csv = fgetcsv($fp);
+
+            if(count($current_line_csv) != $number_columns) {
+
+                //SOME WEIRD ERROR, CHECK EOF
             }
 
-            $previous_last_line = $lines[count($lines)-1];
-            
-            //last line is merged with next first line
-            for ($i=0 ; $i < count($lines) - 1 ; $i++) { 
 
-                $file_attribute_value_array = explode(',', $lines[$i]);
+            $new_attribute_value_array = array();
 
-                if(count($file_attribute_value_array) > 0 && $file_attribute_value_array[0] != '') {
-
-                    $new_attribute_value_array = array();
-
-                    foreach ($_POST['attribute_to_match'] as $col_number => $attribute_name) {
-                        if(isset($file_attribute_value_array[$col_number]) && $file_attribute_value_array[$col_number] != '') {
-                            $new_attribute_value_array[$attribute_name] = $file_attribute_value_array[$col_number];
-                        }
+            foreach ($_POST['attribute_to_match'] as $attribute_id => $col_number) {
+                if(isset($current_line_csv[$col_number]) && $current_line_csv[$col_number] != '') {
+                    if($attribute_id === 'email') {
+                        $new_attribute_value_array[$attribute_id] = $current_line_csv[$col_number];
                     }
-                    if(isset($new_attribute_value_array['email'])) {
-                         $attribute_changer->Test_Entry($new_attribute_value_array);
-                    } 
+                    else if($Session->attribute_list[$attribute_id]['type'] === "radio"|"checkboxgroup"|"select"|"checkbox") {
+                        $new_attribute_value_array[$attribute_id] = explode(',', $current_line_csv[$col_number]);
+                    }
+
+                    else {
+                        $new_attribute_value_array[$attribute_id] = $current_line_csv[$col_number];
+                    }
                 }
- 
             }
-        }
-        if($previous_last_line != '') {
-            $file_attribute_value_array = explode(',', $previous_last_line);
-            
-
-            if(count($file_attribute_value_array)> 0 && $file_attribute_value_array[0] != '') {
-
-                $new_attribute_value_array = array();
-
-                foreach ($_POST['attribute_to_match'] as $col_number => $attribute_name) {
-                    if(isset($file_attribute_value_array[$col_number]) && $file_attribute_value_array[$col_number] != '') {
-                        $new_attribute_value_array[$attribute_name] = $file_attribute_value_array[$col_number];
-                    }
-                }
-                if(isset($new_attribute_value_array['email'])) {
-                     $attribute_changer->Test_Entry($new_attribute_value_array);
-                } 
+            if(isset($new_attribute_value_array['email'])) {
+                $attribute_changer->Test_Entry($new_attribute_value_array);
             }
         }
 

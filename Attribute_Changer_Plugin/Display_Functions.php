@@ -19,7 +19,10 @@
         }
 
         $column_match_return_string = '';
-        $fp = fopen($Current_Session->file_location, 'r');
+        $fp = fopen($Session->file_location, 'r');
+        if(!$fp) {
+            return "ERRORORORO FILE POINTER BAD";
+        }
 
         $columns = array();
         $current_word = '';
@@ -28,17 +31,37 @@
         $first_block = '';
 
         while(!feof($fp)) {
-            $first_block = $first_block.fread($fp, 4056);
-            if(substr_count($first_block, '\n') >= 10) {
+            $first_line = fgets($fp);
+        }
+        if(feof($fp)) {
+            fclose($fp);
+            return 'error no values set';
+        }
+
+        $columns = explode(',', $first_line);
+        $current_row = 0;
+
+        while($current_row < 10) {
+            $first_few_rows[$current_row] = fgets($fp);
+            
+            if(substr($first_few_rows[$current_row], -1) === '\n') {
+                substr_replace($first_few_rows[$current_row], "", -1);
+            }
+
+     
+            if(feof($fp){
+                if(count(explode(',', $first_few_rows[--$current_row])) <  count($columns)) {
+                    if($current_row == 0) {
+                        return "ERROR, THERE EXISTS ONLY ONE CSV LINE, AND IT IS WITHOUT ENOUGH COLUMNS";
+                    }
+                    unset($first_few_rows[$current_row]);
+                }
                 break;
             }
+            $current_row++;
+
         }
-        fclose($fp);
-        $first_few_rows = explode('\n', $first_block);
 
-        $columns = explode(',', $first_few_rows[0]);
-
-        $current_row;
         $number_of_rows = 10;
         if(count($first_few_rows) < 10) {
             $number_of_rows = count($first_few_rows);
@@ -57,8 +80,8 @@
         foreach ($columns as $column_key => $column_value) {
             $cell_string = sprintf('<td> Set : %s  to : <br>', $column_value);
 
-            foreach ($Session->attribute_list as $attribute_name => $attribute_info) {
-                $cell_string = $cell_string.sprintf('<input type="radio" name="attribute_to_match[%s]" value="%d" class="%s"><br>', $attribute_name, $column_key, $column_value);
+            foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
+                $cell_string = $cell_string.sprintf('<input type="radio" name="attribute_to_match[%d]" value="%d" class="%s"><br>', $attribute_id, $column_key, $column_value);
             }
             $cell_string = $cell_string.sprintf('<input type="radio" name="attribute_to_match[%s]" value="%d" class="%s"><br>', 'email', $column_key, "email_class");
 
@@ -93,17 +116,17 @@
         $HTML_table_row = sprintf('<tr><td>EMAIL<br><input type="button" id="New_Entry_Include_All_Emails" name="New_Entry_Include_All_Emails" value="Include All Emails" onClick="checkAll_NewEntry_Emails()"></input>');
         $HTML_table_row = $HTML_table_row.sprintf('<input type="button" id="New_Entry_Remove_All_Emails" name="New_Entry_Include_Remove_Emails" value="Remove All Emails" onClick="removeAll_NewEntry_Emails()"></input></td>');
 
-        foreach ($Session->attribute_list as $attribute_name => $attribute_info) {
-            $HTML_table_row = $HTML_table_row.sprintf('<td>Attribute: %s<br><input type="checkbox" name="New_Entry_Attribute_Column_Select[%s]" value="checked">Include This Attribute</input>',$attribute_name, $attribute_name);
+        foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
+            $HTML_table_row = $HTML_table_row.sprintf('<td>Attribute: %s<br><input type="checkbox" name="New_Entry_Attribute_Column_Select[%s]" value="checked">Include This Attribute</input>', $attribute_info['name'], $attribute_id);
             if($attribute_info['type'] === 'checkboxgroup') {
-                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Include_All_Checkboxgroup_%s" id="New_Entry_Include_All_Checkboxgroup_%s" value="Include All Checkboxgroup Values" onClick="checkAll_NewEntry_CheckboxGroup(\'%s\')"></input>', $attribute_name, $attribute_name, $attribute_name);
-                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Remove_All_Checkboxgroup_%s" id=="New_Entry_Remove_All_Checkboxgroup_%s" value="Remove All Checkboxgroup Values" onClick="removeAll_NewEntry_CheckboxGroup(\'%s\')"></input>', $attribute_name, $attribute_name, $attribute_name);
+                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Include_All_Checkboxgroup_%s" id="New_Entry_Include_All_Checkboxgroup_%s" value="Include All Checkboxgroup Values" onClick="checkAll_NewEntry_CheckboxGroup(\'%s\')"></input>', $attribute_id, $attribute_id, $attribute_id);
+                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Remove_All_Checkboxgroup_%s" id=="New_Entry_Remove_All_Checkboxgroup_%s" value="Remove All Checkboxgroup Values" onClick="removeAll_NewEntry_CheckboxGroup(\'%s\')"></input>', $attribute_id, $attribute_id, $attribute_id);
             }
             else{
-                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Include_All_Safe_Values_%s" value="Include All Safe Values" onClick="checkAll_NewEntry_SafeValues(\'%s\')"></input></td>', $attribute_name, $attribute_name);
-                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Include_All_Safe_Values_Or_Checked_%s" value="Include All Safe Values Or Checked" onClick="checkAll_NewEntry_SafeValues_OrChecked(\'%s\')"></input></td>', $attribute_name, $attribute_name);
-                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Remove_All_Safe_Values_%s" value="Remove All Safe Values" onClick="removeAll_NewEntry_SafeValues(\'%s\')"></input></td>', $attribute_name, $attribute_name);
-                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Remove_All_Safe_Values_Or_Checked_%s" value="Remove All Safe Values Or Checked" onClick="removeAll_NewEntry_SafeValues_OrChecked(\'%s\')"></input></td>', $attribute_name, $attribute_name);
+                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Include_All_Safe_Values_%s" value="Include All Safe Values" onClick="checkAll_NewEntry_SafeValues(\'%s\')"></input></td>', $attribute_id, $attribute_id);
+                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Include_All_Safe_Values_Or_Checked_%s" value="Include All Safe Values Or Checked" onClick="checkAll_NewEntry_SafeValues_OrChecked(\'%s\')"></input></td>', $attribute_id, $attribute_id);
+                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Remove_All_Safe_Values_%s" value="Remove All Safe Values" onClick="removeAll_NewEntry_SafeValues(\'%s\')"></input></td>', $attribute_id, $attribute_id);
+                $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="New_Entry_Remove_All_Safe_Values_Or_Checked_%s" value="Remove All Safe Values Or Checked" onClick="removeAll_NewEntry_SafeValues_OrChecked(\'%s\')"></input></td>', $attribute_ide, $attribute_id);
             }
         }
         $HTML_Display_Text = $HTML_Display_Text.$HTML_table_row.'</tr>';

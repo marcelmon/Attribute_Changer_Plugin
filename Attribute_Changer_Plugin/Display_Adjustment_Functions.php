@@ -8,6 +8,7 @@
         }
 
         $Session->Commited_New_Entires = array();
+        ksort($Session->New_Entry_List);
 
         $Session->Current_New_Entries_Display_Amount = 100;
         $Session->New_Entries_Total_Amount = count($Session->New_Entry_List);
@@ -62,7 +63,7 @@
         if(count($Session->Modify_Entry_List == 0)) {
             return null; 
         }
-
+        ksort($Session->Modify_Entry_List);
         $Session->Commited_Modify_Entries = array();
 
         $Session->Current_Modify_Entries_Display_Amount = 100;

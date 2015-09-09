@@ -16,7 +16,7 @@ $javascript_src = dirname(__FILE__) . '/Attribute_Changer_PLugin/Script_For_Attr
 $page_print =  '
 <div>Attribute Changer</div>
 <div id="error_printing"></div>
-<form action="upload_file.php" method="post" enctype="multipart/form-data" id="file_upload_form">
+<form action="Upload_File_Processor.php" method="post" enctype="multipart/form-data" id="file_upload_form">
     Select file to upload:
     (must be comma separated text)
     <input type="file" name="attribute_changer_file_to_upload" id="attribute_changer_file_to_upload">
