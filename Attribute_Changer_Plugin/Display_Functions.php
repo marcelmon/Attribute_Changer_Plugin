@@ -107,17 +107,18 @@
 
     function Get_New_Entry_Email_Block($email_key) {
         if(isset($Session->Commited_New_Entires[$email_key]) {
-            $HTML_table_row = sprintf('<tr><td>%s<br><input type="checkbox" class="New_Entry_Email" name="New_Entry_List[%s][\'include\']" value="include" checked>Include This Email</input><input type="hidden" name="Hidden_New_Entry_List[%s]" value="submitted"></td>',$email_key, $email_key, $email_key);
+            $HTML_table_row = sprintf('%s<br><input type="checkbox" class="New_Entry_Email" name="New_Entry_List[%s][\'include\']" value="include" checked>Include This Email</input><input type="hidden" name="Hidden_New_Entry_List[%s]" value="submitted">',$email_key, $email_key, $email_key);
         }
         else{
-            $HTML_table_row = sprintf('<tr><td>%s<br><input type="checkbox" class="New_Entry_Email" name="New_Entry_List[%s][\'include\']" value="include">Include This Email</input><input type="hidden" name="Hidden_New_Entry_List[%s]" value="submitted"></td>',$email_key, $email_key, $email_key);
-        }        
+            $HTML_table_row = sprintf('%s<br><input type="checkbox" class="New_Entry_Email" name="New_Entry_List[%s][\'include\']" value="include">Include This Email</input><input type="hidden" name="Hidden_New_Entry_List[%s]" value="submitted">',$email_key, $email_key, $email_key);
+        }
+        return $HTML_table_row;        
     }
 
     function Get_New_Entry_Attribute_Block($email_key, $attribute_id) {
-        $text= '<td>';
+        $text= '';
         if(!isset($Session->New_Entry_List[$email_key][$attribute_id]) || count($Session->New_Entry_List[$email_key][$attribute_id]) == 0) {
-            return $text.'</td>';
+            return $text;
         }
         foreach ($Session->New_Entry_List[$email_key][$attribute_id] as $numkey => $attribute_value) {
 
@@ -138,10 +139,10 @@
                     else{
                         //else not yet selected so just create the input
                         if($numkey == 0) {
-                            $HTML_attribute_value_input = sprintf('<input type="radio" class="New_Entry_Safe_Value_Attribute_%s" name=$Session->"New_Entry_List[%s][%s]" value="%s">%s</input>', $attribute_id, $email_key, $attribute_id, $attribute_value, $attribute_value);
+                            $HTML_attribute_value_input = sprintf('<input type="radio" class="New_Entry_Safe_Value_Attribute_%s" name="New_Entry_List[%s][%s]" value="%s">%s</input>', $attribute_id, $email_key, $attribute_id, $attribute_value, $attribute_value);
                         }
                         else{
-                            $HTML_attribute_value_input = sprintf('<input type="radio" name=$Session->"New_Entry_List[%s][%s]" value="%s">%s</input>', $email_key, $attribute_id, $attribute_value, $attribute_value);
+                            $HTML_attribute_value_input = sprintf('<input type="radio" name="New_Entry_List[%s][%s]" value="%s">%s</input>', $email_key, $attribute_id, $attribute_value, $attribute_value);
                         }
                     }
                     $HTML_table_row= $HTML_table_row.$HTML_attribute_value_input.'<br>';
@@ -187,19 +188,14 @@
             $text = $text.$HTML_table_row;
 
         }
-        return $text.'</td>';
+        return $text;
     }
                 
             
         
         
 
-    }
-
-    function Get_New_Entry_Table_Block() {
-        
-        $Current_New_Entry_Block = array_slice($Session->New_Entry_List, $Session->Current_New_Entry_Block_Number*$Session->Current_New_Entries_Display_Amount, $Session->Current_New_Entries_Display_Amount);
-
+    function Get_New_Entry_Table_And_Top_Row() {
         $HTML_Display_Text = sprintf('<form name="New_Entry_Submit_Form_Block__%d" action="%s" method="post"><input type="hidden" name="New_Entry_Form_Submitted" value="submitted">', $Session->Current_New_Entry_Block_Number, 'New_And_Modify_Entry_Table_Display.php');
         $HTML_Display_Text = $HTML_Display_Text.sprintf('<table id="New_User_Attribute_Select_Table_Block__%d">', $Session->Current_New_Entry_Block_Number);
         $HTML_table_row = sprintf('<tr><td>EMAIL<br><input type="button" id="New_Entry_Include_All_Emails" name="New_Entry_Include_All_Emails" value="Include All Emails" onClick="checkAll_NewEntry_Emails()"></input>');
@@ -219,19 +215,34 @@
             }
         }
         $HTML_Display_Text = $HTML_Display_Text.$HTML_table_row.'</tr>';
+        return $HTML_Display_Text;
+    }
+
+    function Get_New_Entry_Table_Block() {
+        
+        $Current_New_Entry_Block = array_slice($Session->New_Entry_List, $Session->Current_New_Entry_Block_Number*$Session->Current_New_Entries_Display_Amount, $Session->Current_New_Entries_Display_Amount);
+
+        $HTML_Display_Text = Get_New_Entry_Table_And_Top_Row();
+
         foreach ($Current_New_Entry_Block as $email_key => $new_user_attributes_and_values) {
 
-            $HTML_table_row = $HTML_table_row.Get_New_Entry_Email_Block($email_key);
+            $HTML_table_row = '<tr><td>'.Get_New_Entry_Email_Block($email_key).'</td>';
 
             foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
 
-                $HTML_table_row = $HTML_table_row.Get_New_Entry_Attribute_Block($email_key, $attribute_id);
+                $HTML_table_row = $HTML_table_row.'<td>'.Get_New_Entry_Attribute_Block($email_key, $attribute_id).'</td>';
             }
             $HTML_Display_Text = $HTML_Display_Text.$HTML_table_row.'</tr>';
              
         }
 
-        $HTML_Display_Text = $HTML_Display_Text.'</table>';
+        $HTML_Display_Text = $HTML_Display_Text.'</table>'.Get_New_Entry_Table_Navigation_Buttons();
+
+        return $HTML_Display_Text;
+    }
+
+
+    function Get_New_Entry_Table_Navigation_Buttons () {
         $HTML_submit_buttons = '<input type="submit" name="New_Entries_Table_Submit_All" value="New_Entries_Table_Submit_All"></input>';
         if($Session->Current_New_Entry_Block_Number > 0) {
             $HTML_submit_buttons = $HTML_submit_buttons.'<input type="submit" name="value="New_Entries_Table_Previous_Page" value="New_Entries_Table_Previous_Page"></input>';
@@ -252,13 +263,12 @@
                 $HTML_Display_Size_Submit = '<select name="New_Entries_New_Display_Amount"><option value="10">10</option><option value="100">100</option><option value="1000">1000</option><option value="10000">10000</option><option value="all" checked>all</option>';
         }
         $HTML_Display_Size_Submit = $HTML_Display_Size_Submit.'<input type="submit" name="New_Entry_Change_Display_Amount" value="New_Entry_Change_Display_Amount"></input>';
-        $HTML_Display_Text = $HTML_Display_Text.$HTML_submit_buttons.$HTML_Display_Size_Submit.'</form>';
+        $HTML_Table_Navigation = $HTML_submit_buttons.$HTML_Display_Size_Submit.'</form>';
         $HTML_current_table_info = sprintf("<div>Current Block : %d of %d. Displaying %d entires per page.</div>", $Session->Current_New_Entry_Block_Number+1, $Session->New_Entires_Number_Of_Blocks, $Session->Current_New_Entries_Display_Amount);
-        $HTML_Display_Text = $HTML_Display_Text.$HTML_current_table_info;
-        return $HTML_Display_Text;
+        $HTML_Table_Navigation = $HTML_Table_Navigation.$HTML_current_table_info;
+
+        return $HTML_Table_Navigation;
     }
-
-
 
     function Get_Modify_Email_Block($email_key) {
         $HTML_table_row = '<td>';
@@ -267,7 +277,7 @@
         }
          
         if(isset($Commited_Modify_Entries[$email_key])) {
-            $HTML_table_row = $HTML_table_row.sprintf('<tr><td>%s<br><input type="checkbox" class="Modify_Entry_Email" name="Modify_Entry_List[%s][\'include\']" value="include" checked>Include This Email</input><input type="hidden" name="Hidden$Session->_Modify_Entry_List[%s]" value="submitted"></td>',$email_key, $email_key, $email_key);
+            $HTML_table_row = $HTML_table_row.sprintf('<tr><td>%s<br><input type="checkbox" class="Modify_Entry_Email" name="Modify_Entry_List[%s][\'include\']" value="include" checked>Include This Email</input><input type="hidden" name="Hidden_Modify_Entry_List[%s]" value="submitted"></td>',$email_key, $email_key, $email_key);
         }
         else{
             $HTML_table_row = $HTML_table_row.sprintf('<tr><td>%s<br><input type="checkbox" class="Modify_Entry_Email" name="Modify_Entry_List[%s][\'include\']" value="include">Include This Email</input><input type="hidden" name="Hidden$Session->_Modify_Entry_List[%s]" value="submitted"></td>',$email_key, $email_key, $email_key);
@@ -340,16 +350,17 @@
         }
     }
 
-    function Get_Modify_Entry_Table_Block() {
-        $Current_Modify_Entry_Block = array_slice($Session->Modify_Entry_List, $Session->Current_Modify_Entry_Block_Number*$Session->Current_Modify_Entries_Display_Amount, $Session->Current_Modify_Entries_Display_Amount);
-        $HTML_Display_Text = sprintf('<form name="Modify_Entry_Submit_Form_Block__%d" action="%s" method="post"><input type="hidden" name="Modify_Entry_Form_Submitted" value="submitted">', $Session->Current_Modify_Entry_Block_Number, 'New_And_Modify_Entry_Table_Display.php');
-        $HTML_Display_Text = $HTML_Display_Text.sprintf('<table id="Modify_User_Attribute_Select_Table_Block__%d">', $Session->Current_Modify_Entry_Block_Number);
+    function Get_Modify_Table_Header() {
+        $HTML_Modify_Table_Header = sprintf('<form name="Modify_Entry_Submit_Form_Block__%d" action="%s" method="post"><input type="hidden" name="Modify_Entry_Form_Submitted" value="submitted">', $Session->Current_Modify_Entry_Block_Number, 'New_And_Modify_Entry_Table_Display.php');
+        $HTML_Modify_Table_Header = $HTML_Modify_Table_Header.sprintf('<table id="Modify_User_Attribute_Select_Table_Block__%d">', $Session->Current_Modify_Entry_Block_Number);
 
         $HTML_table_row = sprintf('<tr><td>EMAIL<br><input type="button" id="Modify_Entry_Include_All_Emails" name="Modify_Entry_Include_All_Emails" value="Include All Emails" onClick="checkAll_ModifyEntry_Emails()"></input>');
         $HTML_table_row = $HTML_table_row.sprintf('<input type="button" id="Modify_Entry_Remove_All_Emails" name="Modify_Entry_Remove_All_Emails" value="Remove All Emails" onClick="removeAll_ModifyEntry_Emails()"></input></td>');
 
-        foreach ($Session->attribute_list as $attribute_name => $attribute_info) {
-            $HTML_table_row = $HTML_table_row.sprintf('<td>%s<input type="checkbox" name="Modify_Entry_Attribute_Column_Select[%s]" value="checked">',$attribute_id, $attribute_id);
+        $HTML_Modify_Table_Header = $HTML_Display_Text.$HTML_table_row;
+
+        foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
+            $HTML_table_row = sprintf('<td>%s<input type="checkbox" name="Modify_Entry_Attribute_Column_Select[%s]" value="checked">',$attribute_id, $attribute_id);
             if($attribute_info['type'] === 'checkboxgroup') {
                 $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="Modify_Entry_Include_All_Checkboxgroup_%s" value="Include All Checkboxgroup Values" onClick="checkAll_ModifyEntry_CheckboxGroup(\'%s\')"></input>', $attribute_id, $attribute_name);
                 $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="Modify_Entry_Remove_All_Checkboxgroup_%s" value="Remove All Checkboxgroup Values" onClick="removeAll_ModifyEntry_CheckboxGroup(\'%s\')"></input></td>', $attribute_id, $attribute_id);
@@ -358,37 +369,21 @@
                 $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="Modify_Entry_Include_All_Safe_Values_%s" value="Include All Safe Values" onClick="checkAll_ModifyEntry_SafeValues(\'%s\')></input>', $attribute_id, $attribute_id);
                 $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="Modify_Entry_Remove_All_Safe_Values_%s" value="Remove All Safe Values" onClick="removeAll_ModifyEntry_SafeValues(\'%s\')></input></td>', $attribute_id, $attribute_id);
             }
+            $HTML_Modify_Table_Header = $HTML_Modify_Table_Header.$HTML_table_row;
         }
-        $HTML_Display_Text = $HTML_Display_Text.$HTML_table_row.'</tr>';
+        return $HTML_Modify_Table_Header;
 
-        foreach ($Current_Modify_Entry_Block as $email_key => $modify_user_attributes_and_values) {
-            
+        
+    }
 
-            $HTML_table_row = '<tr><td>'.Get_Modify_Email_Block($email_key).'</td>';
+    function Get_Modify_Table_Navigation_Buttons() {
 
-            //first foreach is for current set vals
-            foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
-                $HTML_table_row = $HTML_table_row.'<td>';
-
-                $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Block_Current_Values($email_key, $attribute_id);
-                if($attribute_info['type'] === 'checkboxgroup') {
-                    $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Value_Display_Checkboxgroup_New_Vals($email_key, $attribute_id);
-                }
-                else{
-                    $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Value_Display_Other_Type_New_Vals($email_key, $attribute_id);
-                }
-                $HTML_table_row = $HTML_table_row.'</td>';
-            }
-            $HTML_table_row = $HTML_table_row .'</tr>';
-        }
-
-        $HTML_Display_Text = $HTML_Display_Text.'</table>';
-        $HTML_submit_buttons = '<input type="submit" name ="Modify_Entries_Table_Submit_all" value="Submit_all">Submit_all</input>';
+        $HTML_Navigation = '<input type="submit" name ="Modify_Entries_Table_Submit_all" value="Submit_all">Submit_all</input>';
         if($Session->Current_New_Entry_Block_Number > 0) {
-            $HTML_submit_buttons = $HTML_submit_buttons.'<input type="submit" name ="Modify_Entries_Table_Previous_Page" value="Modify_Entries_Table_Previous_Page"></input>';
+            $HTML_Navigation = $HTML_Navigation.'<input type="submit" name ="Modify_Entries_Table_Previous_Page" value="Modify_Entries_Table_Previous_Page"></input>';
         }
         if($Session->Current_New_Entry_Block_Number < $Session->New_Entires_Number_Of_Blocks - 1) {
-            $HTML_submit_buttons = $HTML_submit_buttons.'<input type="submit" name ="Modify_Entries_Table_Next_Page" value="Modify_Entries_Table_Next_Page"></input>';
+            $HTML_Navigation = $HTML_Navigation.'<input type="submit" name ="Modify_Entries_Table_Next_Page" value="Modify_Entries_Table_Next_Page"></input>';
         }
         switch($Session->Current_Modify_Entries_Display_Amount){
             case 10:
@@ -405,9 +400,35 @@
 
         }
         $HTML_Display_Size_Submit = $HTML_Display_Size_Submit.'<input type="submit" name="New_Entry_Change_Display_Amount" value="New_Entry_Change_Display_Amount"></input>';
-        $HTML_Display_Text = $HTML_Display_Text.$HTML_submit_buttons.$HTML_Display_Size_Submit.'</form>';
+        $HTML_Navigation = $HTML_Navigation.$HTML_Display_Size_Submit.'</form>';
         $HTML_current_table_info = sprintf("<div>Current Block : %d of %d. Displaying %d entires per page.</div>", $Session->Current_Modify_Entry_Block_Number+1, $Session->Modify_Entires_Number_Of_Blocks, $Session->Current_Modify_Entries_Display_Amount);
-        $HTML_Display_Text = $HTML_Display_Text.$HTML_current_table_info;
+        $HTML_Navigation = $HTML_Navigation.$HTML_current_table_info;
+    }
+
+    function Get_Modify_Entry_Table_Block() {
+        $Current_Modify_Entry_Block = array_slice($Session->Modify_Entry_List, $Session->Current_Modify_Entry_Block_Number*$Session->Current_Modify_Entries_Display_Amount, $Session->Current_Modify_Entries_Display_Amount);
+
+        $HTML_Display_Text = Get_Modify_Table_Header().'</tr>';
+
+        foreach ($Current_Modify_Entry_Block as $email_key => $modify_user_attributes_and_values) {
+        
+            $HTML_table_row = '<tr><td>'.Get_Modify_Email_Block($email_key).'</td>';
+
+            foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
+                $HTML_table_row = $HTML_table_row.'<td>';
+
+                $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Block_Current_Values($email_key, $attribute_id);
+                if($attribute_info['type'] === 'checkboxgroup') {
+                    $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Value_Display_Checkboxgroup_New_Vals($email_key, $attribute_id);
+                }
+                else{
+                    $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Value_Display_Other_Type_New_Vals($email_key, $attribute_id);
+                }
+                $HTML_table_row = $HTML_table_row.'</td>';
+            }
+            $HTML_table_row = $HTML_table_row .'</tr>';
+        }
+        $HTML_Display_Text = $HTML_Display_Text.'</table>'.Get_Modify_Table_Navigation_Buttons();
         return $HTML_Display_Text;
     }
 
@@ -428,7 +449,6 @@
                 else{
                     $HTML_attribute_value_input = sprintf('<input type="checkbox" class="Modify_Entry_Checkbox_Value_Attribute_%s" name="Modify_Entry_List[%s][%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $checkbox_value_id, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$checkbox_value_id]);
                 }
-
             }
             else{
                 $HTML_attribute_value_input = sprintf('<input type="checkbox" class="Modify_Entry_Checkbox_Value_Attribute_%s" name="Modify_Entry_List[%s][%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $checkbox_value_id, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$checkbox_value_id]);
