@@ -1,6 +1,3 @@
-
-<script>
-
     function Clear_Column_Select(column_class) {
         var column_radios = document.getElementsByClassName(column_class);
         for(i=0; i<column_radios.length; i++) {
@@ -241,5 +238,3 @@
             }
         }
     }
-
-</script>
