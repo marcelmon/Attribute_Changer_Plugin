@@ -7,7 +7,7 @@
 	function Get_Attribute_File_Column_Match() {
 		
 		$attribute_changer = $GLOBALS['plugins']['AttributeChangerPlugin'];
-
+		
         //multiple per column as ,"val, val, val",
         if($attribute_changer->Current_Session == null) {
             return "ERROR NO CURRENT SESSION";
@@ -85,7 +85,7 @@
             foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
                 $cell_string = $cell_string.sprintf('<input type="radio" name="attribute_to_match[%d]" value="%d" class="%s">%s<br>', $attribute_id, $column_key, $column_value, $Session->attribute_list[$attribute_id]['name']);
             }
-            $cell_string = $cell_string.sprintf('<input type="radio" name="attribute_to_match[%s]" value="%d" class="%s">%s<br>', 'email', $column_key, "email_class", "email");
+            $cell_string = $cell_string.sprintf('<input type="radio" name="attribute_to_match[%s]" value="%d" class="%s">%s<br>', 'email', $column_key, $column_value, "email");
 
             $cell_string = $cell_string.sprintf('<input type="button" id="clear_%s" value="Clear Column" onClick="Clear_Column_Select(\'%s\')"', $column_value, $column_value);
             $column_match_return_string = $column_match_return_string.$cell_string.'</td>';

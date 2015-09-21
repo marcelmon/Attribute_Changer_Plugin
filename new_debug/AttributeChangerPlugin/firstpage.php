@@ -61,7 +61,7 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
     $uploadOk = 1;
     $new_file_type = pathinfo($target_file,PATHINFO_EXTENSION);
 
-    $new_html = '<html><body>';
+    $new_html = '<html><body><script src="'.$javascript_src.'"></script>';
     // Check if file already exists
     if (file_exists($target_file)) {
 
@@ -123,8 +123,118 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
     }
 
     $new_html = $new_html.'</body></html>';
-    print($new_html);
 
+    $session_s = serialize($Current_Session);
+
+    print_r($session_s);
+
+    $truncate_query = sprintf("truncate table %s", $attribute_changer->attribute_changer_tablename);
+
+    Sql_Query($truncate_query);
+
+    $serialize_insert_query = sprintf("insert into %s (value) values ('%s')", $attribute_changer->attribute_changer_tablename, $session_s);
+    Sql_Query($serialize_insert_query);
+
+    print($new_html);
+}
+
+if(isset($_POST['File_Column_Match_Submit'])) {
+    if(!isset($_POST['attribute_to_match'])) {
+        //shouldnt happen .... else user needs to be WARNEDDDDD
+        print("SHITITITIT");
+    }
+
+    $retrieve_serialized_query = sprintf("select * from %s", $attribute_changer->attribute_changer_tablename);
+    $retreive_s_return = Sql_Query($retrieve_serialized_query);
+
+    if(!$retrieve_s_return) {
+        print("ERROR NO STORED SESSION");
+        die();
+    }
+    $returned_result = Sql_Fetch_Assoc($retrieve_s_return);
+    if(!isset($returned_result['value'])) {
+        print("ERROR Improperly stored value data");
+        die();
+    }
+    $serialized_session = $returned_result['value'];
+
+    $attribute_changer->Current_Session = unserialize($serialized_session);
+    print("<br>arararar<br>");
+    print_r($attribute_changer->Current_Session);
+
+    // else if(!isset($_POST['attribute_to_match']['email'])) {
+
+    //     //this can be done in JS
+    //     $display_html = "<html><body>no email column selected</body></html>";
+    // }
+    // else{
+    //     $FILE_LOCATION = $GLOBALS['plugins']['Attribute_Changer_Plugin']->$Current_Session->Get_File_Location();
+
+    //     asort($_POST['attribute_to_match'], SORT_NUMERIC);
+    //     //so that the columns are matched, easier to read the file from comma to comma
+    //     $fp = fopen($FILE_LOCATION, 'r');
+
+    //     $first_line = fgets($fp);
+    //     if(feof($fp)) {
+    //         //....only 1 line whhaaat
+    //     }
+    //     $number_columns = count(explode(',',$first_line));
+
+    //     $file_attribute_value_array = array();
+
+    //     $current_block = '';
+    //     $lines = array();
+
+
+    //     while(!feof($fp)) {
+    //         //read 10kb at a time
+
+    //         $current_line_csv = fgetcsv($fp);
+
+    //         if(count($current_line_csv) != $number_columns) {
+
+    //             //SOME WEIRD ERROR, CHECK EOF
+    //         }
+
+
+    //         $new_attribute_value_array = array();
+
+    //         foreach ($_POST['attribute_to_match'] as $attribute_id => $col_number) {
+    //             if(isset($current_line_csv[$col_number]) && $current_line_csv[$col_number] != '') {
+    //                 if($attribute_id === 'email') {
+    //                     $new_attribute_value_array[$attribute_id] = $current_line_csv[$col_number];
+    //                 }
+    //                 else if($Session->attribute_list[$attribute_id]['type'] === "radio"|"checkboxgroup"|"select"|"checkbox") {
+    //                     $new_attribute_value_array[$attribute_id] = explode(',', $current_line_csv[$col_number]);
+    //                 }
+
+    //                 else {
+    //                     $new_attribute_value_array[$attribute_id] = $current_line_csv[$col_number];
+    //                 }
+    //             }
+    //         }
+    //         if(isset($new_attribute_value_array['email'])) {
+    //             $attribute_changer->Test_Entry($new_attribute_value_array);
+    //         }
+    //     }
+
+    //     fclose($fp);
+    //     $display_html ='<html><body>';
+    //     $new_entry_table_html = '';
+    //     if(Initialize_New_Entries_Display()!=null) {
+    //         $display_html = $display_html.Get_New_Entry_Table_Block().'</body></html>';
+    //     }
+    //     else{
+    //         if(Initialize_Modify_Entries_Display()!=null) {
+    //             $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
+    //         }
+    //         else{
+    //             $display_html = $display_html.'There is nothing new or to modify</body></html>'
+    //         }
+    //     }
+    // }
+
+    // print($display_html);
 }
 
 ?>

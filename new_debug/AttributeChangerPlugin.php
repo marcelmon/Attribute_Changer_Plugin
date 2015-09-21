@@ -22,13 +22,16 @@ class AttributeChangerPlugin extends phplistPlugin {
 
 	public $Current_Session = null;
 
+	public $attribute_changer_tablename;
 
     function __construct()
     {
         parent::__construct();
 
        	$this->coderoot = PLUGIN_ROOTDIR.'/AttributeChangerPlugin/';
-        require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');        
+        require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');   
+
+        $this->attribute_changer_tablename = $GLOBALS['table_prefix'].'plugins_attribute_changer_plugin';     
 		// $this->sessions = array();
 		// $this->session_increment = 1;
     }
@@ -41,8 +44,27 @@ class AttributeChangerPlugin extends phplistPlugin {
 		print('something');
 	}
 
-    function New_Session() {
+//SAME AS admintoken struct expect missing entered and expires
+	public $attribute_changer_table_structure = array(
+        "id" => array("integer not null primary key auto_increment","ID"),
+        "adminid" => array("integer not null","adminid"),
+        "value" => array('varchar(255)',''),
+      );
 
+
+
+    function New_Session() {
+    	
+    	$test_table_return = Sql_Table_exists($this->attribute_changer_tablename);
+
+    	if(!isset($test_table_return) || $test_table_return < 1 ) {
+
+    		if( (Sql_create_Table($this->attribute_changer_tablename, $this->attribute_changer_table_structure)) === false) {
+    			print("ERROR CREATING ATTRIBUTE CHANGER PLUGIN TABLE");
+    			die();
+    		}
+
+    	}
         if($this->Current_Session != null) {
 			
             if(!empty($this->Current_Session->file_location)) {

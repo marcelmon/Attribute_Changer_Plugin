@@ -1,7 +1,8 @@
     function Clear_Column_Select(column_class) {
         var column_radios = document.getElementsByClassName(column_class);
+        var i;
         for(i=0; i<column_radios.length; i++) {
-            column_radios.checked = false;
+            column_radios[i].checked = false;
         }
     }
 
