@@ -6,6 +6,8 @@ if ($GLOBALS["commandline"]) {
  echo 'not to oppened by command line';
  die();
 }
+require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');
+require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
 
 $javascript_src = 'plugins/AttributeChangerPlugin/Script_For_Attribute_Changer.js';
 $attribute_changer = $GLOBALS['plugins']['AttributeChangerPlugin'];
@@ -47,24 +49,32 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
     }
 
 //HERE HAVE A CHECK FOR GOOD SETUP
-    $attribute_changer->New_Session();
-    //print_r($attribute_changer->Current_Session);
+    $Current_Session = $attribute_changer->New_Session();
+    //print_r($Current_Session);
     
 
 
     $target_dir = $attribute_changer->coderoot.'temp_table_uploads/';
+
     $target_file = $target_dir . basename($_FILES["attribute_changer_file_to_upload"]["name"]);
+
     $uploadOk = 1;
     $new_file_type = pathinfo($target_file,PATHINFO_EXTENSION);
 
     $new_html = '<html><body>';
     // Check if file already exists
     if (file_exists($target_file)) {
-        while(file_exists( ($target_file = $target_file.strval(rand(0,100))))){
 
+        while(file_exists($target_file)) {
+            $new_filename =pathinfo($target_file,PATHINFO_FILENAME);
+
+            $new_filename = $new_filename.strval(rand(0,100));
+
+            $target_file = $target_dir.$new_filename.'.'.$new_file_type;
         }
-        $new_html = $new_html."<div>File already exists, added rand value. File is:. ".basename($target_file).'</div>';
+        $new_html = $new_html."<div>File already exists, added rand value. File is: ".basename($target_file).'</div>';
     }
+
     // Check file size
     if ($_FILES["attribute_changer_file_to_upload"]["size"] > 1000000000) {
         $new_html = $new_html."<div>Sorry, your file is too large > 1GB. </div>";
@@ -83,12 +93,18 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
         $new_html = $new_html."<div>Sorry, your file was not uploaded. </div>".$page_print;
     // if everything is ok, try to upload file
     } else {
-            print("<br><br>".$_FILES["attribute_changer_file_to_upload"]["tmp_name"]."<br>");
+
         if (move_uploaded_file($_FILES["attribute_changer_file_to_upload"]["tmp_name"], $target_file)) {
+
             $new_html = $new_html."<div>The file ". basename($target_file). " has been uploaded.</div>";
 
-            $attribute_changer->Current_Session->Set_File_Location($target_file);
-            $cols_match = $attribute_changer->Get_Attribute_File_Column_Match();
+            
+
+            $Current_Session->Set_File_Location($target_file);
+            //print($Current_Session->Get_File_Location());
+
+            //print_r($attribute_changer->Current_Session);
+            $cols_match = Get_Attribute_File_Column_Match();
 
             if($cols_match == ('ERROR NO CURRENT SESSION'|"ERROR WITH SESSION FILE LOCATION"|'') ) {
                 $new_html = $new_html.'<div>There was an error with the column select table forming.</div>'.$page_print;
@@ -100,6 +116,8 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
             }
         } 
         else {
+            $error = error_get_last();
+            print($error['message']);
             $new_html = $new_html."<div>Sorry, there was an error uploading your file.</div>".$page_print;
         }
     }

@@ -6,7 +6,7 @@ class Single_Session {
     public $attribute_list = null;
 
     // // $attribute_value_ids = null;
-    // // $file_location = null;
+    public $file_location = null;
 
     // // // $attribute_column_match;
 
@@ -151,6 +151,14 @@ class Single_Session {
     }
 
 
+	public function Set_File_Location($file_name) {
+        $this->file_location = $file_name;
+    }
+
+    function Get_File_Location() {
+
+    	return $this->file_location;
+    }
 
     function __construct() {
 
