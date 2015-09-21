@@ -174,6 +174,9 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
     $Session = $attribute_changer->Current_Session;
 
+    print('<br><br>asdasdad<br>');
+    print_r($Session->attribute_list);
+
     $att_list = $Session->attribute_list;
 
     //print_r($att_list);
@@ -249,6 +252,9 @@ if(isset($_POST['File_Column_Match_Submit'])) {
                 //print_r("<br><br>".$new_attribute_value_array);
             }
         }
+
+        print("<br>ENENENENENENENE<br>");
+        print_r($attribute_changer->Current_Session->New_Entry_List);
 
         // fclose($fp);
         // $display_html ='<html><body>';

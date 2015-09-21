@@ -316,137 +316,137 @@ class Attribute_Changer_PLugin extends phplistPlugin {
 
 
 
-        //0 if there are no attributes, is only existence
-        if(count($entry) == 0) {
-            //if there is a user then already done
-            if($user_sql_result){
-                return true;
-            }
-            else{
-                //will need to create a new user if not already
-                if(isset($Session->New_Entry_List[$email])) {
-                    return true;
-                }
-                else{
-                    $Session->New_Entry_List[$email] = array();
-                    return true;
-                }
-            }
-        }
-        if($user_sql_result && !isset($Session->Current_Users_Values[$email])) {
-            Get_Current_User_Attribute_Values($Session->Current_Users_Values, $email, $Session->attribute_list);
-        }
+    //     //0 if there are no attributes, is only existence
+    //     if(count($entry) == 0) {
+    //         //if there is a user then already done
+    //         if($user_sql_result){
+    //             return true;
+    //         }
+    //         else{
+    //             //will need to create a new user if not already
+    //             if(isset($Session->New_Entry_List[$email])) {
+    //                 return true;
+    //             }
+    //             else{
+    //                 $Session->New_Entry_List[$email] = array();
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    //     if($user_sql_result && !isset($Session->Current_Users_Values[$email])) {
+    //         Get_Current_User_Attribute_Values($Session->Current_Users_Values, $email, $Session->attribute_list);
+    //     }
          
-        //if there are attributes, must check each value to look for update
-        foreach ($entry as $attribute => $new_attribute_value) {
-            //these are single choice values
-            if($Session->attribute_list[$attribute]['type'] === "radio"|"select"|'checkbox') {
-                //must check if the possible new value is an allowed value
-                if(in_array($new_attribute_value, $Session->attribute_list[$attribute]['allowed_values'])) {
-                    //this is if the returned user has an id, will always have an id if exists in the database
-                    if(isset($Session->Current_Users_Values[$email])) {
-                        //the return query for the user,attrubute does not match the new possible attribute value
-                        if(isset($Session->Current_Users_Values[$email][$attribute]) && $Session->Current_Users_Values[$email][$attribute] === $new_attribute_value) {    
+    //     //if there are attributes, must check each value to look for update
+    //     foreach ($entry as $attribute => $new_attribute_value) {
+    //         //these are single choice values
+    //         if($Session->attribute_list[$attribute]['type'] === "radio"|"select"|'checkbox') {
+    //             //must check if the possible new value is an allowed value
+    //             if(in_array($new_attribute_value, $Session->attribute_list[$attribute]['allowed_values'])) {
+    //                 //this is if the returned user has an id, will always have an id if exists in the database
+    //                 if(isset($Session->Current_Users_Values[$email])) {
+    //                     //the return query for the user,attrubute does not match the new possible attribute value
+    //                     if(isset($Session->Current_Users_Values[$email][$attribute]) && $Session->Current_Users_Values[$email][$attribute] === $new_attribute_value) {    
                              
-                        }
-                        else{
-                            Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $attribute, $Session->Modify_Entry_List);
-                        }
-                    }
-                    else{
-                        //no user info, add info to list
-                        Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $attribute, $Session->New_Entry_List);
-                    }
-                }
-                else{
-                    //not an allowed value so skip
-                }
-            }
-            //these are multiple choice types, the new attribute value must match
-            else if($Session->attribute_list[$attribute]['type'] == 'checkboxgroup') {
+    //                     }
+    //                     else{
+    //                         Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $attribute, $Session->Modify_Entry_List);
+    //                     }
+    //                 }
+    //                 else{
+    //                     //no user info, add info to list
+    //                     Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $attribute, $Session->New_Entry_List);
+    //                 }
+    //             }
+    //             else{
+    //                 //not an allowed value so skip
+    //             }
+    //         }
+    //         //these are multiple choice types, the new attribute value must match
+    //         else if($Session->attribute_list[$attribute]['type'] == 'checkboxgroup') {
 
-                $exploded_attribute_values_array = explode(',', $new_attribute_value);
+    //             $exploded_attribute_values_array = explode(',', $new_attribute_value);
 
-                foreach ($exploded_attribute_values_array as $key => $exploded_attribute_value) {
+    //             foreach ($exploded_attribute_values_array as $key => $exploded_attribute_value) {
 
-                    if(in_array($exploded_attribute_value, $Session->attribute_list[$attribute]['allowed_values'])) {
+    //                 if(in_array($exploded_attribute_value, $Session->attribute_list[$attribute]['allowed_values'])) {
 
-                        if(isset($Session->Current_Users_Values[$email])) {
-                            if(isset($Session->Current_Users_Values[$email][$attribute]) && in_array($exploded_attribute_value, $Session->Current_Users_Values[$email][$attribute]) {
+    //                     if(isset($Session->Current_Users_Values[$email])) {
+    //                         if(isset($Session->Current_Users_Values[$email][$attribute]) && in_array($exploded_attribute_value, $Session->Current_Users_Values[$email][$attribute]) {
 
-                            }
-                            else{
-                                Add_Multi_Entry_To_Modify_Or_New_Entry_List($email, $exploded_attribute_value, $attribute, $Session->Modify_Entry_List);
-                            }
-                        }
-                        else{
-                            //no current attributes, can definately add to list, user exists
-                            Add_Multi_Entry_To_Modify_Or_New_Entry_List($email, $exploded_attribute_value, $attribute, $Session->New_Entry_List);                             
-                        }
-                    }
-                }
+    //                         }
+    //                         else{
+    //                             Add_Multi_Entry_To_Modify_Or_New_Entry_List($email, $exploded_attribute_value, $attribute, $Session->Modify_Entry_List);
+    //                         }
+    //                     }
+    //                     else{
+    //                         //no current attributes, can definately add to list, user exists
+    //                         Add_Multi_Entry_To_Modify_Or_New_Entry_List($email, $exploded_attribute_value, $attribute, $Session->New_Entry_List);                             
+    //                     }
+    //                 }
+    //             }
 
-            }
+    //         }
              
-            else if ($Session->attribute_list[$attribute]['type'] == "date") {
-                $exploded_date =explode('/', $new_attribute_value);
-                if(count($exploded_date) != 3) {
-                    //cannot use
-                }
-                else{
-                    $day = intval($exploded_date[0]);
-                    $month = intval($exploded_date[1]);
-                    $year = intval($exploded_date[2]);
-                    if(!checkdate($month, $day, $year)) {
+    //         else if ($Session->attribute_list[$attribute]['type'] == "date") {
+    //             $exploded_date =explode('/', $new_attribute_value);
+    //             if(count($exploded_date) != 3) {
+    //                 //cannot use
+    //             }
+    //             else{
+    //                 $day = intval($exploded_date[0]);
+    //                 $month = intval($exploded_date[1]);
+    //                 $year = intval($exploded_date[2]);
+    //                 if(!checkdate($month, $day, $year)) {
 
-                    }
+    //                 }
 
-                    else{
-                        if($day < 10){
-                            $day_string = '0'.strval($day);
-                        }
-                        else{
-                            $day_string = strval($day);
-                        }
-                        if($month < 10){
-                            $month_string = '0'.strval($month);
-                        }
-                        else{
-                            $month_string = strval($month);
-                        }
-                        $year_string = strval($year);
-                        $new_date_value = $day_string.'/'.$month_string.'/'.$year_string;
+    //                 else{
+    //                     if($day < 10){
+    //                         $day_string = '0'.strval($day);
+    //                     }
+    //                     else{
+    //                         $day_string = strval($day);
+    //                     }
+    //                     if($month < 10){
+    //                         $month_string = '0'.strval($month);
+    //                     }
+    //                     else{
+    //                         $month_string = strval($month);
+    //                     }
+    //                     $year_string = strval($year);
+    //                     $new_date_value = $day_string.'/'.$month_string.'/'.$year_string;
                     
 
-                        if(isset($Session->Current_Users_Values[$email][$attribute])) {
-                            if(isset($Session->Current_Users_Values[$email][$attribute]) && $Session->Current_Users_Values[$email][$attribute] != $new_date_value) {
+    //                     if(isset($Session->Current_Users_Values[$email][$attribute])) {
+    //                         if(isset($Session->Current_Users_Values[$email][$attribute]) && $Session->Current_Users_Values[$email][$attribute] != $new_date_value) {
 
-                                Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_date_value, $attribute, $Session->Modify_Entry_List);
-                            }
-                        }
-                        else{
-                            Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_date_value, $attribute, $Session->New_Entry_List);
-                        }
-                    }
-                }
-            }
-            else if ($Session->attribute_list[$attribute]['type'] == "textarea"|"textline") {
-                //this is if the returned user has an id, will always have an id if exists in the database
-                if(isset($Session->Current_Users_Values[$email])) {
+    //                             Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_date_value, $attribute, $Session->Modify_Entry_List);
+    //                         }
+    //                     }
+    //                     else{
+    //                         Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_date_value, $attribute, $Session->New_Entry_List);
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //         else if ($Session->attribute_list[$attribute]['type'] == "textarea"|"textline") {
+    //             //this is if the returned user has an id, will always have an id if exists in the database
+    //             if(isset($Session->Current_Users_Values[$email])) {
 
-                    if(isset($Session->Current_Users_Values[$email][$attribute]) && $new_attribute_value === $Session->Current_Users_Values[$email][$attribute]) {
+    //                 if(isset($Session->Current_Users_Values[$email][$attribute]) && $new_attribute_value === $Session->Current_Users_Values[$email][$attribute]) {
 
-                    }
-                    else{
-                        Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $attribute, $Session->Modify_Entry_List);
-                    }
-                }
-                else{
-                    Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $Session->New_Entry_List);
-                }
-            }
-        }
-    }
+    //                 }
+    //                 else{
+    //                     Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $attribute, $Session->Modify_Entry_List);
+    //                 }
+    //             }
+    //             else{
+    //                 Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $Session->New_Entry_List);
+    //             }
+    //         }
+    //     }
+    // }
 
     function Add_Single_Entry_To_Modify_Or_New_Entry_List($email, $new_attribute_value, $attribute, &$Modify_list) {
         if(!isset($Modify_list[$email])) {
