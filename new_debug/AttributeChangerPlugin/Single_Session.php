@@ -155,7 +155,7 @@ class Single_Session {
         $this->file_location = $file_name;
     }
 
-    function Get_File_Location() {
+    public function Get_File_Location() {
 
     	return $this->file_location;
     }

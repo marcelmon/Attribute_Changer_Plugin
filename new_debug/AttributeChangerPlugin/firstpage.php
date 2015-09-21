@@ -124,9 +124,11 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
 
     $new_html = $new_html.'</body></html>';
 
-    $session_s = serialize($Current_Session);
+    //include(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');
+    $session_s = base64_encode(serialize($Current_Session));
+    //print('<br>cur session<br>'.$Current_Session.'<br>print r');
 
-    print_r($session_s);
+    //print_r($session_s);
 
     $truncate_query = sprintf("truncate table %s", $attribute_changer->attribute_changer_tablename);
 
@@ -144,97 +146,127 @@ if(isset($_POST['File_Column_Match_Submit'])) {
         print("SHITITITIT");
     }
 
-    $retrieve_serialized_query = sprintf("select * from %s", $attribute_changer->attribute_changer_tablename);
-    $retreive_s_return = Sql_Query($retrieve_serialized_query);
+    $retrieve_serialized_query = sprintf("select value from %s", $attribute_changer->attribute_changer_tablename);
+    $retrieve_s_return = Sql_Query($retrieve_serialized_query);
 
     if(!$retrieve_s_return) {
         print("ERROR NO STORED SESSION");
         die();
     }
+
     $returned_result = Sql_Fetch_Assoc($retrieve_s_return);
+
     if(!isset($returned_result['value'])) {
         print("ERROR Improperly stored value data");
         die();
     }
+
+    //print_r($returned_result);
     $serialized_session = $returned_result['value'];
+    //print($serialized_session);
 
-    $attribute_changer->Current_Session = unserialize($serialized_session);
-    print("<br>arararar<br>");
-    print_r($attribute_changer->Current_Session);
-
-    // else if(!isset($_POST['attribute_to_match']['email'])) {
-
-    //     //this can be done in JS
-    //     $display_html = "<html><body>no email column selected</body></html>";
-    // }
-    // else{
-    //     $FILE_LOCATION = $GLOBALS['plugins']['Attribute_Changer_Plugin']->$Current_Session->Get_File_Location();
-
-    //     asort($_POST['attribute_to_match'], SORT_NUMERIC);
-    //     //so that the columns are matched, easier to read the file from comma to comma
-    //     $fp = fopen($FILE_LOCATION, 'r');
-
-    //     $first_line = fgets($fp);
-    //     if(feof($fp)) {
-    //         //....only 1 line whhaaat
-    //     }
-    //     $number_columns = count(explode(',',$first_line));
-
-    //     $file_attribute_value_array = array();
-
-    //     $current_block = '';
-    //     $lines = array();
+    include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');
 
 
-    //     while(!feof($fp)) {
-    //         //read 10kb at a time
+    $attribute_changer->Current_Session = unserialize(base64_decode($serialized_session));
 
-    //         $current_line_csv = fgetcsv($fp);
+    //print($attribute_changer->Current_Session->Get_File_Location());
 
-    //         if(count($current_line_csv) != $number_columns) {
+    $Session = $attribute_changer->Current_Session;
 
-    //             //SOME WEIRD ERROR, CHECK EOF
-    //         }
+    $att_list = $Session->attribute_list;
 
+    //print_r($att_list);
 
-    //         $new_attribute_value_array = array();
+    if(!isset($_POST['attribute_to_match']['email'])) {
 
-    //         foreach ($_POST['attribute_to_match'] as $attribute_id => $col_number) {
-    //             if(isset($current_line_csv[$col_number]) && $current_line_csv[$col_number] != '') {
-    //                 if($attribute_id === 'email') {
-    //                     $new_attribute_value_array[$attribute_id] = $current_line_csv[$col_number];
-    //                 }
-    //                 else if($Session->attribute_list[$attribute_id]['type'] === "radio"|"checkboxgroup"|"select"|"checkbox") {
-    //                     $new_attribute_value_array[$attribute_id] = explode(',', $current_line_csv[$col_number]);
-    //                 }
+        $display_html = "<html><body>no email column selected</body></html>";
+    }
+    else{
+        $FILE_LOCATION = $attribute_changer->Current_Session->Get_File_Location();
 
-    //                 else {
-    //                     $new_attribute_value_array[$attribute_id] = $current_line_csv[$col_number];
-    //                 }
-    //             }
-    //         }
-    //         if(isset($new_attribute_value_array['email'])) {
-    //             $attribute_changer->Test_Entry($new_attribute_value_array);
-    //         }
-    //     }
+        asort($_POST['attribute_to_match'], SORT_NUMERIC);
+        //so that the columns are matched, easier to read the file from comma to comma
+        $fp = fopen($FILE_LOCATION, 'r');
 
-    //     fclose($fp);
-    //     $display_html ='<html><body>';
-    //     $new_entry_table_html = '';
-    //     if(Initialize_New_Entries_Display()!=null) {
-    //         $display_html = $display_html.Get_New_Entry_Table_Block().'</body></html>';
-    //     }
-    //     else{
-    //         if(Initialize_Modify_Entries_Display()!=null) {
-    //             $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
-    //         }
-    //         else{
-    //             $display_html = $display_html.'There is nothing new or to modify</body></html>'
-    //         }
-    //     }
-    // }
+        $first_line = fgets($fp);
+        if(feof($fp)) {
+            //....only 1 line whhaaat
+        }
+        $number_columns = count(explode(',',$first_line));
 
-    // print($display_html);
+        $file_attribute_value_array = array();
+
+        $current_block = '';
+        $lines = array();
+
+        //print_r($_POST['attribute_to_match']);
+
+        while(!feof($fp)) {
+            //read 10kb at a time
+
+            $current_line = fgets($fp);
+            $current_line = explode(',', $current_line);
+            if(count($current_line) != $number_columns) {
+
+                //SOME WEIRD ERROR, CHECK EOF
+            }
+
+            $new_attribute_value_array = array();
+
+            foreach ($_POST['attribute_to_match'] as $attribute_id => $col_number) {
+
+                $current_line[$col_number] = str_replace('"', '', $current_line[$col_number]);
+
+                if(isset($current_line[$col_number]) && $current_line[$col_number] != '') {
+                    //print('<br>'.$current_line[$col_number]);
+
+                    //print('<br>attribute id '.$attribute_id.'<br>atrribute type '.$att_list[$attribute_id]['type'].'<br>');
+
+                    if($attribute_id === 'email') {
+                        $new_attribute_value_array[$attribute_id] = $current_line[$col_number];
+
+                    }
+                    
+
+                    else if($att_list[$attribute_id]['type'] === "radio" || $att_list[$attribute_id]['type'] === "checkboxgroup" || $att_list[$attribute_id]['type'] === "select") {
+                        
+
+                        $new_attribute_value_array[$attribute_id] = explode(';', $current_line[$col_number]);
+
+                        //print_r($new_attribute_value_array[$attribute_id]);
+                    }
+                    else {
+                        $new_attribute_value_array[$attribute_id] = $current_line[$col_number];
+                    }
+                    
+                }
+            }
+            print_r($new_attribute_value_array);
+            print("<br>");
+            if(isset($new_attribute_value_array['email'])) {
+                $attribute_changer->Test_Entry($new_attribute_value_array);
+                //print_r("<br><br>".$new_attribute_value_array);
+            }
+        }
+
+        // fclose($fp);
+        // $display_html ='<html><body>';
+        // $new_entry_table_html = '';
+        // if(Initialize_New_Entries_Display()!=null) {
+        //     $display_html = $display_html.Get_New_Entry_Table_Block().'</body></html>';
+        // }
+        // else{
+        //     if(Initialize_Modify_Entries_Display()!=null) {
+        //         $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
+        //     }
+        //     else{
+        //         $display_html = $display_html.'There is nothing new or to modify</body></html>'
+        //     }
+        // }
+    }
+
+    print($display_html);
 }
 
 ?>

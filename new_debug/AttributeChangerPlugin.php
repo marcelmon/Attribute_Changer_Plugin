@@ -48,7 +48,7 @@ class AttributeChangerPlugin extends phplistPlugin {
 	public $attribute_changer_table_structure = array(
         "id" => array("integer not null primary key auto_increment","ID"),
         "adminid" => array("integer not null","adminid"),
-        "value" => array('varchar(255)',''),
+        "value" => array('longtext',''),
       );
 
 
