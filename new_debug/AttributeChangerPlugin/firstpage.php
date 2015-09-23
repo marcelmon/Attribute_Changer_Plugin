@@ -124,21 +124,12 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
 
     $new_html = $new_html.'</body></html>';
 
-    //include(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');
-    $session_s = base64_encode(serialize($Current_Session));
-    //print('<br>cur session<br>'.$Current_Session.'<br>print r');
-
-    //print_r($session_s);
-
-    $truncate_query = sprintf("truncate table %s", $attribute_changer->attribute_changer_tablename);
-
-    Sql_Query($truncate_query);
-
-    $serialize_insert_query = sprintf("insert into %s (value) values ('%s')", $attribute_changer->attribute_changer_tablename, $session_s);
-    Sql_Query($serialize_insert_query);
+    $attribute_changer->Serialize_And_Store();
 
     print($new_html);
 }
+
+
 
 if(isset($_POST['File_Column_Match_Submit'])) {
     if(!isset($_POST['attribute_to_match'])) {
@@ -146,36 +137,13 @@ if(isset($_POST['File_Column_Match_Submit'])) {
         print("SHITITITIT");
     }
 
-    $retrieve_serialized_query = sprintf("select value from %s", $attribute_changer->attribute_changer_tablename);
-    $retrieve_s_return = Sql_Query($retrieve_serialized_query);
+    $attribute_changer->Retreive_And_Unserialize();
 
-    if(!$retrieve_s_return) {
-        print("ERROR NO STORED SESSION");
-        die();
-    }
-
-    $returned_result = Sql_Fetch_Assoc($retrieve_s_return);
-
-    if(!isset($returned_result['value'])) {
-        print("ERROR Improperly stored value data");
-        die();
-    }
-
-    //print_r($returned_result);
-    $serialized_session = $returned_result['value'];
-    //print($serialized_session);
-
-    include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');
-
-
-    $attribute_changer->Current_Session = unserialize(base64_decode($serialized_session));
-
-    //print($attribute_changer->Current_Session->Get_File_Location());
 
     $Session = $attribute_changer->Current_Session;
 
-    print('<br><br>asdasdad<br>');
-    print_r($Session->attribute_list);
+    //print('<br><br>asdasdad<br>');
+    //print_r($Session->attribute_list);
 
     $att_list = $Session->attribute_list;
 
@@ -245,34 +213,101 @@ if(isset($_POST['File_Column_Match_Submit'])) {
                     
                 }
             }
-            print_r($new_attribute_value_array);
-            print("<br>");
+            //print("GARAGARARARA<br>GARARARARA<br>");
+            //print_r($new_attribute_value_array);
+            //print("<br>");
             if(isset($new_attribute_value_array['email'])) {
                 $attribute_changer->Test_Entry($new_attribute_value_array);
                 //print_r("<br><br>".$new_attribute_value_array);
             }
         }
 
-        print("<br>ENENENENENENENE<br>");
-        print_r($attribute_changer->Current_Session->New_Entry_List);
 
-        // fclose($fp);
-        // $display_html ='<html><body>';
-        // $new_entry_table_html = '';
-        // if(Initialize_New_Entries_Display()!=null) {
-        //     $display_html = $display_html.Get_New_Entry_Table_Block().'</body></html>';
-        // }
-        // else{
-        //     if(Initialize_Modify_Entries_Display()!=null) {
-        //         $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
-        //     }
-        //     else{
-        //         $display_html = $display_html.'There is nothing new or to modify</body></html>'
-        //     }
-        // }
+        fclose($fp);
+        $display_html ='<html><body>';
+        $new_entry_table_html = '';
+
+        include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
+
+        include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
+
+        print("<br><br>");
+        print_r($Session->New_Entry_List);
+
+        print("<br><br>");
+        if(Initialize_New_Entries_Display()!=null) {
+            $display_html = $display_html.Get_New_Entry_Table_Block().'</body></html>';
+        }
+        else{
+            // if(Initialize_Modify_Entries_Display()!=null) {
+            //     $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
+            // }
+            // else{
+            //     $display_html = $display_html.'There is nothing new or to modify</body></html>'
+            // }
+        }
+    }
+    $attribute_changer->Serialize_And_Store();
+    print($display_html);
+
+}
+
+
+$Current_New_Entry_Block;
+
+if(isset($_POST['New_Entry_Form_Submitted'])) {
+    
+    if(!Build_New_Entry_Email_List()){
+        die();
+    }
+}
+
+if(isset($_POST['New_Entries_Table_Submit_All']) && $_POST['New_Entries_Table_Submit_All'] === 'New_Entries_Table_Submit_All' ) {
+    if(Initialize_Modify_Entries_Display() == null) {
+        print(Process_All_New_And_Modify());
+    }
+    else{
+        $HTML_TO_DISPLAY = Get_Modify_Entry_Table_Block();
+        print('<html><body><script src="'.$javascript_src.'"></script>'.$HTML_TO_DISPLAY.'</body></html>');
     }
 
-    print($display_html);
+}
+
+if(isset($_Post['New_Entries_Table_Next_Page']) && $_Post['New_Entries_Table_Next_Page'] === 'New_Entries_Table_Next_Page') {
+    $HTML_TO_DISPLAY = New_Entry_Display_Next_Page();
+    if($HTML_TO_DISPLAY == false) {
+        $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
+    }
+    print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
+}
+
+if(isset($_Post['New_Entries_Table_Previous_Page']) && $_Post['New_Entries_Table_Previous_Page'] === 'New_Entries_Table_Previous_Page') {
+    $HTML_TO_DISPLAY = New_Entry_Display_Previous_Page();
+    if($HTML_TO_DISPLAY == false) {
+        $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
+    }
+    print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
+}
+
+if(isset($_Post['New_Entry_Change_Display_Amount']) && $_Post['New_Entry_Change_Display_Amount'] === 'New_Entry_Change_Display_Amount') {
+
+    if(isset($_POST['New_Entries_New_Display_Amount'])) {
+        if($_POST['New_Entries_New_Display_Amount'] != (10|100|1000|10000|"all")){
+
+        }
+        else{
+            if(New_Entry_Change_Display_Amount($_POST['New_Entries_New_Display_Amount']) != true) {
+
+            }
+            else{
+                
+
+            }
+        }
+    }
+    $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
+    print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
+    
 }
 
 ?>

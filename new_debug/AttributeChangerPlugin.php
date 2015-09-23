@@ -50,8 +50,46 @@ class AttributeChangerPlugin extends phplistPlugin {
         "adminid" => array("integer not null","adminid"),
         "value" => array('longtext',''),
       );
+    
 
+    function Serialize_And_Store() {
+        if(!isset($this->Current_Session) || $this->Current_Session == null) {
+            print("ERR NO SESION");
+            die();
+        }
 
+        $session_s = base64_encode(serialize($this->Current_Session));
+
+        $truncate_query = sprintf("truncate table %s", $this->attribute_changer_tablename);
+
+        Sql_Query($truncate_query);    
+        $serialize_insert_query = sprintf("insert into %s (value) values ('%s')", $this->attribute_changer_tablename, $session_s);
+        Sql_Query($serialize_insert_query);
+
+    }
+
+    function Retreive_And_Unserialize() {
+        $retrieve_serialized_query = sprintf("select value from %s", $this->attribute_changer_tablename);
+        $retrieve_s_return = Sql_Query($retrieve_serialized_query);
+
+        if(!$retrieve_s_return) {
+            print("ERROR NO STORED SESSION");
+            die();
+        }
+
+        $returned_result = Sql_Fetch_Assoc($retrieve_s_return);
+
+        if(!isset($returned_result['value'])) {
+            print("ERROR Improperly stored value data");
+            die();
+        }
+
+        //print_r($returned_result);
+        $serialized_session = $returned_result['value'];
+        //print($serialized_session);
+
+        $this->Current_Session = unserialize(base64_decode($serialized_session));
+    }
 
     function New_Session() {
     	
@@ -149,11 +187,12 @@ class AttributeChangerPlugin extends phplistPlugin {
         //there is no current user
         if(!$user_sql_result[0]) {
 
-            Add_New_Entry($email, $changing_attributes);
+            //print("HUUUURRRRRR<br>HUUUUUUURRRR<br>");
+            $this->Add_New_Entry($email, $changing_attributes);
 
         }
         else{
-        	        print("ASADARARAR<br>");
+        	        //print("ASADARARAR<br>");
             //Add_Modify_Entry($email, $changing_attributes);
         }
     }
@@ -161,7 +200,7 @@ class AttributeChangerPlugin extends phplistPlugin {
     // //automatically checks for compliance with values and return array with ids where needed
     function Test_Attribute_Values($attribute_id, $value_array) {
 
-    	print_r($value_array);
+    	//print_r($value_array);
         if($this->Current_Session == null) {
             return false;
         }
@@ -169,8 +208,8 @@ class AttributeChangerPlugin extends phplistPlugin {
         $Session = $this->Current_Session;
 
         if(!isset($Session->attribute_list[$attribute_id])) {
-        	print("<br>att id<br>".$attribute_id.'<br>');
-        	print_r($Session->attribute_list);
+        	//print("<br>att id<br>".$attribute_id.'<br>');
+        	//print_r($Session->attribute_list);
             return false;
         }
 
@@ -267,14 +306,15 @@ class AttributeChangerPlugin extends phplistPlugin {
     //attribute values array([att_id] => values), values have been test all are acceptable
     function Add_New_Entry($email_key, $attribute_values) {
 
+
         if($this->Current_Session == null) {
             return "ERROR NO CURRENT SESSION";
         }
 
         $Session = $this->Current_Session;
-
-        if($attribute_values == null || !is_array($attribute_values || count($attribute_values) == 0 )) {
+        if($attribute_values == null || !is_array($attribute_values) || count($attribute_values) == 0 ) {
             //just set email
+            
             if(!isset($Session->New_Entry_List[$email_key])) {
                 $Session->New_Entry_List[$email_key] = array();
             }
@@ -283,6 +323,7 @@ class AttributeChangerPlugin extends phplistPlugin {
         }
 
         else{
+print("<br>in hurrr<br>");
             foreach ($attribute_values as $attribute_id => $single_attribute_values) {
                 if(!is_array($single_attribute_values)) {
                     //shouldnt happen
