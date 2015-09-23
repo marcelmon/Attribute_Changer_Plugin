@@ -252,62 +252,8 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
 }
 
+include(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/New_Entry_Table_Processor.php');
 
-$Current_New_Entry_Block;
 
-if(isset($_POST['New_Entry_Form_Submitted'])) {
-    
-    if(!Build_New_Entry_Email_List()){
-        die();
-    }
-}
-
-if(isset($_POST['New_Entries_Table_Submit_All']) && $_POST['New_Entries_Table_Submit_All'] === 'New_Entries_Table_Submit_All' ) {
-    if(Initialize_Modify_Entries_Display() == null) {
-        print(Process_All_New_And_Modify());
-    }
-    else{
-        $HTML_TO_DISPLAY = Get_Modify_Entry_Table_Block();
-        print('<html><body><script src="'.$javascript_src.'"></script>'.$HTML_TO_DISPLAY.'</body></html>');
-    }
-
-}
-
-if(isset($_Post['New_Entries_Table_Next_Page']) && $_Post['New_Entries_Table_Next_Page'] === 'New_Entries_Table_Next_Page') {
-    $HTML_TO_DISPLAY = New_Entry_Display_Next_Page();
-    if($HTML_TO_DISPLAY == false) {
-        $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
-    }
-    print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
-}
-
-if(isset($_Post['New_Entries_Table_Previous_Page']) && $_Post['New_Entries_Table_Previous_Page'] === 'New_Entries_Table_Previous_Page') {
-    $HTML_TO_DISPLAY = New_Entry_Display_Previous_Page();
-    if($HTML_TO_DISPLAY == false) {
-        $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
-    }
-    print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
-}
-
-if(isset($_Post['New_Entry_Change_Display_Amount']) && $_Post['New_Entry_Change_Display_Amount'] === 'New_Entry_Change_Display_Amount') {
-
-    if(isset($_POST['New_Entries_New_Display_Amount'])) {
-        if($_POST['New_Entries_New_Display_Amount'] != (10|100|1000|10000|"all")){
-
-        }
-        else{
-            if(New_Entry_Change_Display_Amount($_POST['New_Entries_New_Display_Amount']) != true) {
-
-            }
-            else{
-                
-
-            }
-        }
-    }
-    $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
-    print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
-    
-}
 
 ?>
