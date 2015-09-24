@@ -22,31 +22,44 @@
          
     }
     
-    // function New_Entry_Change_Display_Amount($New_Amount) {
-    //     if($New_Amount !== (10|100|1000|10000|'all')) {
-    //         return false;
-    //     }
-    //     if($New_Amount === 'all') {
-    //         $Session->New_Entires_Number_Of_Blocks =1;
-    //         $Session->Current_New_Entries_Display_Amount = $Session->New_Entries_Total_Amount;
-    //         $Session->Current_New_Entry_Block_Number = 0;
-    //         return true;
-    //     }
-    //     $Session->Current_New_Entries_Display_Amount = $New_Amount;
-    //     $Session->New_Entires_Number_Of_Blocks = $Session->New_Entries_Total_Amount/$Session->Current_New_Entries_Display_Amount + (($Session->New_Entries_Total_Amount % $Session->Current_New_Entries_Display_Amount)? 1:0);
-    //     $Session->Current_New_Entry_Block_Number = 0;
-    //     return true;
-    // }
-    // function New_Entry_Display_Next_Page() {
-    //     if($Session->Current_New_Entry_Block_Number < $Session->New_Entires_Number_Of_Blocks-1) {
-    //         $Session->Current_New_Entry_Block_Number++;
-    //         return Get_Modify_Entry_Table_Block();
-    //     }
-    //     else{
-    //         //because there are no more blocks
-    //         return false;
-    //     }
-    // }
+    function New_Entry_Change_Display_Amount($New_Amount) {
+
+
+        $new_display_amounts = array(
+            10=>true,
+            100=>true,
+            1000=>true,
+            10000=>true,
+            "all"=>true,
+            );
+        if(!isset($new_display_amounts[$New_Amount]) || $new_display_amounts[$New_Amount] != true) {
+            return false;
+        }
+        if($New_Amount === 'all') {
+            $Session->New_Entires_Number_Of_Blocks =1;
+            $Session->Current_New_Entries_Display_Amount = $Session->New_Entries_Total_Amount;
+            $Session->Current_New_Entry_Block_Number = 0;
+            return true;
+        }
+        $Session->Current_New_Entries_Display_Amount = $New_Amount;
+        $Session->New_Entires_Number_Of_Blocks = $Session->New_Entries_Total_Amount/$Session->Current_New_Entries_Display_Amount + (($Session->New_Entries_Total_Amount % $Session->Current_New_Entries_Display_Amount)? 1:0);
+        
+        print("<br><br>hehahea<br>".$Session->Current_New_Entries_Display_Amount."<br>");
+
+        $Session->Current_New_Entry_Block_Number = 0;
+        return true;
+    }
+
+    function New_Entry_Display_Next_Page() {
+        if($Session->Current_New_Entry_Block_Number < $Session->New_Entires_Number_Of_Blocks-1) {
+            $Session->Current_New_Entry_Block_Number++;
+            return Get_Modify_Entry_Table_Block();
+        }
+        else{
+            //because there are no more blocks
+            return false;
+        }
+    }
     
     // function New_Entry_Display_Previous_Page() {
     //     if($Session->Current_New_Entry_Block_Number > 0) {

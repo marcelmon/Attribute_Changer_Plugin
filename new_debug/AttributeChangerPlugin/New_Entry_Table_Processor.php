@@ -103,12 +103,23 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
         if(isset($_POST['New_Entry_Change_Display_Amount']) && $_POST['New_Entry_Change_Display_Amount'] == 'New_Entry_Change_Display_Amount') {
 
             print("ARHHHH");
-            print("mades itts");
+            
+            $new_display_amounts = array(
+                10=>true,
+                100=>true,
+                1000=>true,
+                10000=>true,
+                "all"=>true,
+                );
+
             if(isset($_POST['New_Entries_New_Display_Amount'])) {
-                if($_POST['New_Entries_New_Display_Amount'] != (10|100|1000|10000|"all")){
+                print("mades itts");
+                if(!isset($new_display_amounts[$_POST['New_Entries_New_Display_Amount']]) || $new_display_amounts[$_POST['New_Entries_New_Display_Amount']] != true) {
 
                 }
                 else{
+                    include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
+
                     if(New_Entry_Change_Display_Amount($_POST['New_Entries_New_Display_Amount']) != true) {
 
                     }
@@ -119,6 +130,7 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
                 }
             }
             $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
+
             print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
             
         }
@@ -139,6 +151,6 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
         }
      
 
-
+        $GLOBALS['plugins']['AttributeChangerPlugin']->Serialize_And_Store();
 
 ?>
