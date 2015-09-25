@@ -205,7 +205,7 @@
             );
 
         foreach ($Session->New_Entry_List[$email_key][$attribute_id] as $numkey => $attribute_value) {
-
+            
             if(!isset($case_array[$Session->attribute_list[$attribute_id]['type']])) {
                 continue;
             }

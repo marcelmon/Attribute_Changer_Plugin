@@ -66,10 +66,15 @@
                                     }
                                 }
                             }
-                            else{
+                            else {
+                                print($Session->attribute_list[$attribute_id]['type']);
                                 if($Session->attribute_list[$attribute_id]['type'] === 'radio' || $Session->attribute_list[$attribute_id]['type'] === 'select') {
+                                    print("HERHEHREHRERH");
+                                    if(in_array($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->attribute_list[$attribute_id])) {
 
-                                    if(in_array($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->attribute_list[$attribute_id]['allowed_value_ids'])
+                                        $Session->Committed_New_Entries[$hidden_email_key][$attribute_id] = array_search($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->attribute_list[$attribute_id]);
+                                        print('<br>huuuu 4<br>'.$Session->Committed_New_Entries[$hidden_email_key][$attribute_id].'<br>adasdasd<br>');
+                                    }
 
                                 }
 
@@ -77,10 +82,9 @@
 
                                 }
                             }
-                            else if(in_array($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->New_Entry_List[$attribute_id])) {
-                                $Session->Committed_New_Entries[$hidden_email_key][$attribute_id] = $_POST['New_Entry_List'][$hidden_email_key][$attribute_id];
-                            }
-                            in_array(needle, haystack)
+                            
+                            
+
                         }
                     }
                 }
