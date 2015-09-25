@@ -24,6 +24,7 @@
     
     function New_Entry_Change_Display_Amount($New_Amount) {
 
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
 
         $new_display_amounts = array(
             10=>true,
@@ -44,7 +45,7 @@
         $Session->Current_New_Entries_Display_Amount = $New_Amount;
         $Session->New_Entires_Number_Of_Blocks = $Session->New_Entries_Total_Amount/$Session->Current_New_Entries_Display_Amount + (($Session->New_Entries_Total_Amount % $Session->Current_New_Entries_Display_Amount)? 1:0);
         
-        print("<br><br>hehahea<br>".$Session->Current_New_Entries_Display_Amount."<br>");
+        //print("<br><br>hehahea<br>".$Session->Current_New_Entries_Display_Amount."<br>");
 
         $Session->Current_New_Entry_Block_Number = 0;
         return true;

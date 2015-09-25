@@ -75,7 +75,7 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
     $uploadOk = 1;
     $new_file_type = pathinfo($target_file,PATHINFO_EXTENSION);
 
-    $new_html = '<html><body><script src="'.$javascript_src.'"></script>';
+    $new_html = '';
     // Check if file already exists
     if (file_exists($target_file)) {
 
@@ -105,8 +105,11 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
     // Check if $uploadOk is set to 0 by an error
     if ($uploadOk == 0) {
         $new_html = $new_html."<div>Sorry, your file was not uploaded. </div>".$page_print;
+        $file_is_good = false;
+
+    } 
     // if everything is ok, try to upload file
-    } else {
+    else {
 
         if (move_uploaded_file($_FILES["attribute_changer_file_to_upload"]["tmp_name"], $target_file)) {
 
@@ -116,29 +119,16 @@ if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribu
 
             $Current_Session->Set_File_Location($target_file);
             //print($Current_Session->Get_File_Location());
+            $Current_Session->file_is_good = true;
 
-            //print_r($attribute_changer->Current_Session);
-            $cols_match = Get_Attribute_File_Column_Match();
-
-            if($cols_match == ('ERROR NO CURRENT SESSION'|"ERROR WITH SESSION FILE LOCATION"|'') ) {
-                $new_html = $new_html.'<div>There was an error with the column select table forming.</div>'.$page_print;
-
-            }
-            else{
-                $new_html= $new_html.$cols_match;
-                
-            }
         } 
         else {
             $error = error_get_last();
             print($error['message']);
-            $new_html = $new_html."<div>Sorry, there was an error uploading your file.</div>".$page_print;
+            $new_html = $new_html."<div>Sorry, there was an error uploading your file.</div>";
+            $Current_Session->file_is_good = false;
         }
     }
-
-    $new_html = $new_html.'</body></html>';
-
-    $attribute_changer->Serialize_And_Store();
 
     print($new_html);
 }

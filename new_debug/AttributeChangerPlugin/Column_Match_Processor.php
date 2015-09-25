@@ -2,14 +2,13 @@
 
 
 if(isset($_POST['File_Column_Match_Submit'])) {
-	
+
     if(!isset($_POST['attribute_to_match'])) {
         //shouldnt happen .... else user needs to be WARNEDDDDD
         print("SHITITITIT");
     }
 
-    $attribute_changer->Retreive_And_Unserialize();
-
+    $attribute_changer = $GLOBALS['plugins']['AttributeChangerPlugin'];
 
     $Session = $attribute_changer->Current_Session;
 
@@ -22,9 +21,14 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
     if(!isset($_POST['attribute_to_match']['email'])) {
 
-        $display_html = "<html><body>no email column selected</body></html>";
+        $display_html = "<div>no email column selected</div>";
+        $Session->column_match_good = false;
     }
     else{
+
+    	$Session->column_match_good = true;
+
+
         $FILE_LOCATION = $attribute_changer->Current_Session->Get_File_Location();
 
         asort($_POST['attribute_to_match'], SORT_NUMERIC);
@@ -95,30 +99,10 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
 
         fclose($fp);
-        $display_html ='<html><body>';
-        $new_entry_table_html = '';
+        $display_html ='<div>File Processing Complete</div>';
 
-        include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
-
-        include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
-
-        print("<br><br>");
-        print_r($Session->New_Entry_List);
-
-        print("<br><br>");
-        if(Initialize_New_Entries_Display()!=null) {
-            $display_html = $display_html.Get_New_Entry_Table_Block().'</body></html>';
-        }
-        else{
-            // if(Initialize_Modify_Entries_Display()!=null) {
-            //     $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
-            // }
-            // else{
-            //     $display_html = $display_html.'There is nothing new or to modify</body></html>'
-            // }
-        }
     }
-    $attribute_changer->Serialize_And_Store();
+
     print($display_html);
 
 }

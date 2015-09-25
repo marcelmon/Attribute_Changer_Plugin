@@ -27,14 +27,16 @@ class Single_Session {
 
     // // // //either 10, 100, 1000, 10000, all
     // // // //default 100
-    // // // $Current_New_Entries_Display_Amount;
-    // // // $New_Entries_Total_Amount;
-    // // // $New_Entires_Number_Of_Blocks;
-    // // // $Current_New_Entry_Block_Number;
+    public $Current_New_Entries_Display_Amount;
+    public $New_Entries_Total_Amount;
+    public $New_Entires_Number_Of_Blocks;
+    public $Current_New_Entry_Block_Number;
 
     public $Committed_New_Entries;
 
+    public $file_is_good;
 
+    public $column_match_good;
     // //attribute value arrays are array => ([id] => name)
     //     //id is auto increment, no duplicates
 

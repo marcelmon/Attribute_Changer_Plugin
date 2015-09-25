@@ -11,11 +11,11 @@ class AttributeChangerPlugin extends phplistPlugin {
 	public $name = "AttributeChangerPlugin";
 
 	public $pageTitles = array( // Entries in the plugin menu of the dashboard
-		'firstpage' => 'Begin Data Collection',
+		'front_page' => 'Begin Data Collection',
 	);
 	  
 	public $topMenuLinks = array( // Entries in the top menu at the top of each page
-		'firstpage' => array('category' => 'subscribers'),
+		'front_page' => array('category' => 'subscribers'),
 	);
 
 	public $description = 'Begin Data Collection';

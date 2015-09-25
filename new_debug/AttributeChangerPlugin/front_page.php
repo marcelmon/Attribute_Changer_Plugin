@@ -8,6 +8,8 @@ if ($GLOBALS["commandline"]) {
 }
 require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');
 require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
+require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
+
 
 $javascript_src = 'plugins/AttributeChangerPlugin/Script_For_Attribute_Changer.js';
 $attribute_changer = $GLOBALS['plugins']['AttributeChangerPlugin'];
@@ -41,24 +43,74 @@ else{
 
 if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribute_changer_file_to_upload'])) {
     include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Upload_File_Processor.php');
+
+    if(!isset($attribute_changer->Current_Session) || $attribute_changer->Current_Session == null) {
+
+        print("<html><html>");
+    }
+    if($attribute_changer->Current_Session->file_is_good == false){
+        print("WATCKCKAACA");
+        print('</body></html>');
+    }
+    else{
+        $print_html = Get_Attribute_File_Column_Match();
+
+        $attribute_changer->Serialize_And_Store();
+        print('<html><body>'.$print_html.'</body></html>');
+    }
+    
 }
 
 
 if(isset($_POST['File_Column_Match_Submit'])) {
-    include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Column_Match_Processor.php')
+
+    $attribute_changer->Retreive_And_Unserialize();
+
+    include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Column_Match_Processor.php');
+
+    if($attribute_changer->Current_Session->column_match_good == false) {
+
+        $print_html = Get_Attribute_File_Column_Match();
+
+        print('<html><body>'.$print_html.'</body></html>');
+
+        $attribute_changer->Serialize_And_Store();
+        die();
+    }
+
+    if(Initialize_New_Entries_Display()!=null) {
+        $display_html = '<html><body>'.Get_New_Entry_Table_Block().'</body></html>';
+        $attribute_changer->Serialize_And_Store();
+        print($display_html);
+    }
+    else{
+        // if(Initialize_Modify_Entries_Display()!=null) {
+        //     $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
+        // }
+        // else{
+        //     $display_html = $display_html.'There is nothing new or to modify</body></html>'
+        // }
+    }
 
 }
 
 if(isset($_POST['New_Entry_Form_Submitted'])) {
 
+    $attribute_changer->Retreive_And_Unserialize();
+
     include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/New_Entry_Table_Processor.php');
+
+    $attribute_changer->Serialize_And_Store();
 
 }
 
 if(isset($_POST['Modify_Entry_Form_Submitted'])) {
 
+    $attribute_changer->Retreive_And_Unserialize();
+
     include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Modify_Entry_Table_Processor.php');
 
+    $attribute_changer->Serialize_And_Store();
 }
 
 
