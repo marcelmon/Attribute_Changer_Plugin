@@ -81,7 +81,7 @@
         $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
             
         if(count($Session->Modify_Entry_List) == 0) {
-            print("ARRARARAR brroooo");
+            //print("ARRARARAR brroooo");
             return null; 
         }
         ksort($Session->Modify_Entry_List);

@@ -92,7 +92,7 @@
                     }
                 }
             }
-            print_r($Session->Committed_New_Entries);
+            //print_r($Session->Committed_New_Entries);
             return true;
         }
 
@@ -130,17 +130,17 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
             include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
             include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
             $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
-            print("YEEEEEEEEEUPPPPP");
-                    print("dork<br>aaa");
-            print_r($Session->Modify_Entry_List);
-            print("<br>muncher");
+            // print("YEEEEEEEEEUPPPPP");
+            //         print("dork<br>aaa");
+            // print_r($Session->Modify_Entry_List);
+            // print("<br>muncher");
             if(Initialize_Modify_Entries_Display() == null) {
-                            print("ARRARARAR oooooookkkkkk");
-                print("22222222222222222222222YEEEEEEEEEUPPPPP");
-                print(Process_All_New_And_Modify());
+                //             print("ARRARARAR oooooookkkkkk");
+                // print("22222222222222222222222YEEEEEEEEEUPPPPP");
+                // print(Process_All_New_And_Modify());
             }
             else{
-                print("YEEEEEEEEEUPPPPP111111111111111");
+                //print("YEEEEEEEEEUPPPPP111111111111111<br>in the table block<br>");
                 $HTML_TO_DISPLAY = Get_Modify_Entry_Table_Block();
                 print('<html><body><script src="'.$javascript_src.'"></script>'.$HTML_TO_DISPLAY.'</body></html>');
             }

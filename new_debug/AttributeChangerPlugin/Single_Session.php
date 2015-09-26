@@ -13,7 +13,7 @@ class Single_Session {
     public $New_Entry_List;
     public $Modify_Entry_List;
 
-    public $Current_Users_Values;
+    public $Current_User_Values;
 
 
     public $Current_Modify_Entries_Display_Amount;
