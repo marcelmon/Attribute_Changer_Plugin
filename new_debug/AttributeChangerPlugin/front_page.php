@@ -83,13 +83,15 @@ if(isset($_POST['File_Column_Match_Submit'])) {
         $attribute_changer->Serialize_And_Store();
         print($display_html);
     }
+
     else{
-        // if(Initialize_Modify_Entries_Display()!=null) {
-        //     $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
-        // }
-        // else{
-        //     $display_html = $display_html.'There is nothing new or to modify</body></html>'
-        // }
+        if(Initialize_Modify_Entries_Display()!=null) {
+            $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
+        }
+        else{
+            $display_html = $display_html.'There is nothing new or to modify</body></html>';
+        }
+        print($display_html);
     }
 
 }

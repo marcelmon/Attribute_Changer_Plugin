@@ -25,6 +25,8 @@
                 
             }
 
+            $Session->New_Entries_Columns_To_Select = $Columns_To_Accept;
+
             if(!isset($_POST['Hidden_New_Entry_List'])) {
                 //error
                 print("<html><body>THERE WAS AN ERROR WITH THE HIDDEN INPUT</body></html>");
@@ -40,13 +42,7 @@
                     unset($Session->Committed_New_Entries[$hidden_email_key]);
                 }
                 else{
-                    // print('<br>');
 
-                    // print_r($_POST);
-
-                    // print("<br>");
-                    // print($hidden_email_key);
-                    // print("<br>");
                     $Session->Committed_New_Entries[$hidden_email_key] = array();
                     foreach ($Columns_To_Accept as $key => $attribute_id) {
                         print("<br>huur ".$attribute_id."<br>");
@@ -58,11 +54,11 @@
                                 
                                 
                                 foreach ($_POST['New_Entry_List'][$hidden_email_key][$attribute_id] as $checkbox_key_id => $checkbox_value_id) {
-                                    //print_r($Session->attribute_list[$attribute_id]);
+
                                     if(!isset($Session->attribute_list[$attribute_id]['allowed_value_ids'])) {
                                         //print("<br>checkbox_value_id<br>");
                                     }
-                                    //print($Session->attribute_list[$attribute_id]['allowed_value_ids']);
+
                                     if(array_key_exists($checkbox_value_id, $Session->attribute_list[$attribute_id]['allowed_value_ids'])) {
                                         //print("huuuur again again<br>");
                                         if(!isset($Session->Committed_New_Entries[$hidden_email_key][$attribute_id])) {
@@ -92,7 +88,7 @@
                     }
                 }
             }
-            //print_r($Session->Committed_New_Entries);
+
             return true;
         }
 
@@ -130,17 +126,12 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
             include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
             include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
             $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
-            // print("YEEEEEEEEEUPPPPP");
-            //         print("dork<br>aaa");
-            // print_r($Session->Modify_Entry_List);
-            // print("<br>muncher");
+
             if(Initialize_Modify_Entries_Display() == null) {
-                //             print("ARRARARAR oooooookkkkkk");
-                // print("22222222222222222222222YEEEEEEEEEUPPPPP");
-                // print(Process_All_New_And_Modify());
+
             }
             else{
-                //print("YEEEEEEEEEUPPPPP111111111111111<br>in the table block<br>");
+
                 $HTML_TO_DISPLAY = Get_Modify_Entry_Table_Block();
                 print('<html><body><script src="'.$javascript_src.'"></script>'.$HTML_TO_DISPLAY.'</body></html>');
             }
@@ -149,7 +140,7 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
 
         if(isset($_POST['New_Entry_Change_Display_Amount']) && $_POST['New_Entry_Change_Display_Amount'] == 'New_Entry_Change_Display_Amount') {
 
-            //print("ARHHHH");
+
             
             $new_display_amounts = array(
                 10=>true,
@@ -162,7 +153,7 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
             $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
 
             if(isset($_POST['New_Entries_New_Display_Amount'])) {
-                //print("mades itts");
+
                 if(!isset($new_display_amounts[$_POST['New_Entries_New_Display_Amount']]) || $new_display_amounts[$_POST['New_Entries_New_Display_Amount']] != true) {
 
                 }

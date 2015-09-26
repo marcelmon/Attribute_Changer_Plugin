@@ -297,7 +297,7 @@
         if($Session->Current_New_Entry_Block_Number > 0) {
             $HTML_submit_buttons = $HTML_submit_buttons.'<input type="submit" name="value="New_Entries_Table_Previous_Page" value="New_Entries_Table_Previous_Page"></input>';
         }
-        if($Session->Current_New_Entry_Block_Number < $Session->New_Entires_Number_Of_Blocks - 1) {
+        if($Session->Current_New_Entry_Block_Number < $Session->New_Entries_Number_Of_Blocks - 1) {
             $HTML_submit_buttons = $HTML_submit_buttons.'<input type="submit" name="New_Entries_Table_Next_page" value="New_Entries_Table_Next_page"></input>';
         }
         switch($Session->Current_New_Entries_Display_Amount){
@@ -315,7 +315,7 @@
         }
         $HTML_Display_Size_Submit = $HTML_Display_Size_Submit.'<input type="submit" name="New_Entry_Change_Display_Amount" value="New_Entry_Change_Display_Amount"></input>';
         $HTML_Table_Navigation = $HTML_submit_buttons.$HTML_Display_Size_Submit.'</form>';
-        $HTML_current_table_info = sprintf("<div>Current Block : %d of %d. Displaying %d entires per page.</div>", $Session->Current_New_Entry_Block_Number+1, $Session->New_Entires_Number_Of_Blocks, $Session->Current_New_Entries_Display_Amount);
+        $HTML_current_table_info = sprintf("<div>Current Block : %d of %d. Displaying %d entries per page.</div>", $Session->Current_New_Entry_Block_Number+1, $Session->New_Entries_Number_Of_Blocks, $Session->Current_New_Entries_Display_Amount);
         $HTML_Table_Navigation = $HTML_Table_Navigation.$HTML_current_table_info;
 
         return $HTML_Table_Navigation;
@@ -352,85 +352,110 @@
         }
          
         if(isset($Session->Committed_Modify_Entries[$email_key])) {
-            $HTML_table_row = $HTML_table_row.sprintf('<tr><td>%s<br><input type="checkbox" class="Modify_Entry_Email" name="Modify_Entry_List[%s][%s]" value="include" checked>Include This Email</input><input type="hidden" name="Hidden_Modify_Entry_List[%s]" value="submitted"></td>',$email_key, 'include', $email_key, $email_key);
+            $HTML_table_row = $HTML_table_row.sprintf('<tr><td>%s<br><input type="checkbox" class="Modify_Entry_Email" name="Modify_Entry_List[%s][%s]" value="include" checked>Include This Email</input><input type="hidden" name="Hidden_Modify_Entry_List[%s]" value="submitted"></td>',$email_key, $email_key, 'include', $email_key);
         }
         else{
-            $HTML_table_row = $HTML_table_row.sprintf('<tr><td>%s<br><input type="checkbox" class="Modify_Entry_Email" name="Modify_Entry_List[%s][%s]" value="include">Include This Email</input><input type="hidden" name="Hidden$Session->_Modify_Entry_List[%s]" value="submitted"></td>',$email_key, 'include', $email_key, $email_key);
+            $HTML_table_row = $HTML_table_row.sprintf('<tr><td>%s<br><input type="checkbox" class="Modify_Entry_Email" name="Modify_Entry_List[%s][%s]" value="include">Include This Email</input><input type="hidden" name="Hidden_Modify_Entry_List[%s]" value="submitted"></td>',$email_key, $email_key, 'include', $email_key);
         }
 
         return $HTML_table_row;
     }
 
     function Get_Modify_Attribute_Block_Current_Values($email_key, $attribute_id) {
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
         $HTML_block = '';
-        return $HTML_block;
-        // if(!isset($Session->Current_User_Values[$email_key][$attribute_id]) {
-        //     return $HTML_block;
-        // }
-        // else {
-        //     switch ($Session->attribute_list[$attribute_id]['type']) {
-        //         case 'checkboxgroup':
-        //             foreach ($Session->Current_User_Values[$email_key]['attributes'][$attribute_id] as $key => $current_single_value) {
+        print('<br>hmmmm<br>'.$email_key.'<br>'.$attribute_id.'<br>');
+        print_r($Session->Current_User_Values);
+        print("<br>done with that<br>");
 
-        //                 if(isset($Session->$Committed_Modify_Entries[$email_key]) && isset($Session->$Committed_Modify_Entries[$email_key][$attribute_id])) {
-        //                     if(in_array($current_single_value, $Committed_Modify_Entries[$email_key][$attribute_id])) {
-        //                         $HTML_attribute_value_input = sprintf('<input type="checkbox" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $current_single_value, $current_single_value, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$current_single_value]);
-        //                     }
-        //                     else {
-        //                         $HTML_attribute_value_input = sprintf('<input type="checkbox" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $current_single_value, $current_single_value, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$current_single_value]);
-        //                     }
-        //                 }
-        //                 else{
-        //                     $HTML_attribute_value_input = sprintf('<input type="checkbox" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $current_single_value, $current_single_value, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$current_single_value]);
-        //                 }
-        //                 $HTML_block = $HTML_block.$HTML_attribute_value_input;
+        if(!isset($Session->Current_User_Values[$email_key][$attribute_id])) {
+            
+            return $HTML_block;
+        }
+        
+        else {
+            
+            $case_array = array(
+                'textarea' => 'case_1',
+                'textline' => 'case_1',
+                'hidden' => 'case_1',
+                'date' => 'case_1',
+
+                'checkbox' => 'case_2',
+                'radio' => 'case_2',
+                'select' => 'case_2',
+
+                'checkboxgroup' => 'case_3',
+            );
+            switch ($case_array[$Session->attribute_list[$attribute_id]['type']]) {
+                case 'case_3':
+                    
+                    foreach ($Session->Current_User_Values[$email_key]['attributes'][$attribute_id] as $key => $current_single_value) {
+                        print("ARG3333333<br>");
+                        if(isset($Session->Committed_Modify_Entries[$email_key]) && isset($Session->Committed_Modify_Entries[$email_key][$attribute_id])) {
+                            if(in_array($current_single_value, $Session->Committed_Modify_Entries[$email_key][$attribute_id])) {
+                                $HTML_attribute_value_input = sprintf('<input type="checkbox" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $current_single_value, $current_single_value, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$current_single_value]);
+                            }
+                            else {
+                                $HTML_attribute_value_input = sprintf('<input type="checkbox" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $current_single_value, $current_single_value, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$current_single_value]);
+                            }
+                        }
+                        else{
+                            $HTML_attribute_value_input = sprintf('<input type="checkbox" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $current_single_value, $current_single_value, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$current_single_value]);
+                        }
+                        $HTML_block = $HTML_block.$HTML_attribute_value_input;
                         
-        //             }
-
-        //             break;
+                    }
+                    break;
                 
-        //         case 'checkbox'|'select'|'radio' :
+                case 'case_2' :
+                    
+                    if(isset($Session->Committed_Modify_Entries[$email_key]) && isset($Session->Committed_Modify_Entries[$email_key][$attribute_id])) {
+                        if($Session->Committed_Modify_Entries[$email_key][$attribute_id] === $Session->Current_User_Values[$email_key][$attribute_id]) {
+                            $HTML_attribute_value_input = sprintf('<input type="radio class="Current_Modify_Attribute_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $Session->Current_User_Values[$email_key][$attribute_id], $Session->attribute_list[$attribute_id]['allowed_value_ids'][$Session->Current_User_Values[$email_key][$attribute_id]]);                             
+                        }
+                        else {
+                            $HTML_attribute_value_input = sprintf('<input type="radio" class="Current_Modify_Attribute_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_name, $email_key, $attribute_id, $Session->Current_User_Values[$email_key]['attributes'][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id], $Session->attribute_list[$attribute_id]['allowed_value_ids'][$Session->Current_User_Values[$email_key][$attribute_id]]);
+                        }
+                    }
+                    else{
+                        //no current committed entries, so this current value should be checked
+                        $HTML_attribute_value_input = sprintf('<input type="radio" class="Current_Modify_Attribute_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id]);
+                    }
+                    $HTML_block = $HTML_block.$HTML_attribute_value_input;
+                    break;
 
-        //             if(isset($Session->$Committed_Modify_Entries[$email_key]) && isset($Session->$Committed_Modify_Entries[$email_key][$attribute_id])) {
-        //                 if($Session->$Committed_Modify_Entries[$email_key][$attribute_id] === $Session->Current_User_Values[$email_key][$attribute_id]) {
-        //                     $HTML_attribute_value_input = sprintf('<input type="radio class="Current_Modify_Attribute_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $Session->Current_User_Values[$email_key][$attribute_id], $Session->attribute_list[$attribute_id]['allowed_value_ids'][$Session->Current_User_Values[$email_key][$attribute_id]]);                             
-        //                 }
-        //                 else {
-        //                     $HTML_attribute_value_input = sprintf('<input type="radio" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_name, $email_key, $attribute_id, $$Session->Current_User_Values[$email_key]['attributes'][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id], $Session->attribute_list[$attribute_id]['allowed_value_ids'][$Session->Current_User_Values[$email_key][$attribute_id]]);
-        //                 }
-        //             }
-        //             else{
-        //                 //no current commited entries, so this current value should be checked
-        //                 $HTML_attribute_value_input = sprintf('<input type="radio" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $$Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id]);
-        //             }
-        //             $HTML_block = $HTML_block.$HTML_attribute_value_input;
-        //             break;
+                case 'case_1':
+                    
+                    if(isset($Session->Committed_Modify_Entries[$email_key]) && isset($Session->Committed_Modify_Entries[$email_key][$attribute_id])) {
 
-        //         default:
-        //             if(isset($Session->$Committed_Modify_Entries[$email_key]) && isset($Session->$Committed_Modify_Entries[$email_key][$attribute_id])) {
-        //                 if($Session->$Committed_Modify_Entries[$email_key][$attribute_id] === $Session->Current_User_Values[$email_key][$attribute_id]) {
-        //                     $HTML_attribute_value_input = sprintf('<input type="radio class="Current_Modify_Attribute_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id]);                             
-        //                 }
-        //                 else {
-        //                     $HTML_attribute_value_input = sprintf('<input type="radio" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id]);
-        //                 }
-        //             }
-        //             else{
-        //                 //no current commited entries, so this current value should be checked
-        //                 $HTML_attribute_value_input = sprintf('<input type="radio" class="Current_Modify_Checkbox_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $$Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id]);
-        //             }
-        //             $HTML_block = $HTML_block.$HTML_attribute_value_input;
-        //             break;
-        //     }
-        //     return $HTML_block;
-        // }
+                        if($Session->Committed_Modify_Entries[$email_key][$attribute_id] === $Session->Current_User_Values[$email_key][$attribute_id]) {
+                            $HTML_attribute_value_input = sprintf('<input type="radio class="Current_Modify_Attribute_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id]);                             
+                        }
+                        else {
+                            $HTML_attribute_value_input = sprintf('<input type="radio" class="Current_Modify_Attribute_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id]);
+                        }
+                    }
+                    else {
+
+                        //no current committed entries, so this current value should be checked
+                        $HTML_attribute_value_input = sprintf('<input type="radio" class="Current_Modify_Attribute_Value_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $Session->Current_User_Values[$email_key][$attribute_id], $Session->Current_User_Values[$email_key][$attribute_id]);
+                        
+                    }
+                    $HTML_block = $HTML_block.$HTML_attribute_value_input;
+                    break;
+                default:
+                    break;
+            }
+            return $HTML_block;
+        }
     }
 
     function Get_Modify_Table_Header() {
 
         $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
 
-        $HTML_Modify_Table_Header = sprintf('<form name="Modify_Entry_Submit_Form_Block__%d" action="%s" method="post"><input type="hidden" name="Modify_Entry_Form_Submitted" value="submitted">', $Session->Current_Modify_Entry_Block_Number, 'New_And_Modify_Entry_Table_Display.php');
+        $HTML_Modify_Table_Header = sprintf('<form name="Modify_Entry_Submit_Form_Block__%d" action="" method="post"><input type="hidden" name="Modify_Entry_Form_Submitted" value="submitted">', $Session->Current_Modify_Entry_Block_Number);
         $HTML_Modify_Table_Header = $HTML_Modify_Table_Header.sprintf('<table id="Modify_User_Attribute_Select_Table_Block__%d">', $Session->Current_Modify_Entry_Block_Number);
 
         $HTML_table_row = sprintf('<tr><td>EMAIL<br><input type="button" id="Modify_Entry_Include_All_Emails" name="Modify_Entry_Include_All_Emails" value="Include All Emails" onClick="checkAll_ModifyEntry_Emails()"></input>');
@@ -440,7 +465,7 @@
 
         foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
 
-            $HTML_table_row = sprintf('<td>Attribute: %s<input type="checkbox" name="Modify_Entry_Attribute_Column_Select[%s]" value="checked">',$attribute_info['name'], $attribute_id);
+            $HTML_table_row = sprintf('<td>Attribute: %s<input type="checkbox" name="Modify_Entry_Attribute_Column_Select[%s]" value="checked" %s>',$attribute_info['name'], $attribute_id, in_array($attribute_id, $Session->Modify_Entries_Columns_To_Select)?'checked':'');
             if($attribute_info['type'] === 'checkboxgroup') {
                 $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="Modify_Entry_Include_All_Checkboxgroup_%s" value="Include All Checkboxgroup Values" onClick="checkAll_ModifyEntry_CheckboxGroup(\'%s\')"></input>', $attribute_id, $attribute_name);
                 $HTML_table_row = $HTML_table_row.sprintf('<br><input type="button" name="Modify_Entry_Remove_All_Checkboxgroup_%s" value="Remove All Checkboxgroup Values" onClick="removeAll_ModifyEntry_CheckboxGroup(\'%s\')"></input></td>', $attribute_id, $attribute_id);
@@ -463,11 +488,11 @@
 
         $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
 
-        $HTML_Navigation = '<input type="submit" name ="Modify_Entries_Table_Submit_all" value="Submit_all">Submit_all</input>';
+        $HTML_Navigation = '<input type="submit" name ="Modify_Entries_Table_Submit_All" value="Modify_Entries_Table_Submit_All">Submit_all</input>';
         if($Session->Current_New_Entry_Block_Number > 0) {
             $HTML_Navigation = $HTML_Navigation.'<input type="submit" name ="Modify_Entries_Table_Previous_Page" value="Modify_Entries_Table_Previous_Page"></input>';
         }
-        if($Session->Current_New_Entry_Block_Number < $Session->New_Entires_Number_Of_Blocks - 1) {
+        if($Session->Current_New_Entry_Block_Number < $Session->New_Entries_Number_Of_Blocks - 1) {
             $HTML_Navigation = $HTML_Navigation.'<input type="submit" name ="Modify_Entries_Table_Next_Page" value="Modify_Entries_Table_Next_Page"></input>';
         }
         switch($Session->Current_Modify_Entries_Display_Amount){
@@ -484,9 +509,9 @@
 
         }
 
-        $HTML_Display_Size_Submit = $HTML_Display_Size_Submit.'<input type="submit" name="New_Entry_Change_Display_Amount" value="New_Entry_Change_Display_Amount"></input>';
+        $HTML_Display_Size_Submit = $HTML_Display_Size_Submit.'<input type="submit" name="Modify_Entry_Change_Display_Amount" value="Modify_Entry_Change_Display_Amount"></input>';
         $HTML_Navigation = $HTML_Navigation.$HTML_Display_Size_Submit.'</form>';
-        $HTML_current_table_info = sprintf("<div>Current Block : %d of %d. Displaying %d entires per page.</div>", $Session->Current_Modify_Entry_Block_Number+1, $Session->Modify_Entires_Number_Of_Blocks, $Session->Current_Modify_Entries_Display_Amount);
+        $HTML_current_table_info = sprintf("<div>Current Block : %d of %d. Displaying %d entries per page.</div>", $Session->Current_Modify_Entry_Block_Number+1, $Session->Modify_Entries_Number_Of_Blocks, $Session->Current_Modify_Entries_Display_Amount);
         $HTML_Navigation = $HTML_Navigation.$HTML_current_table_info;
         return $HTML_Navigation;
     }
@@ -510,9 +535,9 @@
                 if($attribute_info['type'] === 'checkboxgroup') {
                     $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Value_Display_Checkboxgroup_New_Vals($email_key, $attribute_id);
                 }
-                // else{
-                //     $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Value_Display_Other_Type_New_Vals($email_key, $attribute_id);
-                // }
+                else{
+                    $HTML_table_row = $HTML_table_row.Get_Modify_Attribute_Value_Display_Other_Type_New_Vals($email_key, $attribute_id);
+                }
                 $HTML_table_row = $HTML_table_row.'</td>';
             }
             $HTML_Display_Text = $HTML_Display_Text.$HTML_table_row .'</tr>';
@@ -549,56 +574,76 @@
         return $HTML_value_block;
     }
 
-    // function Get_Modify_Attribute_Value_Display_Other_Type_New_Vals($email_key, $attribute_id) {
-    //     $HTML_value_block = '';
-    //     if($Session->attribute_list[$attribute_id]['type'] === 'checkboxgroup') {
-    //         return $HTML_value_block;
-    //     }
+    function Get_Modify_Attribute_Value_Display_Other_Type_New_Vals($email_key, $attribute_id) {
+        $HTML_value_block = '';
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+        if($Session->attribute_list[$attribute_id]['type'] === 'checkboxgroup') {
+            return $HTML_value_block;
+        }
 
-    //     foreach ($Session->Modify_Entry_List[$email_key][$attribute_id] as $numkey => $checkbox_value_id) {
 
-    //         if($Session->attribute_list[$attribute_id]['type'] === 'checkbox'|'select'|'radio') {
-    //             $this_value = $Session->$attribute_list[$attribute_id]['allowed_value_ids'][$checkbox_value_id];
-    //         }
-    //         else{
-    //             $this_value = $checkbox_value_id;
-    //         }
+        $case_array = array(
+            'textarea' => 'case_1',
+            'textline' => 'case_1',
+            'hidden' => 'case_1',
+            'date' => 'case_1',
 
-    //         if(isset($Session->Committed_Modify_Entries[$email_key]) && isset($Session->Committed_Modify_Entries[$email_key][$attribute_id]) {
+            'checkbox' => 'case_2',
+            'radio' => 'case_2',
+            'select' => 'case_2',
 
-    //             if($checkbox_value_id === $Session->Committed_Modify_Entries[$email_key][$attribute_id]) ) {
-    //                 if(($numkey == 0) && (!isset($Session->Current_User_Values[$email_key][$attribute_id]) || count($Session->Current_User_Values[$email_key][$attribute_id]) == 0)) {
-    //                     $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_Safe_Value_Attribute_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
-    //                 }
-    //                 else{
-    //                     $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
-    //                 }
+            'checkboxgroup' => 'case_3',
+        );
 
-    //             }
-    //             else{
-    //                 if($numkey == 0 && !isset($Session->Current_User_Values[$email_key][$attribute_id])) {
-    //                     $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_Safe_Value_Attribute_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
-    //                 }
-    //                 else{
-    //                     $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
-    //                 }                                   
-    //             }
+        foreach ($Session->Modify_Entry_List[$email_key][$attribute_id] as $numkey => $checkbox_value_id) {
 
-    //         }
-    //         else{
-    //             if($numkey == 0 && !isset($Session->Current_User_Values[$email_key][$attribute_id])) {
-    //                 $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_Safe_Value_Attribute_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
-    //             }
-    //             else{
-    //                 $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
-    //             }
-    //         }
-    //         $HTML_value_block = $HTML_table_row.$HTML_attribute_value_input;
+            if(!isset($case_array[$Session->attribute_list[$attribute_id]['type']])) {
+                return $HTML_value_block;
+            }
+            $this_value ='';
+
+            if($case_array[$Session->attribute_list[$attribute_id]['type']] === 'case_2') {
+                $this_value = $Session->$attribute_list[$attribute_id]['allowed_value_ids'][$checkbox_value_id];
+            }
+            else{
+                $this_value = $checkbox_value_id;
+            }
+
+            if(isset($Session->Committed_Modify_Entries[$email_key]) && isset($Session->Committed_Modify_Entries[$email_key][$attribute_id])) {
+
+                if($checkbox_value_id === $Session->Committed_Modify_Entries[$email_key][$attribute_id]) {
+                    if( ($numkey == 0) && (!isset($Session->Current_User_Values[$email_key][$attribute_id]) || count($Session->Current_User_Values[$email_key][$attribute_id]) == 0) ) {
+                        $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_Safe_Value_Attribute_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
+                    }
+                    else{
+                        $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_%s" name="Modify_Entry_List[%s][%s]" value="%s" checked>%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
+                    }
+
+                }
+                else{
+                    if($numkey == 0 && !isset($Session->Current_User_Values[$email_key][$attribute_id])) {
+                        $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_Safe_Value_Attribute_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
+                    }
+                    else{
+                        $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
+                    }                                   
+                }
+
+            }
+            else{
+                if($numkey == 0 && !isset($Session->Current_User_Values[$email_key][$attribute_id])) {
+                    $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_Safe_Value_Attribute_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
+                }
+                else{
+                    $HTML_attribute_value_input = sprintf('<input type="radio" class="Modify_Entry_%s" name="Modify_Entry_List[%s][%s]" value="%s">%s</input><br>', $attribute_id, $email_key, $attribute_id, $checkbox_value_id, $this_value);
+                }
+            }
+            $HTML_value_block = $HTML_table_row.$HTML_attribute_value_input;
         
             
-    //     }
-    //     return $HTML_value_block;
-    // }
+        }
+        return $HTML_value_block;
+    }
 
 
 

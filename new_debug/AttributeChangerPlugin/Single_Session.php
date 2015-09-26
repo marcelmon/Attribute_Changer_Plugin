@@ -18,19 +18,24 @@ class Single_Session {
 
     public $Current_Modify_Entries_Display_Amount;
     public $Modify_Enties_Total_Amount;
-    public $Modify_Entires_Number_Of_Blocks;
+    public $Modify_Entries_Number_Of_Blocks;
     public  $Current_Modify_Entry_Block_Number;
 
     public $Committed_Modify_Entries;
 
+    public $Modify_Entries_Columns_To_Select;
 
 
     // // // //either 10, 100, 1000, 10000, all
     // // // //default 100
     public $Current_New_Entries_Display_Amount;
     public $New_Entries_Total_Amount;
-    public $New_Entires_Number_Of_Blocks;
+    public $New_Entries_Number_Of_Blocks;
     public $Current_New_Entry_Block_Number;
+
+    public $New_Entries_Columns_To_Select;
+
+
 
     public $Committed_New_Entries;
 

@@ -99,6 +99,9 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
 
         fclose($fp);
+
+
+
         $display_html ='<div>File Processing Complete</div>';
 
     }

@@ -116,6 +116,17 @@ class AttributeChangerPlugin extends phplistPlugin {
         return $this->Current_Session;
     }
 
+    function Close_Session() {
+    //     if($this->Current_Session != null) {
+    //         if(isset($this->Current_Session->file_location)) {
+    //             if(is_file($this->Current_Session->file_location)) {
+    //                 unlink($this->Current_Session->file_location);
+    //             }
+    //         }
+    //         $this->Current_Session = null;
+    //     }
+    }
+
 	function Test_Create_Temp_Dir() {
 		
         $temp_dir = PLUGIN_ROOTDIR.'/AttributeChangerPlugin/temp_table_uploads/';
@@ -192,7 +203,6 @@ class AttributeChangerPlugin extends phplistPlugin {
 
         }
         else{
-        	        print("ASADARARAR<br>");
             $this->Add_Modify_Entry($email, $changing_attributes);
         }
     }
@@ -255,7 +265,8 @@ class AttributeChangerPlugin extends phplistPlugin {
 /////////////////////////////
 //HERE
     function Add_Modify_Entry($email_key, $attribute_values) {
-        //print("<br>mod entr".$email_key.'<br>');
+
+
         print_r($attribute_values);
         if($this->Current_Session == null) {
             return "ERROR NO CURRENT SESSION";
@@ -272,10 +283,9 @@ class AttributeChangerPlugin extends phplistPlugin {
             if(!isset($Session->Current_User_Values[$email_key])) {
 
                 if($this->Get_Current_User_Values($email_key) == false) {
-
+                    
                     return false;
-                } 
-                
+                }
             }
             $new_entries = array();
             $is_new_value = false;
@@ -334,7 +344,7 @@ class AttributeChangerPlugin extends phplistPlugin {
         if(!isset($Session->Current_User_Values[$email_key])) {
 
             $Session->Current_User_Values[$email_key] = array();
-            print("ARFARF");
+
             $Session->Current_User_Values[$email_key]['id'] = $current_user_sql_result[0];
                             
             foreach ($Session->attribute_list as $attribute_id => $attribute_data) {
@@ -357,7 +367,7 @@ class AttributeChangerPlugin extends phplistPlugin {
                     }
 
                     else {
-                        array_push($Session->Current_User_Values[$email_key][$attribute_id], $current_attribute_return[0]);
+                        $Session->Current_User_Values[$email_key][$attribute_id] = $current_attribute_return[0];
                         
                     }
                 }
@@ -387,7 +397,7 @@ class AttributeChangerPlugin extends phplistPlugin {
         }
 
         else{
-print("<br>in hurrr<br>");
+
             foreach ($attribute_values as $attribute_id => $single_attribute_values) {
                 if(!is_array($single_attribute_values)) {
                     //shouldnt happen
