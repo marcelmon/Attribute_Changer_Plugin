@@ -192,8 +192,8 @@ class AttributeChangerPlugin extends phplistPlugin {
 
         }
         else{
-        	        //print("ASADARARAR<br>");
-            //Add_Modify_Entry($email, $changing_attributes);
+        	        print("ASADARARAR<br>");
+            $this->Add_Modify_Entry($email, $changing_attributes);
         }
     }
 
@@ -252,56 +252,120 @@ class AttributeChangerPlugin extends phplistPlugin {
         }
     }
 
-
-
+/////////////////////////////
+//HERE
     function Add_Modify_Entry($email_key, $attribute_values) {
-        // if($this->Current_Session == null) {
-        //     return "ERROR NO CURRENT SESSION";
-        // }
+        print("<br>mod entr".$email_key.'<br>');
+        print_r($attribute_values);
+        if($this->Current_Session == null) {
+            return "ERROR NO CURRENT SESSION";
+        }
 
-        // $Session = $this->Current_Session;
-        // if($attribute_values == null || !is_array($attribute_values || count($attribute_values) == 0 )) {
-        //     //do nothing, already have a user but theres nothing to update
-        // }
-        // else{
-        //     if(!isset($Session->Current_Users_Values[$email_key])) {
-        //         if(Get_Current_User_Values($email_key) == false) {
-        //             return false;
-        //         } 
-        //     }
-        //     $new_entries = array();
-        //     $is_new_value = false;
+        $Session = $this->Current_Session;
+        if($attribute_values == null || !is_array($attribute_values) || count($attribute_values) == 0 ) {
+            //do nothing, already have a user but theres nothing to updateprint
 
-        //     foreach ($attribute_values as $attribute_id => $attribute_value_array) {
 
-        //         $new_entries[$attribute_id] = array();
+        }
+        else{
+
+            if(!isset($Session->Current_Users_Values[$email_key])) {
+
+                if($this->Get_Current_User_Values($email_key) == false) {
+
+                    return false;
+                } 
+                
+            }
+            $new_entries = array();
+            $is_new_value = false;
+
+            foreach ($attribute_values as $attribute_id => $attribute_value_array) {
+
+                $new_entries[$attribute_id] = array();
 
                 
-        //         foreach ($attribute_value_array as $numkey => $value) {
-        //             if(!in_array($value, $Session->Current_Users_Values[$email_key][$attribute_id])) {
-        //                 array_push($new_entries[$attribute_id], $value);
-        //                 $is_new_value = true;
-        //             }
+                foreach ($attribute_value_array as $numkey => $value) {
+                    if(!in_array($value, $Session->Current_Users_Values[$email_key][$attribute_id])) {
+                        array_push($new_entries[$attribute_id], $value);
+                        $is_new_value = true;
+                    }
                     
-        //         }
-        //     }
-        //     if($is_new_value == true) {
-        //         if(!isset($Session->Modify_Entry_List[$email_key])) {
-        //             $Session->Modify_Entry_List[$email_key] = array();
-        //         }
-        //         foreach ($new_entries as $attribute_id => $value_array) {
-        //             if(!isset($Session->Modify_Entry_List[$email_key][$attribute_id])) {
-        //                 $Session->Modify_Entry_List[$email_key][$attribute_id] = array();
-        //             }
-        //             foreach ($value_array as $nkey => $value) {
-        //                 if(!in_array($value, $Session->Modify_Entry_List[$email_key][$attribute_id])) {
-        //                     array_push($Session->Modify_Entry_List[$email_key][$attribute_id], $value);
-        //                 }
-        //             }
-        //         }
-        //     }  
-        // }
+                }
+            }
+            if($is_new_value == true) {
+                if(!isset($Session->Modify_Entry_List[$email_key])) {
+                    $Session->Modify_Entry_List[$email_key] = array();
+                }
+                foreach ($new_entries as $attribute_id => $value_array) {
+                    if(!isset($Session->Modify_Entry_List[$email_key][$attribute_id])) {
+                        $Session->Modify_Entry_List[$email_key][$attribute_id] = array();
+                    }
+                    foreach ($value_array as $nkey => $value) {
+                        if(!in_array($value, $Session->Modify_Entry_List[$email_key][$attribute_id])) {
+                            array_push($Session->Modify_Entry_List[$email_key][$attribute_id], $value);
+                        }
+                    }
+                }
+            }  
+        }
+
     }
+
+
+    function Get_Current_User_Values($email_key) {
+        $Session = $this->Current_Session;
+
+
+        if($this->Current_Session == null) {
+            return "ERROR NO CURRENT SESSION";
+        }
+
+
+
+        $current_user_query = sprintf('select id from %s where email = "%s"', $GLOBALS['tables']['user'], $email_key);
+        $current_user_sql_result = Sql_Fetch_Row_Query($current_user_query);
+
+        if(!$current_user_sql_result[0]) {
+                     
+            return false;
+        }
+
+        if(!isset($Session->Current_Users_Values[$email_key])) {
+
+            $Session->Current_Users_Values[$email_key] = array();
+            print("ARFARF");
+            $Session->Current_Users_Values[$email_key]['id'] = $current_user_sql_result[0];
+                            
+            foreach ($Session->attribute_list as $attribute_id => $attribute_data) {
+
+                $Current_User_Value_Query = sprintf("select value from %s where attributeid = %d and userid = %s", $GLOBALS['tables']['user_attribute'], $attribute_id, $current_user_sql_result[0]);
+                $current_attribute_return = Sql_Fetch_Row_Query($Current_User_Value_Query);
+
+                $Session->Current_Users_Values[$email_key][$attribute_id] = array();
+
+                if(!$current_attribute_return[0]) {
+                    continue;
+                }
+
+                else{
+                    if($attribute_data['type'] == 'checkboxgroup') {
+                        $exploded_current_values_ids = explode(',', $current_attribute_return[0]);
+
+                        $Session->Current_Users_Values[$email_key][$attribute_id] = $exploded_current_values_ids;
+
+                    }
+
+                    else {
+                        array_push($Session->Current_Users_Values[$email_key][$attribute_id], $current_attribute_return[0]);
+                        
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
 
     //attribute values array([att_id] => values), values have been test all are acceptable
     function Add_New_Entry($email_key, $attribute_values) {

@@ -4,10 +4,11 @@
 
 //if (!defined('PHPLISTINIT')) die(); ## avoid pages being loaded directly
 
-if ($GLOBALS["commandline"]) {
- echo 'not to oppened by command line';
- die();
-}
+
+//.///////////////////////////////////////////////////
+////////////////////////////////////still need to make the include this attribute sticky
+
+
 
 if(!isset($GLOBALS['plugins'])) {
     print('empty');

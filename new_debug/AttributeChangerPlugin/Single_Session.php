@@ -16,10 +16,10 @@ class Single_Session {
     public $Current_Users_Values;
 
 
-    // // // $Current_Modify_Entries_Display_Amount;
-    // // // $Modify_Enties_Total_Amount;
-    // // // $Modify_Entires_Number_Of_Blocks;
-    // // // $Current_Modify_Entry_Block_Number;
+    public $Current_Modify_Entries_Display_Amount;
+    public $Modify_Enties_Total_Amount;
+    public $Modify_Entires_Number_Of_Blocks;
+    public  $Current_Modify_Entry_Block_Number;
 
     public $Committed_Modify_Entries;
 

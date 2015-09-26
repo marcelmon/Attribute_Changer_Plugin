@@ -51,9 +51,10 @@
     }
 
     function New_Entry_Display_Next_Page() {
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
         if($Session->Current_New_Entry_Block_Number < $Session->New_Entires_Number_Of_Blocks-1) {
-            $Session->Current_New_Entry_Block_Number++;
-            return Get_Modify_Entry_Table_Block();
+            //$Session->Current_New_Entry_Block_Number = $Session->Current_New_Entry_Block_Number + 1;
+            return true;
         }
         else{
             //because there are no more blocks
@@ -61,35 +62,39 @@
         }
     }
     
-    // function New_Entry_Display_Previous_Page() {
-    //     if($Session->Current_New_Entry_Block_Number > 0) {
-    //         $Session->Current_New_Entry_Block_Number--;
-    //         return Get_Modify_Entry_Table_Block();
-    //     }
-    //     else{
-    //         //because there are no more blocks
-    //         return false;
-    //     }
-    // }
+    function New_Entry_Display_Previous_Page() {
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+        if($Session->Current_New_Entry_Block_Number > 0) {
+            $Session->Current_New_Entry_Block_Number = $Session->Current_New_Entry_Block_Number-1;
+            return true;
+        }
+        else{
+            //because there are no more blocks
+            return false;
+        }
+    }
 
 
 
 
-    // function Initialize_Modify_Entries_Display() {
-    //     if(count($Session->Modify_Entry_List == 0)) {
-    //         return null; 
-    //     }
-    //     ksort($Session->Modify_Entry_List);
-    //     $Session->Commited_Modify_Entries = array();
+    function Initialize_Modify_Entries_Display() {
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+            
+        if(count($Session->Modify_Entry_List) == 0) {
+            print("ARRARARAR brroooo");
+            return null; 
+        }
+        ksort($Session->Modify_Entry_List);
+        $Session->Commited_Modify_Entries = array();
 
-    //     $Session->Current_Modify_Entries_Display_Amount = 100;
-    //     $Session->Modify_Enties_Total_Amount = count($Session->Modify_Entry_List);
-    //     $Session->Modify_Entires_Number_Of_Blocks = $Session->Modify_Enties_Total_Amount/$Session->Current_Modify_Entries_Display_Amount + (($Session->Current_Modify_Entries_Display_Amount % $Session->Modify_Enties_Total_Amount)? 1:0);
+        $Session->Current_Modify_Entries_Display_Amount = 100;
+        $Session->Modify_Enties_Total_Amount = count($Session->Modify_Entry_List);
+        $Session->Modify_Entires_Number_Of_Blocks = $Session->Modify_Enties_Total_Amount/$Session->Current_Modify_Entries_Display_Amount + (($Session->Current_Modify_Entries_Display_Amount % $Session->Modify_Enties_Total_Amount)? 1:0);
      
-    //     $Session->Current_Modify_Entry_Block_Number = 0;
-    //     return true;
+        $Session->Current_Modify_Entry_Block_Number = 0;
+        return true;
          
-    // }   
+    }   
     // function Modify_Entry_Display_Next_Page() {
     //     if($Session->Current_Modify_Entry_Block_Number < $Session->Modify_Entires_Number_Of_Blocks-1) {
     //         $Session->Current_Modify_Entry_Block_Number++;

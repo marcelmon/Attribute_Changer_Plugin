@@ -40,50 +40,53 @@
                     unset($Session->Committed_New_Entries[$hidden_email_key]);
                 }
                 else{
-                    print('<br>');
+                    // print('<br>');
 
-                    print_r($_POST);
+                    // print_r($_POST);
 
-                    print("<br>");
-                    print($hidden_email_key);
-                    print("<br>");
+                    // print("<br>");
+                    // print($hidden_email_key);
+                    // print("<br>");
                     $Session->Committed_New_Entries[$hidden_email_key] = array();
                     foreach ($Columns_To_Accept as $key => $attribute_id) {
                         print("<br>huur ".$attribute_id."<br>");
                         if(isset($_POST['New_Entry_List'][$hidden_email_key][$attribute_id])) {
 
-                            print("huuuur again<br>");
+                            
 
                             if($Session->attribute_list[$attribute_id]['type'] === 'checkboxgroup') {
-
+                                
+                                
                                 foreach ($_POST['New_Entry_List'][$hidden_email_key][$attribute_id] as $checkbox_key_id => $checkbox_value_id) {
-                                    if(array_key_exists($checkbox_key_id, $Session->attribute_list[$attribute_id]['allowed_values'])) {
-
+                                    //print_r($Session->attribute_list[$attribute_id]);
+                                    if(!isset($Session->attribute_list[$attribute_id]['allowed_value_ids'])) {
+                                        //print("<br>checkbox_value_id<br>");
+                                    }
+                                    //print($Session->attribute_list[$attribute_id]['allowed_value_ids']);
+                                    if(array_key_exists($checkbox_value_id, $Session->attribute_list[$attribute_id]['allowed_value_ids'])) {
+                                        //print("huuuur again again<br>");
                                         if(!isset($Session->Committed_New_Entries[$hidden_email_key][$attribute_id])) {
                                             $Session->Committed_New_Entries[$hidden_email_key][$attribute_id] = array();
                                         }
-                                        array_push($Session->Committed_New_Entries[$hidden_email_key][$attribute_id], $checkbox_key_id);
+                                        array_push($Session->Committed_New_Entries[$hidden_email_key][$attribute_id], $checkbox_value_id);
                                     }
+                               
                                 }
                             }
-                            else {
-                                print($Session->attribute_list[$attribute_id]['type']);
-                                if($Session->attribute_list[$attribute_id]['type'] === 'radio' || $Session->attribute_list[$attribute_id]['type'] === 'select') {
-                                    print("HERHEHREHRERH");
+                            else  if($Session->attribute_list[$attribute_id]['type'] === 'radio' || $Session->attribute_list[$attribute_id]['type'] === 'select') {
+                                    
                                     if(in_array($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->attribute_list[$attribute_id])) {
 
                                         $Session->Committed_New_Entries[$hidden_email_key][$attribute_id] = array_search($_POST['New_Entry_List'][$hidden_email_key][$attribute_id], $Session->attribute_list[$attribute_id]);
-                                        print('<br>huuuu 4<br>'.$Session->Committed_New_Entries[$hidden_email_key][$attribute_id].'<br>adasdasd<br>');
+                                        
                                     }
 
                                 }
 
-                                else{
-
-                                }
+                            else if ($Session->attribute_list[$attribute_id]['type'] === 'textline') {
+                                //have test for good text here, HTML SPECIAL CHARS
+                                $Session->Committed_New_Entries[$hidden_email_key][$attribute_id] = $_POST['New_Entry_List'][$hidden_email_key][$attribute_id];
                             }
-                            
-                            
 
                         }
                     }
@@ -96,7 +99,7 @@
 
         // function Get_Allowed_Attributes($attribute_id) {
         //     if(isset($Session->attribute_list[$attribute_id]) && $Session->attribute_list[$attribute_id]['type'] == ('checkboxgroup'|'checkbox'|'radio'|'select')) {
-        //         return $Session->attribute_list[$attribute_id]['allowed_values'];
+        //         return $Session->attribute_list[$attribute_id]['allowed_value_ids'];
         //     }
         //     else{
         //         return false;
@@ -123,11 +126,21 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
         if(isset($_POST['New_Entries_Table_Submit_All']) && $_POST['New_Entries_Table_Submit_All'] === 'New_Entries_Table_Submit_All' ) {
 
             //$GLOBALS['plugins']['AttributeChangerPlugin']->Retreive_And_Unserialize();
-
+            
+            include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
+            include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
+            $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+            print("YEEEEEEEEEUPPPPP");
+                    print("dork<br>aaa");
+            print_r($Session->Modify_Entry_List);
+            print("<br>muncher");
             if(Initialize_Modify_Entries_Display() == null) {
+                            print("ARRARARAR oooooookkkkkk");
+                print("22222222222222222222222YEEEEEEEEEUPPPPP");
                 print(Process_All_New_And_Modify());
             }
             else{
+                print("YEEEEEEEEEUPPPPP111111111111111");
                 $HTML_TO_DISPLAY = Get_Modify_Entry_Table_Block();
                 print('<html><body><script src="'.$javascript_src.'"></script>'.$HTML_TO_DISPLAY.'</body></html>');
             }
@@ -171,16 +184,16 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
             
         }
         if(isset($_POST['New_Entries_Table_Next_Page']) && $_POST['New_Entries_Table_Next_Page'] === 'New_Entries_Table_Next_Page') {
-            $HTML_TO_DISPLAY = New_Entry_Display_Next_Page();
-            if($HTML_TO_DISPLAY == false) {
+            $truth = New_Entry_Display_Next_Page();
+            if($truth == false) {
                 $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
             }
             print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
         }
 
         if(isset($_POST['New_Entries_Table_Previous_Page']) && $_POST['New_Entries_Table_Previous_Page'] === 'New_Entries_Table_Previous_Page') {
-            $HTML_TO_DISPLAY = New_Entry_Display_Previous_Page();
-            if($HTML_TO_DISPLAY == false) {
+            $truth = New_Entry_Display_Previous_Page();
+            if($truth == false) {
                 $HTML_TO_DISPLAY = Get_New_Entry_Table_Block();
             }
             print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
