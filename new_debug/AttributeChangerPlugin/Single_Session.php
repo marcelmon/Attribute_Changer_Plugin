@@ -1,5 +1,16 @@
 <?php
 
+/*
+
+    Make tables generic and use for new and modify
+
+
+
+*/
+
+
+
+
 
 class Single_Session {
 

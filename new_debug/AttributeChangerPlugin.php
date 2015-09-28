@@ -24,6 +24,13 @@ class AttributeChangerPlugin extends phplistPlugin {
 
 	public $attribute_changer_tablename;
 
+
+
+
+
+    //THIS SHOULD BE UPGRADED TO A GENERIC TYPE AS PER THE TABLE SETTINGS
+
+
     function __construct()
     {
         parent::__construct();
@@ -91,18 +98,55 @@ class AttributeChangerPlugin extends phplistPlugin {
         $this->Current_Session = unserialize(base64_decode($serialized_session));
     }
 
-    function New_Session() {
+
+    // function Test_Table_Exists() {
+
+    //      print("ASDASDASDSADASDaaaaaaaaaaaaaaaaaaaaaaa");
+    //     $session_table_query = sprintf('select table_name from information_schema.tables where table_schema = %s',$GLOBALS['database_name']);
+    //     $req = Sql_Query($session_table_query);
+    //     $is_in = false;
+    //     while ($row = Sql_Fetch_Row($req)) {
+    //         if($this->attribute_changer_tablename === $row[0]) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+
+
+    // function Test_Create_Session_Table() {
+
+
+    //     if(!$this->Test_Table_Exists()) {
+           
+    //         $session_create_table_query  = sprintf('create table %s (', $this->session_table_name);
+
+    //         foreach ($this->attribute_changer_table_structure as $column_name => $column_params) {
+    //             $session_create_table_query = $session_create_table_query.sprintf('%s %s, ', $column_name, $column_params[0]);
+    //         }
+    //         $session_create_table_query = $session_create_table_query.')';
+    //         $req = Sql_Query($session_create_table_query);
+    //     }
+
+    //     if(!$this->Test_Table_Exists()){
+    //         print("ERROR CREATING ATTRIBUTE CHANGER PLUGIN TABLE");
+    //         die();
+    //     }
+
+    // }
+
+    function Test_Create_Session_Table() {
+         if(!Sql_Check_For_Table($this->attribute_changer_tablename)) {
+            Sql_create_Table ($this->attribute_changer_tablename, $this->attribute_changer_table_structure);
+         }
+    }
+
+
+    function New_Session($session_create_table_query ) {
     	
-    	$test_table_return = Sql_Table_exists($this->attribute_changer_tablename);
 
-    	if(!isset($test_table_return) || $test_table_return < 1 ) {
+        $this->Test_Create_Session_Table();
 
-    		if( (Sql_create_Table($this->attribute_changer_tablename, $this->attribute_changer_table_structure)) === false) {
-    			print("ERROR CREATING ATTRIBUTE CHANGER PLUGIN TABLE");
-    			die();
-    		}
-
-    	}
         if($this->Current_Session != null) {
 			
             if(!empty($this->Current_Session->file_location)) {
@@ -117,14 +161,14 @@ class AttributeChangerPlugin extends phplistPlugin {
     }
 
     function Close_Session() {
-    //     if($this->Current_Session != null) {
-    //         if(isset($this->Current_Session->file_location)) {
-    //             if(is_file($this->Current_Session->file_location)) {
-    //                 unlink($this->Current_Session->file_location);
-    //             }
-    //         }
-    //         $this->Current_Session = null;
-    //     }
+        if($this->Current_Session != null) {
+            if(isset($this->Current_Session->file_location)) {
+                if(is_file($this->Current_Session->file_location)) {
+                    unlink($this->Current_Session->file_location);
+                }
+            }
+            $this->Current_Session = null;
+        }
     }
 
 	function Test_Create_Temp_Dir() {
@@ -162,61 +206,53 @@ class AttributeChangerPlugin extends phplistPlugin {
             return "ERROR NO CURRENT SESSION";
         }
 
-        $Session = $this->Current_Session;
-
-
-        //entry is [email]=>array (attribute, value)
-        $changing_attributes = array();
-
-        if(!array_key_exists("email", $entry)) {
+        if(!array_key_exists("email", $entry) || !filter_var($entry['email'], FILTER_VALIDATE_EMAIL)) {
             return false;
         }
 
         $email = $entry['email'];
         unset($entry['email']);
+        $changing_attributes = array();
 
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL) ){
-            return false;
-        }
-
-        foreach ($entry as $attribute_id2 => $value_array2) {
-
-            if( ($return_values = $this->Test_Attribute_Values($attribute_id2, $value_array2)) != false ) {
+        foreach ($entry as $attribute_id => $value_array) {
+            if( ($return_values = $this->Test_Attribute_Values($attribute_id, $value_array)) != false ) {
             	print_r($return_values);
-                $changing_attributes[$attribute_id2] = $return_values;
-            }
-            else{
-            	print("SHIT");
+                $changing_attributes[$attribute_id] = $return_values;
             }
         }
-
 
         $entry_query = sprintf('select id from %s where email = "%s"', $GLOBALS['tables']['user'], $email);
         $user_sql_result = Sql_Fetch_Row_Query($entry_query);
 
-
-        //there is no current user
         if(!$user_sql_result[0]) {
-
-            //print("HUUUURRRRRR<br>HUUUUUUURRRR<br>");
             $this->Add_New_Entry($email, $changing_attributes);
-
         }
         else{
             $this->Add_Modify_Entry($email, $changing_attributes);
         }
     }
 
+
+    public $case_array = array(
+        'textarea' => 'case_1',
+        'textline' => 'case_1',
+        'hidden' => 'case_1',
+        'date' => 'case_1',
+        'checkbox' => 'case_1',
+
+        'radio' => 'case_2',
+        'select' => 'case_2',
+
+        'checkboxgroup' => 'case_3',
+        );
     // //automatically checks for compliance with values and return array with ids where needed
     function Test_Attribute_Values($attribute_id, $value_array) {
 
-    	//print_r($value_array);
         if($this->Current_Session == null) {
             return false;
         }
 
         $Session = $this->Current_Session;
-
         if(!isset($Session->attribute_list[$attribute_id])) {
         	//print("<br>att id<br>".$attribute_id.'<br>');
         	//print_r($Session->attribute_list);
@@ -228,7 +264,7 @@ class AttributeChangerPlugin extends phplistPlugin {
 
         	if(!is_array($value_array)) {
 
-        		if($att['type'] === "radio" || $att['type'] ==="checkboxgroup" || $att['type'] === "select") {
+        		if($case_array[$att['type']] === 'case_2' || $case_array[$att['type']] === 'case_1' ) {
         			return false;
         		}
         		else{
@@ -239,8 +275,8 @@ class AttributeChangerPlugin extends phplistPlugin {
             else {
                 $return_values = array();
 
-                if($att['type'] === "radio" || $att['type'] ==="checkboxgroup" || $att['type'] === "select") {
-                    foreach ($value_array as $numkey => $value) {
+                if($case_array[$att['type']] === 'case_2' || $case_array[$att['type']] === 'case_1' ) {
+                    foreach ($value_array as $value) {
                         if(($value_id = array_search($value, $att['allowed_value_ids']))) {
                             if(!in_array($value_id, $return_values)) {
                                 array_push($return_values, $value_id);
@@ -249,7 +285,7 @@ class AttributeChangerPlugin extends phplistPlugin {
                     } 
                 }
                 else {
-                    foreach ($value_array as $numkey => $value) {
+                    foreach ($value_array as $value) {
                         if(!in_array($value, $return_values)) {
                             array_push($return_values, $value);
                         }
@@ -295,7 +331,7 @@ class AttributeChangerPlugin extends phplistPlugin {
                 $new_entries[$attribute_id] = array();
 
                 
-                foreach ($attribute_value_array as $numkey => $value) {
+                foreach ($attribute_value_array as $value) {
                     if(!in_array($value, $Session->Current_User_Values[$email_key][$attribute_id])) {
                         array_push($new_entries[$attribute_id], $value);
                         $is_new_value = true;
@@ -311,7 +347,7 @@ class AttributeChangerPlugin extends phplistPlugin {
                     if(!isset($Session->Modify_Entry_List[$email_key][$attribute_id])) {
                         $Session->Modify_Entry_List[$email_key][$attribute_id] = array();
                     }
-                    foreach ($value_array as $nkey => $value) {
+                    foreach ($value_array as $value) {
                         if(!in_array($value, $Session->Modify_Entry_List[$email_key][$attribute_id])) {
                             array_push($Session->Modify_Entry_List[$email_key][$attribute_id], $value);
                         }

@@ -10,7 +10,7 @@
 // }
 
         
-
+print_r($_POST['New_Entry_List']);
         function Build_New_Entry_Email_List() {
 
             $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
@@ -25,6 +25,7 @@
                 
             }
 
+
             $Session->New_Entries_Columns_To_Select = $Columns_To_Accept;
 
             if(!isset($_POST['Hidden_New_Entry_List'])) {
@@ -37,28 +38,22 @@
 
                 if(!isset($_POST['New_Entry_List'][$hidden_email_key]['include'])) {
 
-
-
                     unset($Session->Committed_New_Entries[$hidden_email_key]);
                 }
                 else{
 
                     $Session->Committed_New_Entries[$hidden_email_key] = array();
                     foreach ($Columns_To_Accept as $key => $attribute_id) {
-                        print("<br>huur ".$attribute_id."<br>");
+
                         if(isset($_POST['New_Entry_List'][$hidden_email_key][$attribute_id])) {
 
-                            
-
                             if($Session->attribute_list[$attribute_id]['type'] === 'checkboxgroup') {
-                                
                                 
                                 foreach ($_POST['New_Entry_List'][$hidden_email_key][$attribute_id] as $checkbox_key_id => $checkbox_value_id) {
 
                                     if(!isset($Session->attribute_list[$attribute_id]['allowed_value_ids'])) {
                                         //print("<br>checkbox_value_id<br>");
                                     }
-
                                     if(array_key_exists($checkbox_value_id, $Session->attribute_list[$attribute_id]['allowed_value_ids'])) {
                                         //print("huuuur again again<br>");
                                         if(!isset($Session->Committed_New_Entries[$hidden_email_key][$attribute_id])) {

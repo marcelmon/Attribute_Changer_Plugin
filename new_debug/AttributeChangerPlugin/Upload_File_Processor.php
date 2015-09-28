@@ -10,12 +10,7 @@
 
 
 
-if(!isset($GLOBALS['plugins'])) {
-    print('empty');
 
-}
-
-print("oout");
 $GLOBALS['plugins']['AttributeChangerPlugin']->print_something();
 //require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
 

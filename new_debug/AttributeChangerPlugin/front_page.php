@@ -6,10 +6,12 @@ if ($GLOBALS["commandline"]) {
  echo 'not to oppened by command line';
  die();
 }
-require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');
-require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
-require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
 
+require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Single_Session.php');
+print("ASDASDASDSADASD");
+require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
+
+require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
 
 $javascript_src = 'plugins/AttributeChangerPlugin/Script_For_Attribute_Changer.js';
 $attribute_changer = $GLOBALS['plugins']['AttributeChangerPlugin'];
@@ -38,6 +40,8 @@ if(!isset($_POST)) {
 }
 
 else{
+
+
     printf('<html><head><script src="'.$javascript_src.'"></script></head><body>SOMETHING HAPPENED, HERES THE FRONT :<br>'.$page_print.'</body></html>');
 }
 

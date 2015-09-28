@@ -65,9 +65,7 @@ if(isset($_POST['File_Column_Match_Submit'])) {
                 $current_line[$col_number] = str_replace('"', '', $current_line[$col_number]);
 
                 if(isset($current_line[$col_number]) && $current_line[$col_number] != '') {
-                    //print('<br>'.$current_line[$col_number]);
 
-                    //print('<br>attribute id '.$attribute_id.'<br>atrribute type '.$att_list[$attribute_id]['type'].'<br>');
 
                     if($attribute_id === 'email') {
                         $new_attribute_value_array[$attribute_id] = $current_line[$col_number];
@@ -80,7 +78,6 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
                         $new_attribute_value_array[$attribute_id] = explode(';', $current_line[$col_number]);
 
-                        //print_r($new_attribute_value_array[$attribute_id]);
                     }
                     else {
                         $new_attribute_value_array[$attribute_id] = $current_line[$col_number];

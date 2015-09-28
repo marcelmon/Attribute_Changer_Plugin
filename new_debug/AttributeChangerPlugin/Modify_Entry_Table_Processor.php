@@ -118,9 +118,9 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
                 die();
             }
         }
-print("<br>oh yeaaaaa111111111111111<br>");
+
         if(isset($_POST['Modify_Entries_Table_Submit_All']) && $_POST['Modify_Entries_Table_Submit_All'] == 'Modify_Entries_Table_Submit_All' ) {
-            print("<br>oh yeaaaaa2222222222222222222<br>");
+
             include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/New_And_Modify_Entry_Processor.php');
             
             Process_All_New_And_Modify();
