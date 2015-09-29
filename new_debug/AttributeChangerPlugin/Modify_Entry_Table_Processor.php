@@ -14,7 +14,6 @@ $attribute_changer = $GLOBALS['plugins']['Attribute_Changer_Plugin'];
 
 
 
-
 //NOT WORKINGG YET -> CHECK THE PRINT_R
         function Build_Modify_Entry_Email_List() {
 
@@ -140,10 +139,11 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
 
             if(isset($_POST['Modify_Entries_New_Display_Amount'])) {
                 
-                if(!isset($MOdify_display_amounts[$_POST['Modify_Entries_New_Display_Amount']]) || $Modify_display_amounts[$_POST['Modify_Entries_New_Display_Amount']] != true) {
+                if(!isset($Modify_display_amounts[$_POST['Modify_Entries_New_Display_Amount']]) || $Modify_display_amounts[$_POST['Modify_Entries_New_Display_Amount']] != true) {
 
                 }
                 else{
+
                     include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
 
                     if(Modify_Entry_Change_Display_Amount($_POST['Modify_Entries_New_Display_Amount']) != true) {
@@ -158,9 +158,10 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
             $HTML_TO_DISPLAY = Get_Modify_Entry_Table_Block();
 
             print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
+
             
         }
-        if(isset($_POST['MOdify_Entries_Table_Next_Page']) && $_POST['MOdify_Entries_Table_Next_Page'] === 'MOdify_Entries_Table_Next_Page') {
+        if(isset($_POST['Modify_Entries_Table_Next_Page']) && $_POST['Modify_Entries_Table_Next_Page'] === 'Modify_Entries_Table_Next_Page') {
             $truth = MOdify_Entry_Display_Next_Page();
             if($truth == false) {
                 $HTML_TO_DISPLAY = Get_MOdify_Entry_Table_Block();
@@ -175,4 +176,6 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
             }
             print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');
         }
+
+
 ?>

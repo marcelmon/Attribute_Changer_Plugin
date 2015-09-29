@@ -5,7 +5,7 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
     if(!isset($_POST['attribute_to_match'])) {
         //shouldnt happen .... else user needs to be WARNEDDDDD
-        print("SHITITITIT");
+        print("ooops");
     }
 
     $attribute_changer = $GLOBALS['plugins']['AttributeChangerPlugin'];
@@ -21,7 +21,7 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
     if(!isset($_POST['attribute_to_match']['email'])) {
 
-        $display_html = "<div>no email column selected</div>";
+        $this_display_html = "<div>no email column selected</div>";
         $Session->column_match_good = false;
     }
     else{
@@ -89,6 +89,7 @@ if(isset($_POST['File_Column_Match_Submit'])) {
             //print_r($new_attribute_value_array);
             //print("<br>");
             if(isset($new_attribute_value_array['email'])) {
+                //print_r($new_attribute_value_array);
                 $attribute_changer->Test_Entry($new_attribute_value_array);
                 //print_r("<br><br>".$new_attribute_value_array);
             }
@@ -97,13 +98,12 @@ if(isset($_POST['File_Column_Match_Submit'])) {
 
         fclose($fp);
 
+        $this_display_html ='<div>File Processing Complete</div>';
 
-
-        $display_html ='<div>File Processing Complete</div>';
 
     }
 
-    print($display_html);
+    print($this_display_html);
 
 }
 

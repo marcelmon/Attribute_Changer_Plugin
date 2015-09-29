@@ -100,6 +100,67 @@
         return true;
          
     }   
+
+
+    function Modify_Entry_Change_Display_Amount($New_Amount) {
+
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+        $new_display_amounts = array(
+            10=>true,
+            100=>true,
+            1000=>true,
+            10000=>true,
+            "all"=>true,
+            );
+        if(!isset($new_display_amounts[$New_Amount]) || $new_display_amounts[$New_Amount] != true) {
+            return false;
+        }
+        if($New_Amount === 'all') {
+            $Session->Modify_Entries_Number_Of_Blocks =1;
+            $Session->Current_Modify_Entries_Display_Amount = $Session->Modify_Entries_Total_Amount;
+            $Session->Current_Modify_Entry_Block_Number = 0;
+            return true;
+        }
+        $Session->Current_Modify_Entries_Display_Amount = $New_Amount;
+        $Session->Modify_Entries_Number_Of_Blocks = $Session->Modify_Entries_Total_Amount/$Session->Current_Modify_Entries_Display_Amount + (($Session->Modify_Entries_Total_Amount % $Session->Current_Modify_Entries_Display_Amount)? 1:0);
+        
+
+
+        $Session->Current_Modify_Entry_Block_Number = 0;
+        return true;
+    }
+
+    function Modify_Entry_Display_Next_Page() {
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+        if($Session->Current_Modify_Entry_Block_Number < $Session->Modify_Entries_Number_Of_Blocks-1) {
+            //$Session->Current_New_Entry_Block_Number = $Session->Current_New_Entry_Block_Number + 1;
+            return true;
+        }
+        else{
+            //because there are no more blocks
+            return false;
+        }
+    }
+    
+    function Modify_Entry_Display_Previous_Page() {
+        $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+        if($Session->Current_Modify_Entry_Block_Number > 0) {
+            $Session->Current_Modify_Entry_Block_Number = $Session->Current_Modify_Entry_Block_Number-1;
+            return true;
+        }
+        else{
+            //because there are no more blocks
+            return false;
+        }
+    }
+
+
+
+
+
+
+
+
     // function Modify_Entry_Display_Next_Page() {
     //     if($Session->Current_Modify_Entry_Block_Number < $Session->Modify_Entries_Number_Of_Blocks-1) {
     //         $Session->Current_Modify_Entry_Block_Number++;

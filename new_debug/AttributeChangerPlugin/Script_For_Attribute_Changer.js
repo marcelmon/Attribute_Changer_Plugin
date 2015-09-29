@@ -117,6 +117,7 @@
     function checkAll_ModifyEntry_CheckboxGroup(attribute) {
         var class_string = 'Modify_Entry_Checkbox_Value_Attribute_'.concat(attribute);
 
+
         var checkboxgroup_element_blocks = document.getElementsByClassName(class_string);
         for(i=0; i<checkboxgroup_element_blocks.length; i++) {
             checkboxgroup_element_blocks[i].checked = true;
@@ -124,6 +125,7 @@
     }
 
     function removeAll_ModifyEntry_CheckboxGroup(attribute) {
+
         var class_string = 'Modify_Entry_Checkbox_Value_Attribute_'.concat(attribute);
 
         var checkboxgroup_element_blocks = document.getElementsByClassName(class_string);
@@ -137,7 +139,9 @@
         var class_string = 'Modify_Entry_Safe_Value_Attribute_'.concat(attribute);
 
         var checkboxgroup_safe_element_blocks = document.getElementsByClassName(class_string);
-        for(i=0; i<checkboxgroup_element_blocks.length; i++) {
+
+        for(i=0; i<checkboxgroup_safe_element_blocks.length; i++) {
+
             checkboxgroup_safe_element_blocks[i].checked = true;    
         }
     }
@@ -145,9 +149,9 @@
     function checkAll_ModifyEntry_SafeValues_OrChecked(attribute) {
         var class_string = 'Modify_Entry_Safe_Value_Attribute_'.concat(attribute);
 
-        var checkboxgroup_safe_element_blocks = document.getElementsByClassName(class_string);
-        for(i=0; i<checkboxgroup_element_blocks.length; i++) {
-            var current_name = checkboxgroup_safe_element_blocks[i].name;
+        var safeOrChecked_element_blocks = document.getElementsByClassName(class_string);
+        for(i=0; i<safeOrChecked_element_blocks.length; i++) {
+            var current_name = safeOrChecked_element_blocks[i].name;
             var same_name_elements = document.getElementsByName(current_name);
             var has_checked = false;
             for(j=0; j < same_name_elements; j++) {
@@ -157,7 +161,7 @@
                 }
             }
             if(has_checked == false) {
-                checkboxgroup_safe_element_blocks[i].checked = true;
+                safeOrChecked_element_blocks[i].checked = true;
             }
         }
     }
@@ -165,16 +169,16 @@
     function removeAll_ModifyEntry_SafeValues(attribute) {
         var class_string = 'Modify_Entry_Safe_Value_Attribute_'.concat(attribute);
 
-        var checkboxgroup_safe_element_blocks = document.getElementsByClassName(class_string);
-        for(i=0; i<checkboxgroup_element_blocks.length; i++) {
-            checkboxgroup_safe_element_blocks[i].checked = false;
+        var safe_element_blocks = document.getElementsByClassName(class_string);
+        for(i=0; i<safe_element_blocks.length; i++) {
+            safe_element_blocks[i].checked = false;
         }
     }
     function removeAll_ModifyEntry_SafeValues_OrChecked(attribute) {
         var class_string = 'Modify_Entry_Safe_Value_Attribute_'.concat(attribute);
-        var checkboxgroup_safe_element_blocks = document.getElementsByClassName(class_string);
-        for(i=0; i<checkboxgroup_element_blocks.length; i++) {
-            var current_name = checkboxgroup_safe_element_blocks[i].name;
+        var safe_element_blocks = document.getElementsByClassName(class_string);
+        for(i=0; i<safe_element_blocks.length; i++) {
+            var current_name = safe_element_blocks[i].name;
             var same_name_elements = document.getElementsByName(current_name);
             var has_checked = false;
             for(j=0; j < same_name_elements; j++) {

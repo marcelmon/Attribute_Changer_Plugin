@@ -31,10 +31,13 @@
 
             $exists = Sql_Fetch_Row_Query(sprintf('select id from %s where email = "%s"', $GLOBALS['tables']['user'],$email_key));
             if($exists[0]) {
-                $Failed_New_Entries[$email_key] = $new_attributes_and_values;
+                //$Failed_New_Entries[$email_key] = $new_attributes_and_values;
             }
             else{
-                //$new_user_id = addNewUser($email_key);
+
+
+
+                $new_user_id = addNewUser($email_key);
                 $new_value_array = array();
 
                 foreach ($new_attributes_and_values as $attribute_id => $attribute_value_id) {
@@ -62,11 +65,26 @@
                     }
                     print('<br>new user:  '.$email_key.' attribute id:   '.$attribute_id.' value  :'.$proper_this_attribute_value.'<br>');
                     //need a way for 'STICKY' attributes
+                    
+                    SaveCurrentUserAttribute($new_user_id, $attribute_id, $proper_this_attribute_value);
+
                     //saveUserAttribute($new_user_id, $attribute_id, $proper_this_attribute_value);
                 }   
             }
         }
     }
+// function AddUser($email_key) {
+//                     $exists = Sql_Fetch_Row_Query(sprintf('select id from %s where email = "%s"', $GLOBALS['tables']['user'], $email_key));
+//                     if($exists[0]) {
+//                         return false;
+//                     }
+//                     else{
+//                         $new_user_query = sprintf("insert into %s (email) values (%s)", $GLOBALS['tables']['user'], $email_key);
+//                     }
+
+//                 }
+
+
 
     //$Failed_Modify_Entries;
     function Push_Modify_Entries() {
@@ -79,7 +97,7 @@
 
             $exists = Sql_Fetch_Row_Query(sprintf('select id from %s where email = "%s"', $GLOBALS['tables']['user'],$email_key));
             if(!$exists[0]) {
-                $Failed_Modify_Entries[$email_key] = $modify_attributes_and_values;
+                //$Failed_Modify_Entries[$email_key] = $modify_attributes_and_values;
             }
             else{
                 $modify_user_id = $exists[0];
@@ -113,25 +131,31 @@
                     //need a way for 'STICKY' attributes
                     print("<br>mod user id : ".$modify_user_id."<br>");
 
-                    $current_value_query = sprintf('select value from %s where (userid,attributeid)=(%d,%d)', $GLOBALS['tables']['user_attribute'], $modify_user_id, $attribute_id);
-
-
-                    $current_value_return = Sql_Fetch_Row_Query($current_value_query);
-                    print("<br>WAS THIS IT".$proper_this_attribute_value.'<br>');
-                    if(!$current_value_return[0]) {
-                        print("ARGSAG22222");
-                        $update_query = sprintf('insert into %s  (userid,attributeid, value) values (%d,%d,"%s")', $GLOBALS['tables']['user_attribute'], $modify_user_id, $attribute_id, $proper_this_attribute_value);
-                    }
-                    else{
-                        print('<br>table: '. $GLOBALS['tables']['user_attribute'].' att val: '.$proper_this_attribute_value.' user id: '. $modify_user_id.' attribute id: '. $attribute_id.'<br>');
-                        $update_query = sprintf('update %s set value= "%s" where userid = %d and attributeid = %d', $GLOBALS['tables']['user_attribute'], $proper_this_attribute_value, $modify_user_id, $attribute_id);
-                        
-                    }
-                    Sql_Query($update_query);
-                    //saveUserAttribute($modify_user_id, $attribute_id, $proper_this_attribute_value);
+                    SaveCurrentUserAttribute($modify_user_id, $attribute_id, $proper_this_attribute_value);
                 }   
             }
         }
+    }
+
+    function SaveCurrentUserAttribute($modify_user_id, $attribute_id, $proper_this_attribute_value){
+
+        $exists = Sql_Fetch_Row_Query(sprintf('select email from %s where id = "%d"', $GLOBALS['tables']['user'], $modify_user_id));
+        if(!$exists[0]) {
+            return;
+        }
+
+        $current_value_query = sprintf('select value from %s where (userid,attributeid)=(%d,%d)', $GLOBALS['tables']['user_attribute'], $modify_user_id, $attribute_id);
+        $current_value_return = Sql_Fetch_Row_Query($current_value_query);
+
+        if(!$current_value_return[0]) {
+
+            $update_query = sprintf('insert into %s  (userid,attributeid, value) values (%d,%d,"%s")', $GLOBALS['tables']['user_attribute'], $modify_user_id, $attribute_id, $proper_this_attribute_value);
+        }
+        else{
+            $update_query = sprintf('update %s set value= "%s" where userid = %d and attributeid = %d', $GLOBALS['tables']['user_attribute'], $proper_this_attribute_value, $modify_user_id, $attribute_id);
+            
+        }
+        Sql_Query($update_query);
     }
 
 ?>

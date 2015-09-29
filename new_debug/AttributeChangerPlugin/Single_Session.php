@@ -14,6 +14,9 @@
 
 class Single_Session {
 
+
+    public $val=0;
+
     public $attribute_list = null;
 
     // // $attribute_value_ids = null;

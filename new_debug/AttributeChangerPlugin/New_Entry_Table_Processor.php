@@ -10,7 +10,7 @@
 // }
 
         
-print_r($_POST['New_Entry_List']);
+//print_r($_POST['New_Entry_List']);
         function Build_New_Entry_Email_List() {
 
             $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;

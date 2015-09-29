@@ -216,7 +216,7 @@ class AttributeChangerPlugin extends phplistPlugin {
 
         foreach ($entry as $attribute_id => $value_array) {
             if( ($return_values = $this->Test_Attribute_Values($attribute_id, $value_array)) != false ) {
-            	print_r($return_values);
+            	//print_r($return_values);
                 $changing_attributes[$attribute_id] = $return_values;
             }
         }
@@ -225,11 +225,13 @@ class AttributeChangerPlugin extends phplistPlugin {
         $user_sql_result = Sql_Fetch_Row_Query($entry_query);
 
         if(!$user_sql_result[0]) {
+            //print_r($changing_attributes);
             $this->Add_New_Entry($email, $changing_attributes);
         }
         else{
             $this->Add_Modify_Entry($email, $changing_attributes);
         }
+
     }
 
 
@@ -247,7 +249,7 @@ class AttributeChangerPlugin extends phplistPlugin {
         );
     // //automatically checks for compliance with values and return array with ids where needed
     function Test_Attribute_Values($attribute_id, $value_array) {
-
+        
         if($this->Current_Session == null) {
             return false;
         }
@@ -264,7 +266,7 @@ class AttributeChangerPlugin extends phplistPlugin {
 
         	if(!is_array($value_array)) {
 
-        		if($case_array[$att['type']] === 'case_2' || $case_array[$att['type']] === 'case_1' ) {
+        		if($this->case_array[$att['type']] === 'case_2' || $this->case_array[$att['type']] === 'case_3' ) {
         			return false;
         		}
         		else{
@@ -273,12 +275,18 @@ class AttributeChangerPlugin extends phplistPlugin {
         	}
 
             else {
+
                 $return_values = array();
 
-                if($case_array[$att['type']] === 'case_2' || $case_array[$att['type']] === 'case_1' ) {
+
+                if($this->case_array[$att['type']] == 'case_2' || $this->case_array[$att['type']] == 'case_3' ) {
+
                     foreach ($value_array as $value) {
+                        
                         if(($value_id = array_search($value, $att['allowed_value_ids']))) {
                             if(!in_array($value_id, $return_values)) {
+                                //print('<br>value id : '.$value_id);
+
                                 array_push($return_values, $value_id);
                             }
                         }
@@ -292,6 +300,7 @@ class AttributeChangerPlugin extends phplistPlugin {
                     }
                     
                 }
+                //print_r($return_values);
                 return $return_values;
             }
             return false;
@@ -303,7 +312,7 @@ class AttributeChangerPlugin extends phplistPlugin {
     function Add_Modify_Entry($email_key, $attribute_values) {
 
 
-        print_r($attribute_values);
+        //print_r($attribute_values);
         if($this->Current_Session == null) {
             return "ERROR NO CURRENT SESSION";
         }
@@ -323,6 +332,9 @@ class AttributeChangerPlugin extends phplistPlugin {
                     return false;
                 }
             }
+            
+            // print_r($this->Current_Session->Current_User_Values);
+            // print("<br>");
             $new_entries = array();
             $is_new_value = false;
 
@@ -330,15 +342,28 @@ class AttributeChangerPlugin extends phplistPlugin {
 
                 $new_entries[$attribute_id] = array();
 
-                
+
                 foreach ($attribute_value_array as $value) {
-                    if(!in_array($value, $Session->Current_User_Values[$email_key][$attribute_id])) {
+
+                    if($this->case_array[$Session->attribute_list[$attribute_id]['type']] === 'case_1' || $this->case_array[$Session->attribute_list[$attribute_id]['type']] === 'case_2') {
+
+
+                        if($value != $Session->Current_User_Values[$email_key][$attribute_id]) {
+                            array_push($new_entries[$attribute_id], $value);
+                            $is_new_value = true;
+                        }
+                    }
+
+                    else if(!in_array($value, $Session->Current_User_Values[$email_key][$attribute_id])) {
                         array_push($new_entries[$attribute_id], $value);
+
                         $is_new_value = true;
                     }
+           
                     
                 }
             }
+
             if($is_new_value == true) {
                 if(!isset($Session->Modify_Entry_List[$email_key])) {
                     $Session->Modify_Entry_List[$email_key] = array();
@@ -362,7 +387,6 @@ class AttributeChangerPlugin extends phplistPlugin {
     function Get_Current_User_Values($email_key) {
         $Session = $this->Current_Session;
 
-
         if($this->Current_Session == null) {
             return "ERROR NO CURRENT SESSION";
         }
@@ -376,8 +400,9 @@ class AttributeChangerPlugin extends phplistPlugin {
                      
             return false;
         }
-
+ 
         if(!isset($Session->Current_User_Values[$email_key])) {
+
 
             $Session->Current_User_Values[$email_key] = array();
 
@@ -388,14 +413,20 @@ class AttributeChangerPlugin extends phplistPlugin {
                 $Current_User_Value_Query = sprintf("select value from %s where attributeid = %d and userid = %s", $GLOBALS['tables']['user_attribute'], $attribute_id, $current_user_sql_result[0]);
                 $current_attribute_return = Sql_Fetch_Row_Query($Current_User_Value_Query);
 
-                $Session->Current_User_Values[$email_key][$attribute_id] = array();
+                
 
                 if(!$current_attribute_return[0]) {
+
                     continue;
                 }
 
                 else{
+
+                    $Session->Current_User_Values[$email_key][$attribute_id] = array();
+
+                    
                     if($attribute_data['type'] == 'checkboxgroup') {
+
                         $exploded_current_values_ids = explode(',', $current_attribute_return[0]);
 
                         $Session->Current_User_Values[$email_key][$attribute_id] = $exploded_current_values_ids;
@@ -403,6 +434,7 @@ class AttributeChangerPlugin extends phplistPlugin {
                     }
 
                     else {
+
                         $Session->Current_User_Values[$email_key][$attribute_id] = $current_attribute_return[0];
                         
                     }
