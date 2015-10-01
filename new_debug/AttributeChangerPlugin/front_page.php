@@ -82,8 +82,8 @@ if(isset($_POST['File_Column_Match_Submit'])) {
     }
 
     if(Initialize_New_Entries_Display()!=null) {
-        
-        $display_html = '<html><body>'.Get_New_Entry_Table_Block().'</body></html>';
+
+        $display_html = BuilNewEntryDom()->saveHTML();
         $attribute_changer->Serialize_And_Store();
         
 
@@ -92,10 +92,10 @@ if(isset($_POST['File_Column_Match_Submit'])) {
     }
 
     else{
-
+        
         if(Initialize_Modify_Entries_Display()!=null) {
 
-            $display_html = $display_html.Get_Modify_Entry_Table_Block().'</body></html>';
+            $display_html =  BuildModifyEntryDom()->saveHTML();
 
         }
         else{
