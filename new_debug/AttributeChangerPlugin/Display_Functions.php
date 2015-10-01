@@ -309,6 +309,7 @@ function GetNewEntryTableRow(&$dom, $email_key) {
 // //-------------------3.5
 
 function GetEmailBlock(&$dom, $email_key) {
+
     $include = 'include';
 
     $emailBlock = $dom->createElement('td', $email_key.'<br>');
@@ -498,6 +499,12 @@ function Get_New_Entry_Table_Navigation_Buttons (&$dom) {
     }
 
 
+
+
+
+
+
+
 // //------------------6
 
 function BuildModifyEntryDom() {
@@ -524,9 +531,11 @@ function BuildModifyEntryDom() {
     GetModifyEntryTableHeader_And_Append_To_Table($dom,  $table);
 
     $tableDOM = $table->GetDOM();
+       
+    foreach ($Session->Modify_Entry_List as $email_key => $newValues) {
 
-    foreach ($Modify_Entry_List as $email_key => $newValues) {
         $tableRow = GetModifyTableRow($dom, $emailKey);
+
         $tableDOM->appendChild($tableRow);
     }
 
@@ -635,13 +644,18 @@ function GetModifyEntryTableHeader_And_Append_To_Table(&$dom,  &$table) {
 // //-----------------------8
 
 function GetModifyTableRow(&$dom, $email_key) {
+
     $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
 
     $row = $dom->createElement('tr');
-    $row.appendChild(GetEmailBlock());
+                        
+    $row->appendChild(GetEmailBlock($dom, $email_key));
+
     foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
         $cell = $dom->createElement('td');
+        
         $cell->appendChild( Get_Current_Attribute_Block($dom, $Session, $email_key, $attribute_id));
+
         if($case_array[$Session->attribute_list[$attribute_id]['type']] == 'case_3') {
             $cell->appendChild(Get_Modify_Attribute_Value_Display_Checkboxgroup_New_Vals($dom, $email_key, $attribute_id));
         }
@@ -656,11 +670,10 @@ function GetModifyTableRow(&$dom, $email_key) {
 // //---------------------------------------8.5
 
 function Get_Current_Attribute_Block(&$dom, $email_key, $attribute_id){
+
+
     $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
-    $HTML_block = $dom->createElement('<div>');
-    foreach ($Session->Current_User_Values[$email_key] as $attribute_id => $values) {
-        
-    }
+    $HTML_block = $dom->createElement('div');
 
 
     if(!isset($Session->Current_User_Values[$email_key][$attribute_id])) {
@@ -681,6 +694,7 @@ function Get_Current_Attribute_Block(&$dom, $email_key, $attribute_id){
 
             'checkboxgroup' => 'case_3',
         );
+
         switch ($case_array[$Session->attribute_list[$attribute_id]['type']]) {
             case 'case_3':
                 
