@@ -1,0 +1,7 @@
+debug:
+
+
+print_this() {
+	print all current class info
+		//can give line information
+}
