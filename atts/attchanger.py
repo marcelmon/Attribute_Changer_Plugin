@@ -10,8 +10,8 @@ loginPage = """
 <html>
 <body>
 
-%if errors:
-	<div>{{errors}}</div>
+%for e in errors:
+	<div>{{e}}</div>
 
 <form id="login_form" action="self" method="post">
 
@@ -39,6 +39,21 @@ Password: <input type="textline" name="password"></input>
 </html>
 """
 
+import subprocess
+@route('/session/<action>')
+def session(action):
+	errors = []
+	user = AuthenticateSaltyUser(errors)
+	if user:
+
+	# if the script don't need output.
+	subprocess.call("php /frontpage.php")
+	ret = user.ExecuteCurrentSession()
+	user.storeSession()
+	return ret;
+
+
+
 
 @route('/login/<value>')
 def login():
@@ -49,30 +64,24 @@ def login():
 
 	else if value == 'newUser':
 		userPass = _NewUserRequest(errors)
-		if not userPass
-			return template(loginPage, errors=errors)
-		else
-			user = LoadUser(userPass[0], userPass[0])
-			return user.GetUserFrontPage()
 
 	else if value = 'google auth':
 		#probably getting account id string and stuff, confirm is google (ssl)
 		userPass = GoogleAuthRequest(errors, googleId)
-		if not userPass:
-			return template(loginPage, errors=errors)
-		else:
-			user = LoadUser(userPass[0], userPass[1])
-			return user.GetUserFrontPage()
 
 	else if value = 'login':
-		
 		userPass = LoginRequest(errors)
-		if not userPass:
-			return template(loginPage, errors=errors)
-		user = LoadUser(username, password)
-				return user.GetUserFrontPage()
-		else:
-			return template(loginPage, errors='Please Enter Username And Password')
+
+	else:
+		errors[] = 'Unexpected Path'
+
+	if userPass:
+		user = LoadUser(userPass[0], userPass[0])
+		return user.GetUserFrontPage()
+	
+	else return template(loginPage, errors=errors)
+
+
 
 def _NewUserRequest(errors):
 	username = request.forms.get("username")
@@ -159,6 +168,10 @@ def LoadUser(username, password):
 	ret = Sql_Query(query)
 	if ret:
 		if ret[0] == password:
+			user = UserClass(username, password)
+			return user
+	return -1
+
 
 
 def CreateUserTable(username):
@@ -167,30 +180,90 @@ def CreateUserTable(username):
 
 
 
+
+
 @route('/userPage/<action>')
 def UserFrontPage(action):
-	if action is None:
-		user = request.forms.get('Hidden_Username')
-		saltyPass = request.forms.get('Salty_Pass')
-		if CheckUserExists(user):
-			if CompareSaltyPass(user, saltyPass):
-				CurrentUser = LoadUser(user, saltyPass)
-				return CurrentUser.GetUserFrontPage()
+	errors = []
+	user = AuthenticateSaltyUser(errors)
+	if not user:
 		return template(loginPage, errors='Please Log In Again')
 
-	if action is 'LoadSession':
-		user = request.forms.get('Hidden_Username')
-		saltyPass = request.forms.get('Salty_Pass')
-		if CheckUserExists(user):
-			if CompareSaltyPass(user, saltyPass):
-				user = LoadUser(user, saltyPass)
-				sessionId = request.forms.get('sessionId')
-				if user.TestIsSession(sessionId):
-					user.LoadSession(sessionId)
-					return user.ExecuteCurrentSession()
+	if action is None:
+		ret = user.GetUserFrontPage()
+
+
+	else if action is 'LoadSession':
+		user = LoadSessionRequest(errors)
+		ret = user.ExecuteCurrentSession()
+		user.storeSession()
 
 	if action is 'New Session':
+		user = NewSessionRequest(user, errors)
+		if user:
+			ret = user.ExecuteCurrentSession()
+			user.storeSession()
 
+	else:
+		if action is 'Delete Session':
+			user = DeleteSessionRequest(user, errors)
+		
+		if action is 'New Username':
+			user = NewUsernameRequest(user, errors)
+
+		if action is 'New Password':
+			user = NewPasswordRequest(errors)
+
+		ret = user.GetUserFrontPage()
+		
+	return ret
+
+
+
+def NewUsernameRequest(user, errors):
+	newUsername = request.forms.get('newUsername')
+	if user.ChangeUsername(newUsername)
+		return 1
+	errors[] = 'Username Taken'
+	return -1
+
+
+def DeleteSessionRequest(user, errors):
+	sessionId = request.forms.get("sessionSelect")
+	if user.DeleteSession(sessionId):
+		return 1
+	errors[] = 'Could not delete'
+	return -1
+
+
+def AuthenticateSaltyUser(errors):
+	user = request.forms.get('Hidden_Username')
+	saltyPass = request.forms.get('Salty_Pass')
+	if CheckUserExists(user):
+		if CompareSaltyPass(user, saltyPass):
+			user = LoadUser(user, saltyPass)
+			if user:
+				return user
+	errors[] = 'Error Loading Salty User'
+	return -1
+
+def NewSessionRequest(user, errors):
+	if user.CreateSession():
+		return user
+	errors[] = 'Could Not Create A Session'
+	return -1
+
+
+
+def LoadSessionRequest(user, errors):
+	user = AuthenticateSaltyUser(errors)
+	if user:
+		sessionId = request.forms.get('sessionId')
+		if user.TestIsSession(sessionId):
+			user.LoadSession(sessionId)
+			return user
+	errors[] = 'Please Log in Again'
+	return -1
 
 
 @route('/fileLoad/<action>')

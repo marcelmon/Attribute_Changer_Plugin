@@ -34,6 +34,11 @@ class UserClass(object):
 				return ColumnSelectProcessor()
 			else if self.status is 'newAttributeValues':
 				return AttributeValueProcessor()
+			else if self.status is 'NewEntryList':
+				return NewEntryList()
+			else if self.status is 'ModifyEntryList'
+				return ModifyEntryList()
+		return -1
 
 
 	def PopulateSessionTable(self):
@@ -90,11 +95,22 @@ class UserClass(object):
 		return -1
 
 	def TestIsSession(sessionId):
-		if len(self.sessions) == 0:
-			return -1
 		for e in self.sessions:
 			if e[0] == sessionId:
 				return 1
+		return -1
+
+	def CreateSession(self):
+		query = "insert into %s date=%s, status=%s", self.tablename, now = date.datetime(), 'FileUpload'
+		ret = Sql_Query(query).fetchone()
+		if ret:
+			query = 'select id, status from %s where date= %s', self.tablename, now
+			ret = Sql_Query(query).fetchone()
+			if ret:
+				sessions[] = [ret[0], ret[1]]
+				self.currentSession = Single_Session(ret[0], ret[1])
+				return 1
+		return -1
 
 
 	def ChangeUsername(newUsername):
