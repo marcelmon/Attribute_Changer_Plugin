@@ -7,7 +7,7 @@ require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Function
 
 
 $attribute_changer = $GLOBALS['plugins']['Attribute_Changer_Plugin'];
-
+//$javascript_src = 'plugins/AttributeChangerPlugin/Script_For_Attribute_Changer.js';
 
 
 

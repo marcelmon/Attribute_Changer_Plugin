@@ -13,7 +13,7 @@ require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Functions.php');
 
 require_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
 
-$javascript_src = 'plugins/AttributeChangerPlugin/Script_For_Attribute_Changer.js';
+$javascript_src = 'plugins/AttributeChangerPlugin/Script_For_Attribute_Changer9.js';
 $attribute_changer = $GLOBALS['plugins']['AttributeChangerPlugin'];
 //CHANGE THE PAGE PRINT TO REFLECT THE PROPER PLUGIN DIR
 $page_print =  '
@@ -31,17 +31,39 @@ $page_print =  '
     <input type="text" name="attribute_changer_text_to_upload" id="attribute_changer_text_to_upload">
     <input type="button" value="attribute_changer_upload_text" name="attribute_changer_upload_text" onClick="Test_Upload_Text()">
     desired_file_name:<input type="text" name="attribute_changer_text_name">
-</form>'
-
+</form>
+<form action="" method="post" name="resetTable">
+<input type="submit" value="resetTable" name="resetTable">
+</form>
+'
 ;
 if(!isset($_POST)) {
 
-    print('<html><head><script src="'.$javascript_src.'"></script></head><body>'.$page_print.'</body></html>');
+    print('<html><head><link rel="stylesheet" type="text/css" href="'.PLUGIN_ROOTDIR.'/AttributeChangerPlugin/cssStyles.css"><script src="'.$javascript_src.'"></script></head><body>'.$page_print.'</body></html>');
 }
 
 else{
 
-    printf('<html><head><script src="'.$javascript_src.'"></script></head><body>SOMETHING HAPPENED, HERES THE FRONT :<br>'.$page_print.'</body></html>');
+    printf('<html><head><link rel="stylesheet" type="text/css" href="'.PLUGIN_ROOTDIR.'/AttributeChangerPlugin/cssStyles.css"><script src="'.$javascript_src.'"></script></head><body>SOMETHING HAPPENED, HERES THE FRONT :<br>'.$page_print.'</body></html>');
+}
+
+if(isset($_POST['resetTable'])) {
+    $query = sprintf("truncate table %s", $GLOBALS['tables']['user']);
+    $ret1 = Sql_Query($query);
+    $query =sprintf("truncate table %s", $GLOBALS['tables']['user_attribute']);
+    $ret2 = Sql_Query($query);
+
+    include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/New_And_Modify_Entry_Processor.php');
+
+    $id = addNewUser('djarcaig@milburnlaw.ca@');
+    if(!$id){
+        print("error with user clear<br>");
+        return -1;
+    }
+    SaveCurrentUserAttribute($id, '1' , 'fake name');
+    SaveCurrentUserAttribute($id, '1' , '1');
+
+
 }
 
 if(isset($_FILES['attribute_changer_file_to_upload']) && !empty($_FILES['attribute_changer_file_to_upload'])) {

@@ -9,7 +9,7 @@
 //     return;
 // }
 
-        
+    // $javascript_src = PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Script_For_Attribute_Changer.js';     
 //print_r($_POST['New_Entry_List']);
         function Build_New_Entry_Email_List() {
 
@@ -161,14 +161,13 @@ include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin.php');
                     include_once(PLUGIN_ROOTDIR.'/AttributeChangerPlugin/Display_Adjustment_Functions.php');
 
                     if(New_Entry_Change_Display_Amount($_POST['New_Entries_New_Display_Amount']) != true) {
-
+                        print("<br>ARRRRRK<br>");
                     }
                     else{
-                         
+                         print('<br>'.$Session->Current_New_Entries_Display_Amount.'<br>');
                     }
                 }
             }
-            print_r($Session->Committed_New_Entries);
             $HTML_TO_DISPLAY = BuilNewEntryDom()->saveHTML();
 
             print('<html><body><script src="'.$javascript_src.'""></script>'.$HTML_TO_DISPLAY.'</body></html>');

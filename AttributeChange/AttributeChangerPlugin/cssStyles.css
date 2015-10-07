@@ -1,0 +1,36 @@
+.Email_Block {
+    background-color: blue;
+}
+
+
+.Current_Value {
+    border: 5px solid blue;
+}
+
+
+.Safe_Value {
+	border: 5px solid purple;
+}
+
+
+
+
+
+.Selected {
+	outline: 5px solid green;
+}
+
+.Checkbox_Value {
+	outline: 5px solid blue;
+}
+
+
+
+
+.New_Entry {
+	background-color: white;
+}
+
+.Modify_Entry {
+	background-color: white;
+}
