@@ -1,3 +1,350 @@
+    /*
+
+
+
+
+
+
+    Require easy to initiate operation using selects
+    TYPE 2 + 1
+
+    _Action     _Subject            _Conditional    _Subject      _Condition
+    |check      |All                |               |               |
+    |uncheck    |Safe_Value         |unless         |Any            |Exists
+                |Current_Value      |if             |Safe_Value     |Not_Exists
+                |Other_Value                        |Current_Value  |Checked
+                                                    |Other_Value    |Not_Checked
+                
+    TYPE 3 
+
+    _Action     _Subject            *_Conditional   *_Subject       *_Condition
+    |check      |All                |               |               |
+    |uncheck    |Checkbox_Value     |unless         |Any            |Exists
+                |Current_Value      |if             |Checkbox_Value |Not_Exists
+                |Other_Value                        |Current_Value  |Checked
+                                                    |Other_Value    |Not_Checked
+
+    */
+
+
+    function Process_Input_Command(the_string) {
+        var commands = the_string.split(' ');
+        if (!commands || commands.length <= 0) {
+            return -1;
+        }
+        var action = _Action(commands[0]);
+        if(!action) {
+            return -1;
+        }
+        if(commands.length == 1) {
+
+        }
+    }
+
+    function process_command(attribute_id, attribute_type, action, subject_1, conditional, subject_2, condition) {
+        if(!action || !subject){
+            return -1;
+        }
+        var this_action = _Action(action);
+        if(!this_action){
+            return -1;
+        }
+
+        var this_subject_1 = _Subject(subject_1);
+        if(!this_subject_1){
+            return -1;
+        }
+
+        if(!conditional){
+            var className = this_subject_1
+        }
+
+    }
+
+
+    function _Action(action) {
+        switch(action) {
+
+            case 'Check':
+                return Check;
+
+            case 'Uncheck':
+                return Uncheck;
+
+            default:
+                return -1;
+        }
+    }
+
+    var Check = function (subject) {
+        this.Action = 'Check';
+        this.subject = subject;
+
+        this.conditional = null;
+
+        this.setConditional = function(conditional) {
+            this.conditional = conditional;
+        }
+
+        this.check_subject = function(subject){
+            for(var i=0; i<subject.length; i++) {
+                if(subject[i].className.indexOf('Checked') < 0){
+                    subject[i].className += ' Checked';
+                    if(subject[i].type == 'checkbox' || subject[i].type == 'radio') {
+                        subject[i].checked = true;
+                    }
+                }
+            }       
+        }
+
+        this.execute = function(){
+            if(!this.conditional) {
+
+                this.check_subject(this.subject);
+            }
+            else{
+                var new_subject = new array();
+                for(var j=0; j<this.subject.length; j++){
+                    if(this.conditional.execute(this.subject[i])){
+                        new_subject.push(this.subject)
+                    }
+                }
+                this.check_subject(new_subject);
+            }
+            return true;
+        }
+    }
+
+    var Uncheck= function(subject) {
+        this.Action = 'Uncheck';
+        this.subject = subject;
+
+        this.conditional = null;
+
+        this.setConditional = function(conditional) {
+            this.conditional = conditional;
+        }
+
+        this.uncheck_subject = function(subject){
+            for(var i=0; i<subject.length; i++) {
+                
+                var class_names = subject[i].className.split(' ');
+                var index = class_names.indexOf('Checked');
+                if(index > -1){
+                    class_names.splice(index, 1);
+                    if(subject[i].type == 'checkbox' || subject[i].type == 'radio') {
+                        subject[i].checked = false;
+                    }
+                }
+                subject[i].className = class_names.join(' ');
+            }       
+        }
+
+        this.execute = function(){
+            if(!this.conditional) {
+
+                this.uncheck_subject(this.subject);
+            }
+            else{
+                var new_subject = this.conditional(this.subject);
+                this.uncheck_subject(new_subject);
+            }
+            return true;
+        }
+    }
+
+    function _Subject(subject) {
+        switch(subject){
+
+            case 'All':
+                return All;
+
+            case 'Any':
+                return Any;
+
+            case 'Safe_Value':
+                return Safe_Value;
+
+            case 'Current_Value':
+                return Current_Value;
+
+            case 'Other_Value':
+                return Other_Value;
+
+            case 'Checkbox_Value':
+                return Checkbox_Value;
+
+            default:
+                return -1;
+        }
+    }
+
+
+    var All = function (attribute_id) {
+        
+        var attribute_class = 'attribute_'.concat(attribute_id);
+        var attribute_elements = document.getElementsByClassName(attribute_class);
+        return attribute_elements;
+    }
+
+
+    var Any= function(attribute_id) {
+        var attribute_class = 'attribute_'.concat(attribute_id);
+        var attribute_elements = document.getElementsByClassName(attribute_class);
+        return attribute_elements;
+    }
+
+
+    var Safe_Value = function (attribute_id) {
+        var attribute_class = 'attribute_'.concat(attribute_id);
+        var safe_class = 'Safe_Value';
+        var attribute_elements = document.getElementsByClassName(attribute_class);
+        var i;
+        var filtered_attribute_list = new Array();
+
+        for(i=0; i < attribute_elements.length; i++) {
+            if(attribute_elements[i].className.indexOf(safe_class) > -1) {
+                filtered_attribute_list.push(attribute_elements[i]);
+            }
+        }
+        return filtered_attribute_list;
+    }
+ 
+
+    var Safe_Value = function(attribute_id) {
+        return Filter_Value(attribute_id, 'Safe_Value');
+    }
+
+
+    var Current_Value = function(attribute_id) {
+        return Filter_Value(attribute_id, 'Current_Value');
+    }
+
+    var Other_Value= function(attribute_id) {
+        var all = All(attribute_id);
+
+        var others = new array();
+        //now have 2 arrays to compare to all, all the reset 
+        for(var i=0; i<all.length; i++) {
+            if(all[i].className.indexOf('Current_Value') > -1){
+                continue;
+            }
+            if(all[i].className.indexOf('Safe_Value') > -1){
+                continue;
+            }
+            others.push(all[i]);
+        }
+        return others;
+    }
+
+
+    var Checkbox_Value= function(attribute_id) {
+
+        return Filter_Value(attribute_id, 'Checkbox_Value');
+    }
+//Checkbox, other, current safe
+    var Filter_Value = function(attribute_id, class_string){
+        var elements = document.getElementsByClassName('attribute_'.concat(attribute_id));
+        var return_list = new Array();
+
+        for(var i=0; i < elements.length; i++) {
+            if(elements[i].className.indexOf(class_string) < 0) {
+                return_list.push(elements[i]);
+            }
+        }
+        return return_list;
+    }
+
+
+
+
+    function _Conditional(conditional) {
+        switch(conditional){
+
+            case 'Unless':
+                return Unless;
+
+            case 'If':
+                return If;
+
+            default:
+                return -1;
+        }
+    }
+    
+
+    var Unless = function (single_subject, condition) {
+        this.Conditional = 'Unless'
+        this.single_subject = single_subject;
+        this.Condition = condition;
+        return this;
+
+        this.execute = function() {
+            if(this.Condition(this.single_subject)) {
+                return false;
+            }
+        }
+    }
+
+    var If= function(single_subject, condition) {
+        this.Conditional = 'Unless'
+        //are in the same columns, so attribute id, email key are the same
+        //name would be the same, unless its checkbox
+
+        this.Condition = condition;
+        return this;
+
+        this.execute = function() {
+            if(this.Condition(this.single_subject)) {
+                return true;
+            }
+        }
+    }
+
+
+
+
+    function _Condition(condition) {
+        switch(condition){
+
+            case 'Exists':
+                return Exists;
+
+            case 'Not_Exists':
+                return Not_Exists;
+
+            case 'Checked':
+                return Checked;
+
+            case 'Not_Checked':
+                return Not_Checked;
+
+            default:
+                return -1;
+        }
+    }
+    
+    
+    var Exists = function (e) {
+
+    }
+
+    var Not_Exists= function(e) {
+
+    }    
+
+    var Checked = function (e) {
+
+    }
+
+    var Not_Checked= function(e) {
+
+    }
+
+
+
+
+
     function Clear_Column_Select(column_class) {
         var column_radios = document.getElementsByClassName(column_class);
         var i;
@@ -6,6 +353,25 @@
         }
     }
 
+
+    function email_block_clicked(e) {
+        var classes = e.className.split(' ');
+       // window.alert(e.className);
+        var index = classes.indexOf('Checked');
+        var selector = e.getElementsByClassName('Email_Block')[0];
+
+        if(index > -1){
+            classes.splice(index, 1);
+            selector.checked= false;
+        }
+        else{
+            classes.push('Checked');
+            selector.checked = true;
+        }
+
+        e.className = classes.join(' ');
+        selector.className = e.className;
+    }
 
 
 
@@ -31,13 +397,124 @@
        // window.alert(e.className);
     }
 
-    function checkAll_NewEntry_Emails() {
-        var element_blocks = document.getElementsByClassName('New_Entry_Email');
+    function checkAll_Emails() {
+        var elements = document.getElementsByClassName('Email_Block');
         var i;
-        for(i=0; i<element_blocks.length; i++) {
-            element_blocks[i].checked = true;
+        for(i=0; i<elements.length; i++) {
+            var classes = elements[i].className.split(' ');
+            var index = classes.indexOf('Checked');
+
+            if(index < 0) {
+                classes.push('Checked');
+                if(elements[i].type == 'checkbox') {
+                    elements[i].checked = true;
+                }   
+            }
+            elements[i].className = classes.join(' ');
         }
     }
+
+    function removeAll_Emails() {
+        var elements = document.getElementsByClassName('Email_Block');
+        var i;
+        for(i=0; i<elements.length; i++) {
+            var classes = elements[i].className.split(' ');
+            var index = classes.indexOf('Checked');
+
+            if(index > -1) {
+                classes.splice(index, 1);
+                if(elements[i].type == 'checkbox') {
+                    elements[i].checked = false;
+                }   
+            }
+            elements[i].className = classes.join(' ');
+        }
+    }
+
+
+
+function check_all_Safe_Value(attribute_id, rules[]) {
+    var attribute_name = ('attribute_' += attribute_id);
+    var elements = document.getElementsByClassName(attribute_name);
+
+    if(rules != null && rules.length > 0) {
+        ->or checked, or not checked, check all not checked safe values
+    }
+
+    check all Safe_Values unless (Current && || Other) is Checked
+
+    check all Current Values unless (Safe_Value && || Other) is Checked
+
+
+
+
+
+    if(!rules){
+
+        var i;
+        for(i=0; i<elements.length; i++) {
+
+        }
+
+    }
+
+}
+
+    function check_all_Safe_Value(attribute) {
+
+    }
+
+    function check_all_Checked_or_Safe_Value(attribute) {
+
+    }
+
+    function check_all_Checked_or_Current_Value
+
+
+    function check_all_current(attribute) {
+
+    }
+
+    function check_all_current
+
+    function check_all_checkbox(attribute) {
+
+    }
+
+
+
+    function check_all_current_values(attribute) {
+
+    }
+
+    function uncheck_all_current_values(attribute) {
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     function removeAll_NewEntry_Emails() {
         var element_blocks = document.getElementsByClassName('New_Entry_Email');

@@ -350,152 +350,171 @@ function GetEmailBlock(&$dom, $email_key) {
     $emailBlock = $dom->createElement('td', $email_key);
     $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
 
-    if(!isset($Session->Current_User_Values[$email_key])) {
-        $class = 'New_Entry';
-        $checkbox = new Input($dom, '', 'checkbox', 'New_Entry_List['.$email_key.']['.$include.']', 'include');
-        $emailHidden = new Input($dom, '', 'hidden', 'Hidden_New_Entry_List['.$email_key.']', 'submitted');
 
+    $email_Hidden = $dom->createElement('input');
+    $email_Hidden->setAttribute('type', 'hidden');
+
+    $checkbox = $dom->createElement('input');
+    $checkbox->setAttribute('type', 'checkbox');
+
+    $class_head = 'Email_Block';
+
+    $Committed_Entry_List = null;
+
+    if (isset($Session->New_Entry_List[$email_key])) {
+        $class_head .= ' New_Entry';
+        $checkbox->setAttribute('name', 'New_Entry_List['.$email_key.']['.$include.']');
+        $checkbox->setAttribute('value', 'include');
+        $Committed_Entry_List = $Session->Committed_New_Entries[$email_key];
+        $email_Hidden->setAttribute('name', 'Hidden_New_Entry_List['.$email_key.']');
+        $email_Hidden->setAttribute('value', 'include');
     }
-    else {
-        $class = 'Modify_Entry Current_Value';
-        $checkbox = new Input($dom, '', 'checkbox', 'Modify_Entry_List['.$email_key.']['.$include.']', 'include');
-        $emailHidden = new Input($dom, '', 'hidden', 'Hidden_Modify_Entry_List['.$email_key.']', 'submitted');
+
+    else if (isset($Session->Modify_Entry_List[$email_key])) {
+
+        $class_head .= ' Modify_Entry';
+        $checkbox->setAttribute('name', 'Modify_Entry_List['.$email_key.']['.$include.']');
+        $checkbox->setAttribute('value', 'include');
+
+        $Committed_Entry_List = $Session->Committed_Modify_Entries[$email_key];
+        $email_Hidden->setAttribute('name', 'Hidden_Modify_Entry_List['.$email_key.']');
+        $email_Hidden->setAttribute('value', 'include');
     }
 
-    $class .= ' Email_Block';
+    if($Committed_Entry_List) {
 
-    if(isset($Session->Committed_Modify_Entries[$email_key]) || isset($Session->Committed_New_Entries[$email_key])) {
-
-        $checkbox->GetDOM()->setAttribute('checked', 'checked');  
-        $class .= ' Selected';
+        $checkbox->setAttribute('checked', 'Checked');  
+        $class_head .= ' Checked';
     }
 
-    $checkbox->GetDOM()->setAttribute('class', $class); 
-    $emailBlock->setAttribute('class', $class);
+    $checkbox->setAttribute('class', $class_head); 
+    $emailBlock->setAttribute('class', $class_head);
 
-    $emailBlock->appendChild($emailHidden->GetDOM());
-    $emailBlock->appendChild($checkbox->GetDOM());
+    $emailBlock->setAttribute('onclick', 'email_block_clicked(this)');
+
+    $emailBlock->appendChild($email_Hidden);
+    $emailBlock->appendChild($checkbox);
     return $emailBlock;
 }
 
 
 
 // //----------------------4
-function Get_New_Entry_Attribute_Block(&$dom, $email_key, $attribute_id) {
+// function Get_New_Entry_Attribute_Block(&$dom, $email_key, $attribute_id) {
 
-    $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+//     $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
 
-    $domElement = $dom->createElement('td');
+//     $domElement = $dom->createElement('td');
 
-    if(!isset($Session->New_Entry_List[$email_key][$attribute_id]) || count($Session->New_Entry_List[$email_key][$attribute_id]) == 0) {
-        return $domElement;
-    }
+//     if(!isset($Session->New_Entry_List[$email_key][$attribute_id]) || count($Session->New_Entry_List[$email_key][$attribute_id]) == 0) {
+//         return $domElement;
+//     }
 
-    $case_array = array(
-        'textarea' => 'case_1',
-        'textline' => 'case_1',
-        'hidden' => 'case_1',
-        'date' => 'case_1',
+//     $case_array = array(
+//         'textarea' => 'case_1',
+//         'textline' => 'case_1',
+//         'hidden' => 'case_1',
+//         'date' => 'case_1',
 
-        'checkbox' => 'case_2',
-        'radio' => 'case_2',
-        'select' => 'case_2',
+//         'checkbox' => 'case_2',
+//         'radio' => 'case_2',
+//         'select' => 'case_2',
 
-        'checkboxgroup' => 'case_3',
-        );
-    $domList = $dom->createElement("ul");
+//         'checkboxgroup' => 'case_3',
+//         );
+//     $domList = $dom->createElement("ul");
 
-    foreach ($Session->New_Entry_List[$email_key][$attribute_id] as $numkey => $attribute_value) {
+//     foreach ($Session->New_Entry_List[$email_key][$attribute_id] as $numkey => $attribute_value) {
 
-        $listMemeber = $dom->createElement('li');
+//         $listMemeber = $dom->createElement('li');
 
-        if(!isset($case_array[$Session->attribute_list[$attribute_id]['type']])) {
-            continue;
-        }        $this_string ='';
+//         if(!isset($case_array[$Session->attribute_list[$attribute_id]['type']])) {
+//             continue;
+//         }        $this_string ='';
 
-        $el;
-        $class = 'New_Entry';
-        $class .= ' attribute_'.$attribute_id;
+//         $el;
+//         $class = 'New_Entry';
+//         $class .= ' attribute_'.$attribute_id;
 
-        switch($case_array[$Session->attribute_list[$attribute_id]['type']]) {
+//         switch($case_array[$Session->attribute_list[$attribute_id]['type']]) {
 
-            case "case_1": 
+//             case "case_1": 
 
-                $listMemeber->appendChild($dom->createElement("div", $attribute_value));
-                $radio = new Input($dom, $attribute_value, 'radio', 'New_Entry_List['.$email_key.']['.$attribute_id.']', $attribute_value);
-                $radio->GetDOM()->setAttribute('value', $attribute_value);
+//                 $listMemeber->appendChild($dom->createElement("div", $attribute_value));
+//                 $radio = new Input($dom, $attribute_value, 'radio', 'New_Entry_List['.$email_key.']['.$attribute_id.']', $attribute_value);
+//                 $radio->GetDOM()->setAttribute('value', $attribute_value);
                 
-                if(isset($Session->Committed_New_Entries[$email_key]) && isset($Session->Committed_New_Entries[$email_key][$attribute_id]) && $Session->Committed_New_Entries[$email_key][$attribute_id] === $attribute_value) {
-                    //if the attribute value is the already selected, mark as checked
-                    $class .= ' Selected';
-                    $radio->GetDOM()->setAttribute('checked', 'checked');
-                }
+//                 if(isset($Session->Committed_New_Entries[$email_key]) && isset($Session->Committed_New_Entries[$email_key][$attribute_id]) && $Session->Committed_New_Entries[$email_key][$attribute_id] === $attribute_value) {
+//                     //if the attribute value is the already selected, mark as checked
+//                     $class .= ' Selected';
+//                     $radio->GetDOM()->setAttribute('checked', 'checked');
+//                 }
 
-                if($numkey == 0) {
-                    $class .= ' Safe_Value';
-                }
+//                 if($numkey == 0) {
+//                     $class .= ' Safe_Value';
+//                 }
 
-                $radio->GetDom()->setAttribute('class', $class);
-                $listMemeber->setAttribute('class', $class);
-                //$HTML_table_row= $HTML_table_row.$HTML_attribute_value_input.'<br>';
-                $listMemeber->appendChild($radio->GetDOM());
-                $domList->appendChild($listMemeber);
-                break;
+//                 $radio->GetDom()->setAttribute('class', $class);
+//                 $listMemeber->setAttribute('class', $class);
+//                 //$HTML_table_row= $HTML_table_row.$HTML_attribute_value_input.'<br>';
+//                 $listMemeber->appendChild($radio->GetDOM());
+//                 $domList->appendChild($listMemeber);
+//                 break;
             
-            case "case_2" :
+//             case "case_2" :
 
-                $listMemeber->appendChild($dom->createElement("div", $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value]));
+//                 $listMemeber->appendChild($dom->createElement("div", $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value]));
 
-                $radio = new Input($dom, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value], 'radio', 'New_Entry_List['.$email_key.']['.$attribute_id.']', $attribute_value);
-                $radio->GetDOM()->setAttribute('value', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value]);
+//                 $radio = new Input($dom, $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value], 'radio', 'New_Entry_List['.$email_key.']['.$attribute_id.']', $attribute_value);
+//                 $radio->GetDOM()->setAttribute('value', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value]);
 
-                if(isset($Session->Committed_New_Entries[$email_key]) && isset($Session->Committed_New_Entries[$email_key][$attribute_id]) && $Session->Committed_New_Entries[$email_key][$attribute_id] === $attribute_value) {
-                    $class .= ' Selected';
-                    $radio->GetDOM()->setAttribute('checked', 'checked');
-                }
+//                 if(isset($Session->Committed_New_Entries[$email_key]) && isset($Session->Committed_New_Entries[$email_key][$attribute_id]) && $Session->Committed_New_Entries[$email_key][$attribute_id] === $attribute_value) {
+//                     $class .= ' Selected';
+//                     $radio->GetDOM()->setAttribute('checked', 'checked');
+//                 }
 
-                if($numkey == 0) {
-                    $class .= ' Safe_Value';
-                }
+//                 if($numkey == 0) {
+//                     $class .= ' Safe_Value';
+//                 }
 
-                $radio->GetDom()->setAttribute('class', $class);
-                $listMemeber->setAttribute('class', $class);
-                //$HTML_table_row= $HTML_table_row.$HTML_attribute_value_input.'<br>';
-                $listMemeber->appendChild($radio->GetDOM());
-                $domList->appendChild($listMemeber);
+//                 $radio->GetDom()->setAttribute('class', $class);
+//                 $listMemeber->setAttribute('class', $class);
+//                 //$HTML_table_row= $HTML_table_row.$HTML_attribute_value_input.'<br>';
+//                 $listMemeber->appendChild($radio->GetDOM());
+//                 $domList->appendChild($listMemeber);
 
-                break;
+//                 break;
 
-            case "case_3": 
-                $listMemeber->appendChild($dom->createElement("div", $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value]));
-                $checkbox = $dom->createElement('input');
+//             case "case_3": 
+//                 $listMemeber->appendChild($dom->createElement("div", $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value]));
+//                 $checkbox = $dom->createElement('input');
 
-                $checkbox->setAttribute('type', 'checkbox');
-                $checkbox->setAttribute('value', $attribute_value);
-                $checkbox->setAttribute('name', 'New_Entry_List['.$email_key.']['.$attribute_id.']['.$attribute_value.']');
+//                 $checkbox->setAttribute('type', 'checkbox');
+//                 $checkbox->setAttribute('value', $attribute_value);
+//                 $checkbox->setAttribute('name', 'New_Entry_List['.$email_key.']['.$attribute_id.']['.$attribute_value.']');
 
-                $class .= ' Checkbox_Value';
+//                 $class .= ' Checkbox_Value';
 
-                if(isset($Session->Committed_New_Entries[$email_key]) && isset($Session->Committed_New_Entries[$email_key][$attribute_id]) && in_array($attribute_value, $Session->Committed_New_Entries[$email_key][$attribute_id])) {
-                    $checkbox->setAttribute('checked', 'checked');
-                    $class .= ' Selected';
-                }
+//                 if(isset($Session->Committed_New_Entries[$email_key]) && isset($Session->Committed_New_Entries[$email_key][$attribute_id]) && in_array($attribute_value, $Session->Committed_New_Entries[$email_key][$attribute_id])) {
+//                     $checkbox->setAttribute('checked', 'checked');
+//                     $class .= ' Selected';
+//                 }
 
-                $checkbox->GetDom()->setAttribute('class', $class);
-                $listMemeber->setAttribute('class', $class);
-                //$HTML_table_row = $HTML_table_row.$HTML_attribute_value_input.'<br>';
-                $listMemeber->appendChild($checkbox);
-                $domList->appendChild($listMemeber);
-               break;
-            default:
+//                 $checkbox->GetDom()->setAttribute('class', $class);
+//                 $listMemeber->setAttribute('class', $class);
+//                 //$HTML_table_row = $HTML_table_row.$HTML_attribute_value_input.'<br>';
+//                 $listMemeber->appendChild($checkbox);
+//                 $domList->appendChild($listMemeber);
+//                break;
+//             default:
                 
-        }
-        $domElement->appendChild($domList);
+//         }
+//         $domElement->appendChild($domList);
         
-    }
+//     }
 
-    return $domElement;
-}
+//     return $domElement;
+// }
 
 
 // //---------------------5 
