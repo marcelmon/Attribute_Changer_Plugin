@@ -193,22 +193,6 @@
         var attribute_elements = document.getElementsByClassName(attribute_class);
         return attribute_elements;
     }
-
-
-    var Safe_Value = function (attribute_id) {
-        var attribute_class = 'attribute_'.concat(attribute_id);
-        var safe_class = 'Safe_Value';
-        var attribute_elements = document.getElementsByClassName(attribute_class);
-        var i;
-        var filtered_attribute_list = new Array();
-
-        for(i=0; i < attribute_elements.length; i++) {
-            if(attribute_elements[i].className.indexOf(safe_class) > -1) {
-                filtered_attribute_list.push(attribute_elements[i]);
-            }
-        }
-        return filtered_attribute_list;
-    }
  
 
     var Safe_Value = function(attribute_id) {
@@ -273,21 +257,23 @@
     }
     
 
-    var Unless = function (single_subject, condition) {
+    var Unless = function (leading_subject, condition, conditioned_subject) {
         this.Conditional = 'Unless'
-        this.single_subject = single_subject;
+        this.leading_subject = leading_subject;
         this.Condition = condition;
         return this;
 
         this.execute = function() {
-            if(this.Condition(this.single_subject)) {
+            if(this.Condition(this.leading_subject)) {
                 return false;
             }
         }
     }
 
-    var If= function(single_subject, condition) {
+    var If = function(leading_subject, condition, conditioned_subject) {
         this.Conditional = 'Unless'
+        this.leading_subject = leading_subject;
+        this.conditioned_subject = conditioned_subject;
         //are in the same columns, so attribute id, email key are the same
         //name would be the same, unless its checkbox
 
@@ -295,7 +281,7 @@
         return this;
 
         this.execute = function() {
-            if(this.Condition(this.single_subject)) {
+            if(this.Condition(this.conditioned_subject)) {
                 return true;
             }
         }
@@ -325,21 +311,42 @@
     }
     
     
-    var Exists = function (e) {
+    var Exists = function (leading_subject, subject) {
+        Filter_Conditional(leading_subject, subject);
+    }  
 
+    var Not_Exists = function(leading_subject, subject) {
+        (Filter_Conditional(leading_subject, subject)) ? false : true;
     }
 
-    var Not_Exists= function(e) {
-
-    }    
-
-    var Checked = function (e) {
-
+    var Checked = function(leading_subject) {
+        Filter_Conditional(leading_subject, 'Checked');
     }
 
-    var Not_Checked= function(e) {
-
+    var Not_Checked = function(leading_subject, subject) {
+        (Filter_Conditional(leading_subject, 'Checked')) ? false : true;
     }
+
+
+    var Filter_Conditional = function(leading_subject, subject) {
+
+        i=leading_subject.tagName;
+        while(i != 'ul'){
+            leading_subject = leading_subject.parentNode;
+            i = leading_subject.tagName;
+        }
+        child_subject = leading_subject.childNodes;
+        for(var i=0; i<child_subject.length; i++) {
+            if(child_subject[i].className.indexOf(subject) > -1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
 
 
 
