@@ -3,7 +3,7 @@
 
 
     function Initialize_New_Entries_Display() {
-        
+
         $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
 
         if(count($Session->New_Entry_List) == 0) {

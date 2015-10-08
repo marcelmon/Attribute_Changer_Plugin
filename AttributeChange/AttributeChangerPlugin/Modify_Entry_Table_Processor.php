@@ -41,9 +41,15 @@ $attribute_changer = $GLOBALS['plugins']['Attribute_Changer_Plugin'];
                 if(!isset($_POST['Modify_Entry_List'][$hidden_email_key]['include'])) {
 
                     unset($Session->Committed_Modify_Entries[$hidden_email_key]);
+                    print("<br>have in here<br>");
+                    print($hidden_email_key);
+                    print('<br>');
                 }
                 else{
 
+                    print("<br>now in here<br>");
+                    print($hidden_email_key);
+                    print('<br>');
 
                     $Session->Committed_Modify_Entries[$hidden_email_key] = array();
                     foreach ($Columns_To_Accept as $key => $attribute_id) {

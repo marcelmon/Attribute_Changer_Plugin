@@ -1,14 +1,15 @@
     /*
 
 
-
+can do, if class="xx" exists
+or, id="hello" is checked
 
 
 
     Require easy to initiate operation using selects
     TYPE 2 + 1
 
-    _Action     _Subject            _Conditional    _Subject      _Condition
+    _Action     _Subject            _Conditional    _Subject      _Predicate
     |check      |All                |               |               |
     |uncheck    |Safe_Value         |unless         |Any            |Exists
                 |Current_Value      |if             |Safe_Value     |Not_Exists
@@ -17,7 +18,7 @@
                 
     TYPE 3 
 
-    _Action     _Subject            *_Conditional   *_Subject       *_Condition
+    _Action     _Subject            *_Conditional   *_Subject       *_Predicate
     |check      |All                |               |               |
     |uncheck    |Checkbox_Value     |unless         |Any            |Exists
                 |Current_Value      |if             |Checkbox_Value |Not_Exists
@@ -27,322 +28,324 @@
     */
 
 
-    function Process_Input_Command(the_string) {
-        var commands = the_string.split(' ');
-        if (!commands || commands.length <= 0) {
-            return -1;
-        }
-        var action = _Action(commands[0]);
-        if(!action) {
-            return -1;
-        }
-        if(commands.length == 1) {
+//     function Process_Input_Command(the_string) {
+//         var commands = the_string.split(' ');
+//         if (!commands || commands.length <= 0) {
+//             return -1;
+//         }
+//         var action = _Action(commands[0]);
+//         if(!action) {
+//             return -1;
+//         }
+//         if(commands.length == 1) {
 
-        }
-    }
+//         }
+//     }
 
-    function process_command(attribute_id, attribute_type, action, subject_1, conditional, subject_2, condition) {
-        if(!action || !subject){
-            return -1;
-        }
-        var this_action = _Action(action);
-        if(!this_action){
-            return -1;
-        }
+//     function process_command(attribute_id, attribute_type, action, subject_1, conditional, subject_2, condition) {
+//         if(!action || !subject){
+//             return -1;
+//         }
+//         var this_action = _Action(action);
+//         if(!this_action){
+//             return -1;
+//         }
 
-        var this_subject_1 = _Subject(subject_1);
-        if(!this_subject_1){
-            return -1;
-        }
+//         var this_subject_1 = _Subject(subject_1);
+//         if(!this_subject_1){
+//             return -1;
+//         }
 
-        if(!conditional){
-            var className = this_subject_1
-        }
+//         if(!conditional){
+//             var className = this_subject_1
+//         }
 
-    }
+//     }
 
 
-    function _Action(action) {
-        switch(action) {
+//     function _Action(action) {
+//         switch(action) {
 
-            case 'Check':
-                return Check;
+//             case 'Check':
+//                 return Check;
 
-            case 'Uncheck':
-                return Uncheck;
+//             case 'Uncheck':
+//                 return Uncheck;
 
-            default:
-                return -1;
-        }
-    }
+//             default:
+//                 return -1;
+//         }
+//     }
 
-    var Check = function (subject) {
-        this.Action = 'Check';
-        this.subject = subject;
+//     var Check = function (subject) {
+//         this.Action = 'Check';
+//         this.subject = subject;
 
-        this.conditional = null;
+//         this.conditional = null;
 
-        this.setConditional = function(conditional) {
-            this.conditional = conditional;
-        }
+//         this.setConditional = function(conditional) {
+//             this.conditional = conditional;
+//         }
 
-        this.check_subject = function(subject){
-            for(var i=0; i<subject.length; i++) {
-                if(subject[i].className.indexOf('Checked') < 0){
-                    subject[i].className += ' Checked';
-                    if(subject[i].type == 'checkbox' || subject[i].type == 'radio') {
-                        subject[i].checked = true;
-                    }
-                }
-            }       
-        }
+//         this.check_subject = function(subject){
+//             for(var i=0; i<subject.length; i++) {
+//                 if(subject[i].className.indexOf('Checked') < 0){
+//                     subject[i].className += ' Checked';
+//                     if(subject[i].type == 'checkbox' || subject[i].type == 'radio') {
+//                         subject[i].checked = true;
+//                     }
+//                 }
+//             }       
+//         }
 
-        this.execute = function(){
-            if(!this.conditional) {
+//         this.execute = function(){
+//             if(!this.conditional) {
 
-                this.check_subject(this.subject);
-            }
-            else{
-                var new_subject = new array();
-                for(var j=0; j<this.subject.length; j++){
-                    if(this.conditional.execute(this.subject[i])){
-                        new_subject.push(this.subject)
-                    }
-                }
-                this.check_subject(new_subject);
-            }
-            return true;
-        }
-    }
+//                 this.check_subject(this.subject);
+//             }
+//             else{
+//                 var new_subject = new array();
+//                 for(var j=0; j<this.subject.length; j++){
+//                     if(this.conditional.execute(this.subject[i])){
+//                         new_subject.push(this.subject)
+//                     }
+//                 }
+//                 this.check_subject(new_subject);
+//             }
+//             return true;
+//         }
+//     }
 
-    var Uncheck= function(subject) {
-        this.Action = 'Uncheck';
-        this.subject = subject;
+//     var Uncheck= function(subject) {
+//         this.Action = 'Uncheck';
+//         this.subject = subject;
 
-        this.conditional = null;
+//         this.conditional = null;
 
-        this.setConditional = function(conditional) {
-            this.conditional = conditional;
-        }
+//         this.setConditional = function(conditional) {
+//             this.conditional = conditional;
+//         }
 
-        this.uncheck_subject = function(subject){
-            for(var i=0; i<subject.length; i++) {
+//         this.uncheck_subject = function(subject){
+//             for(var i=0; i<subject.length; i++) {
                 
-                var class_names = subject[i].className.split(' ');
-                var index = class_names.indexOf('Checked');
-                if(index > -1){
-                    class_names.splice(index, 1);
-                    if(subject[i].type == 'checkbox' || subject[i].type == 'radio') {
-                        subject[i].checked = false;
-                    }
-                }
-                subject[i].className = class_names.join(' ');
-            }       
-        }
+//                 var class_names = subject[i].className.split(' ');
+//                 var index = class_names.indexOf('Checked');
+//                 if(index > -1){
+//                     class_names.splice(index, 1);
+//                     if(subject[i].type == 'checkbox' || subject[i].type == 'radio') {
+//                         subject[i].checked = false;
+//                     }
+//                 }
+//                 subject[i].className = class_names.join(' ');
+//             }       
+//         }
 
-        this.execute = function(){
-            if(!this.conditional) {
+//         this.execute = function(){
+//             if(!this.conditional) {
 
-                this.uncheck_subject(this.subject);
-            }
-            else{
-                var new_subject = this.conditional(this.subject);
-                this.uncheck_subject(new_subject);
-            }
-            return true;
-        }
-    }
+//                 this.uncheck_subject(this.subject);
+//             }
+//             else{
+//                 var new_subject = this.conditional(this.subject);
+//                 this.uncheck_subject(new_subject);
+//             }
+//             return true;
+//         }
+//     }
 
-    function _Subject(subject) {
-        switch(subject){
+//     function _Subject(subject) {
+//         switch(subject){
 
-            case 'All':
-                return All;
+//             case 'All':
+//                 return All;
 
-            case 'Any':
-                return Any;
+//             case 'Any':
+//                 return Any;
 
-            case 'Safe_Value':
-                return Safe_Value;
+//             case 'Safe_Value':
+//                 return Safe_Value;
 
-            case 'Current_Value':
-                return Current_Value;
+//             case 'Current_Value':
+//                 return Current_Value;
 
-            case 'Other_Value':
-                return Other_Value;
+//             case 'Other_Value':
+//                 return Other_Value;
 
-            case 'Checkbox_Value':
-                return Checkbox_Value;
+//             case 'Checkbox_Value':
+//                 return Checkbox_Value;
 
-            default:
-                return -1;
-        }
-    }
+//             default:
+//                 return -1;
+//         }
+//     }
 
 
-    var All = function (attribute_id) {
+//     var All = function (attribute_id) {
         
-        var attribute_class = 'attribute_'.concat(attribute_id);
-        var attribute_elements = document.getElementsByClassName(attribute_class);
-        return attribute_elements;
-    }
+//         var attribute_class = 'attribute_'.concat(attribute_id);
+//         var attribute_elements = document.getElementsByClassName(attribute_class);
+//         return attribute_elements;
+//     }
 
 
-    var Any= function(attribute_id) {
-        var attribute_class = 'attribute_'.concat(attribute_id);
-        var attribute_elements = document.getElementsByClassName(attribute_class);
-        return attribute_elements;
-    }
+//     var Any= function(attribute_id) {
+//         var attribute_class = 'attribute_'.concat(attribute_id);
+//         var attribute_elements = document.getElementsByClassName(attribute_class);
+//         return attribute_elements;
+//     }
  
 
-    var Safe_Value = function(attribute_id) {
-        return Filter_Value(attribute_id, 'Safe_Value');
-    }
+//     var Safe_Value = function(attribute_id) {
+//         return Filter_Value(attribute_id, 'Safe_Value');
+//     }
 
 
-    var Current_Value = function(attribute_id) {
-        return Filter_Value(attribute_id, 'Current_Value');
-    }
+//     var Current_Value = function(attribute_id) {
+//         return Filter_Value(attribute_id, 'Current_Value');
+//     }
 
-    var Other_Value= function(attribute_id) {
-        var all = All(attribute_id);
+//     var Other_Value= function(attribute_id) {
+//         var all = All(attribute_id);
 
-        var others = new array();
-        //now have 2 arrays to compare to all, all the reset 
-        for(var i=0; i<all.length; i++) {
-            if(all[i].className.indexOf('Current_Value') > -1){
-                continue;
-            }
-            if(all[i].className.indexOf('Safe_Value') > -1){
-                continue;
-            }
-            others.push(all[i]);
-        }
-        return others;
-    }
-
-
-    var Checkbox_Value= function(attribute_id) {
-
-        return Filter_Value(attribute_id, 'Checkbox_Value');
-    }
-//Checkbox, other, current safe
-    var Filter_Value = function(attribute_id, class_string){
-        var elements = document.getElementsByClassName('attribute_'.concat(attribute_id));
-        var return_list = new Array();
-
-        for(var i=0; i < elements.length; i++) {
-            if(elements[i].className.indexOf(class_string) < 0) {
-                return_list.push(elements[i]);
-            }
-        }
-        return return_list;
-    }
+//         var others = new array();
+//         //now have 2 arrays to compare to all, all the reset 
+//         for(var i=0; i<all.length; i++) {
+//             if(all[i].className.indexOf('Current_Value') > -1){
+//                 continue;
+//             }
+//             if(all[i].className.indexOf('Safe_Value') > -1){
+//                 continue;
+//             }
+//             others.push(all[i]);
+//         }
+//         return others;
+//     }
 
 
+//     var Checkbox_Value= function(attribute_id) {
+
+//         return Filter_Value(attribute_id, 'Checkbox_Value');
+//     }
+// //Checkbox, other, current safe
+//     var Filter_Value = function(attribute_id, class_string){
+//         var elements = document.getElementsByClassName('attribute_'.concat(attribute_id));
+//         var return_list = new Array();
+
+//         for(var i=0; i < elements.length; i++) {
+//             if(elements[i].className.indexOf(class_string) < 0) {
+//                 return_list.push(elements[i]);
+//             }
+//         }
+//         return return_list;
+//     }
 
 
-    function _Conditional(conditional) {
-        switch(conditional){
+//     var Safe_Value = function(attribute_id) {
+//         return Filter_Value(attribute_id, 'Safe_Value');
+//     }
 
-            case 'Unless':
-                return Unless;
+//     function _Conditional(conditional) {
+//         switch(conditional){
 
-            case 'If':
-                return If;
+//             case 'Unless':
+//                 return Unless;
 
-            default:
-                return -1;
-        }
-    }
+//             case 'If':
+//                 return If;
+
+//             default:
+//                 return -1;
+//         }
+//     }
     
 
-    var Unless = function (leading_subject, condition, conditioned_subject) {
-        this.Conditional = 'Unless'
-        this.leading_subject = leading_subject;
-        this.Condition = condition;
-        return this;
+//     var Unless = function (leading_subject, condition, conditioned_subject) {
+//         this.Conditional = 'Unless'
+//         this.leading_subject = leading_subject;
+//         this.Condition = condition;
+//         return this;
 
-        this.execute = function() {
-            if(this.Condition(this.leading_subject)) {
-                return false;
-            }
-        }
-    }
+//         this.execute = function() {
+//             if(this.Condition(this.leading_subject)) {
+//                 return false;
+//             }
+//         }
+//     }
 
-    var If = function(leading_subject, condition, conditioned_subject) {
-        this.Conditional = 'Unless'
-        this.leading_subject = leading_subject;
-        this.conditioned_subject = conditioned_subject;
-        //are in the same columns, so attribute id, email key are the same
-        //name would be the same, unless its checkbox
+//     var If = function(leading_subject, condition, conditioned_subject) {
+//         this.Conditional = 'Unless'
+//         this.leading_subject = leading_subject;
+//         this.conditioned_subject = conditioned_subject;
+//         //are in the same columns, so attribute id, email key are the same
+//         //name would be the same, unless its checkbox
 
-        this.Condition = condition;
-        return this;
+//         this.Condition = condition;
+//         return this;
 
-        this.execute = function() {
-            if(this.Condition(this.conditioned_subject)) {
-                return true;
-            }
-        }
-    }
-
-
+//         this.execute = function() {
+//             if(this.Condition(this.conditioned_subject)) {
+//                 return true;
+//             }
+//         }
+//     }
 
 
-    function _Condition(condition) {
-        switch(condition){
 
-            case 'Exists':
-                return Exists;
 
-            case 'Not_Exists':
-                return Not_Exists;
+//     function _Predicate(predicate) {
+//         switch(predicate){
 
-            case 'Checked':
-                return Checked;
+//             case 'Exists':
+//                 return Exists;
 
-            case 'Not_Checked':
-                return Not_Checked;
+//             case 'Not_Exists':
+//                 return Not_Exists;
 
-            default:
-                return -1;
-        }
-    }
+//             case 'Checked':
+//                 return Checked;
+
+//             case 'Not_Checked':
+//                 return Not_Checked;
+
+//             default:
+//                 return -1;
+//         }
+//     }
     
     
-    var Exists = function (leading_subject, subject) {
-        Filter_Conditional(leading_subject, subject);
-    }  
+//     var Exists = function (leading_subject, subject) {
+//         Filter_Conditional(leading_subject, subject);
+//     }  
 
-    var Not_Exists = function(leading_subject, subject) {
-        (Filter_Conditional(leading_subject, subject)) ? false : true;
-    }
+//     var Not_Exists = function(leading_subject, subject) {
+//         (Filter_Conditional(leading_subject, subject)) ? false : true;
+//     }
 
-    var Checked = function(leading_subject) {
-        Filter_Conditional(leading_subject, 'Checked');
-    }
+//     var Checked = function(leading_subject) {
+//         Filter_Conditional(leading_subject, 'Checked');
+//     }
 
-    var Not_Checked = function(leading_subject, subject) {
-        (Filter_Conditional(leading_subject, 'Checked')) ? false : true;
-    }
+//     var Not_Checked = function(leading_subject, subject) {
+//         (Filter_Conditional(leading_subject, 'Checked')) ? false : true;
+//     }
 
 
-    var Filter_Conditional = function(leading_subject, subject) {
+//     var Filter_Conditional = function(leading_subject, subject) {
 
-        i=leading_subject.tagName;
-        while(i != 'ul'){
-            leading_subject = leading_subject.parentNode;
-            i = leading_subject.tagName;
-        }
-        child_subject = leading_subject.childNodes;
-        for(var i=0; i<child_subject.length; i++) {
-            if(child_subject[i].className.indexOf(subject) > -1) {
-                return true;
-            }
-        }
-        return false;
-    }
+//         i=leading_subject.tagName;
+//         while(i != 'ul'){
+//             leading_subject = leading_subject.parentNode;
+//             i = leading_subject.tagName;
+//         }
+//         child_subject = leading_subject.childNodes;
+//         for(var i=0; i<child_subject.length; i++) {
+//             if(child_subject[i].className.indexOf(subject) > -1) {
+//                 return true;
+//             }
+//         }
+//         return false;
+//     }
 
 
 
@@ -467,7 +470,519 @@ function check_all_Safe_Value(attribute_id, rules[]) {
 
 }
 
-    function check_all_Safe_Value(attribute) {
+
+
+    var check_elements = function (elements) {
+
+        for(var i=0; i<subject.length; i++) {
+            if(subject[i].className.indexOf('Checked') < 0){
+                subject[i].className += ' Checked';
+                if(subject[i].type == 'checkbox' || subject[i].type == 'radio') {
+                    subject[i].checked = true;
+                }
+            }
+        }       
+    }
+
+    var All = function (attribute_id) {
+        
+        var attribute_class = 'attribute_'.concat(attribute_id);
+        var attribute_elements = document.getElementsByClassName(attribute_class);
+        return attribute_elements;
+    }
+
+
+    var Any= function(attribute_id) {
+        var attribute_class = 'attribute_'.concat(attribute_id);
+        var attribute_elements = document.getElementsByClassName(attribute_class);
+        return attribute_elements;
+    }
+ 
+
+    var Safe_Value = function(attribute_id) {
+        return Filter_Value(attribute_id, 'Safe_Value');
+    }
+
+
+    var Current_Value = function(attribute_id) {
+        return Filter_Value(attribute_id, 'Current_Value');
+    }
+
+    var Other_Value= function(attribute_id) {
+        var all = All(attribute_id);
+
+        var others = new array();
+        //now have 2 arrays to compare to all, all the reset 
+        for(var i=0; i<all.length; i++) {
+            if(all[i].className.indexOf('Current_Value') > -1){
+                continue;
+            }
+            if(all[i].className.indexOf('Safe_Value') > -1){
+                continue;
+            }
+            others.push(all[i]);
+        }
+        return others;
+    }
+
+
+    var Checkbox_Value= function(attribute_id) {
+
+        return Filter_Value(attribute_id, 'Checkbox_Value');
+    }
+//Checkbox, other, current safe
+    var Filter_Value = function(attribute_id, class_string){
+        var elements = document.getElementsByClassName('attribute_'.concat(attribute_id));
+        var return_list = new Array();
+
+        for(var i=0; i < elements.length; i++) {
+            if(elements[i].className.indexOf(class_string) < 0) {
+                return_list.push(elements[i]);
+            }
+        }
+        return return_list;
+    }
+
+
+    var Safe_Value = function(attribute_id) {
+        return Filter_Value(attribute_id, 'Safe_Value');
+    }
+
+    function check_all_Safe_Value_UNLESS(attribute_id, [any_other, other, current, safe], [Exists, Not_Exists, Checked, Not_Checked]) {
+        var safe_value_elements = Safe_Value(attribute_id);
+        if(!args[1]) {
+            var safe_array = Get_Safe_Value_Elements(attribute_id);
+            if(safe_array && safe_array.length > 0) {
+                check_elements(safe_array);
+            }
+        }
+
+        else{
+            if(!args[2]) {
+                return -1;
+            }
+            else{
+                switch(args[1]) {
+
+
+                    case 'Any_Other':
+
+                        switch(args[2]) {
+                            case 'Exists':
+                            //CHECK ALL SAFE VALUES UNLES ANY EXIST (WILL ALWAYS CHECK NONE BECAUSE SOME OTHER HAS TO EXIST)
+                            //CAN SET THE siblings.length < 1 to < 2 and will become UNLESS ANY-OTHER EXIST
+                            //NEED TO KNOWN IF IS IN SAME   <li>-<input>   TREE
+                                for(var i=0; i<safe_value_elements.length; i++) {
+                                    var siblings = Get_Sibling_All(safe_value_elements[i], 'td');
+
+                                    var to_check = new array();
+
+                                    if(siblings.length < 2) {
+                                        to_check.push(safe_value_elements[i]);
+                                    }
+                                    check_elements(to_check);
+                                }
+                                break;
+
+                            case 'Not_Exists': 
+                            //IF THERE ARE ANY OTHERS EXISTING THEN IS OK
+                                for(var i=0; i<safe_value_elements.length; i++) {
+                                    var siblings = Get_Sibling_All(safe_value_elements[i], 'td');
+
+                                    var to_check = new array();
+
+                                    if(siblings.length > 1) {
+                                        to_check.push(safe_value_elements[i]) 
+                                    }
+                                    check_elements(to_check);
+                                }
+                                break;
+                        }
+
+                }
+            }
+
+
+            var Get_Checked = function(attribute_id) {
+
+                var return_array = Filter_Class(attribute_id, 'Checked');
+                return return_array;
+            }
+
+            var Get_Safe_Value = function(attribute_id) {
+                var attribute_class = 'attribute_'.concat(attribute_id);
+                var attribute_array = document.getElementsByClassName(attribute_class);
+
+                var return_array = Filter_Class(attribute_array, 'Safe_value');
+                return return_array;
+            }
+
+
+            var Get_Current_Value = function(attribute_id) {
+                var attribute_class = 'attribute_'.concat(attribute_id);
+                var attribute_array = document.getElementsByClassName(attribute_class);
+
+                var return_array = Filter_Class(attribute_array, 'Current_Value');
+                return return_array;
+            }
+
+
+            var Get_Other = function(attribute_id) {
+                var attribute_class = 'attribute_'.concat(attribute_id);
+                var attribute_array = document.getElementsByClassName(attribute_class);
+
+                var current_array = Filter_Class(attribute_array, 'Current_Value');
+                var safe_array = Filter_Class(attribute_array, 'Safe_Value');
+
+                attribute_array = Remove_Matches(attribute_array, current_array);
+                attribute_array = Remove_Matches(attribute_array, safe_array);
+
+                return attribute_array;
+            }
+
+
+            var Filter_Class = function(attribute_id, class_to_match) {
+                var attribute_array = document.getElementsByClassName('attribute_'.concat(attribute_id));
+                var return_array = new array();
+
+                for(var i=0; i<elements.length; i++) {
+                    if(elements[i].className.indexOf(class_to_match)) {
+                        return_array.push(elements[i]);
+                    }
+                }
+                return return_array;
+            }
+
+            var Get_All = function(attribute_id) {
+                var attribute_class = 'attribute_'.concat(attribute_id);
+                var attribute_array = document.getElementsByClassName(attribute_class);
+                return attribute_array;
+            }
+
+
+
+
+
+            if(args[1] == 'Any') {
+                
+
+                var Get_Sibling_Checked = function(leading_subject, top_delimiter) {
+
+                    var top_element = Get_Top_Element(leading_subject, top_delimiter);
+                    if(!top_element) {
+                        return null;
+                    }
+
+                    var checked_array = top_element.getElementsByClassName('Checked');
+
+                    var tag_to_use = 'li';
+
+                    var new_checked_array = new array();
+
+                    for(var i=0; i<checked_array.length; i++) {
+                        if(checked_array[i].tagName == 'li') {
+                            if(checked_array[i] != leading_subject) {
+                                new_checked_array.push(checked_array[i]);
+                            }
+                        }
+                    }
+
+                    return new_checked_array;
+                }
+
+                var Get_Checkbox_Sibling_Not_Current = function(leading_subject, top_delimiter) {
+                    
+                    var attribute_class = Get_Attribute_Class(leading_subject);
+                    if(!attribute_class) {
+                        return -1;
+                    }
+
+                    var top_element = Get_Top_Element(leading_subject, top_delimiter);
+                    if(!top_element) {
+                        return null;
+                    }
+
+                    var current_array = top_element.getElementsByClassName('Current_Value');
+
+                    var all_array = top_element.getElementsByClassName(attribute_class);
+                    var tag_to_use = 'li';
+
+
+                    var new_checked_not_current = new array();
+
+                    for(var i=0; i<current_array.length; i++) {
+                        if(current_array[i].tagName == 'li'){
+                            if(current_array[i].className.indexOf('Current_Value') < 0){
+                                if(current_array[i] != leading_subject) {
+                                    new_checked_not_current.push(current_array[i]); 
+                                }
+                            }
+                        }
+                    }
+
+                    return new_checked_not_current;
+                }
+
+                var Get_Sibling_Matching = function(class_to_match) {
+                    switch(class_to_match):
+                        case 'Current_Value':
+
+
+                        case 'All':
+
+
+                        case 'Checked':
+
+                        default:
+                            return null;
+                }
+
+                var Get_Sibling_Checked = function(leading_subject, top_delimiter) {
+                    var return_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Checked');
+                    return return_array;
+                }
+
+
+                var Get_Sibling_All = function(leading_subject, top_delimiter) {
+
+                    var attribute_class = Get_Attribute_Class(leading_subject);
+                    if(!attribute_class) {
+                        return -1;
+                    }
+
+                    var return_array = Find_Sibling_Match(leading_subject, top_delimiter, attribute_class);
+                    return return_array;
+                }
+
+                var Get_Sibling_Current_Value = function(leading_subject, top_delimiter) {
+
+                    var current_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Current_Value');
+                    return current_array;
+                }
+
+
+                var Get_Sibling_Safe_Value = function(leading_subject, top_delimiter) {
+
+                    var safe_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Safe_Value');
+                    return safe_array;
+                }
+
+                var Get_Sibling_Not_Current_Value = function(leading_subject, top_delimiter) {
+
+                    var all_array = Get_Sibling_All(leading_subject, top_delimiter);
+                    var current_array = Get_Sibling_Current_Value(leading_subject, top_delimiter);
+                }
+
+                var Get_Sibling_Not_Other = function(leading_subject, top_delimiter) {
+
+                    var return_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Current_Value');
+                    var safe_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Safe_Value');
+
+                    for(var i=0; i<safe_array.length; i++) {
+                        if(safe_array[i].)
+                    }
+                }
+
+
+                var Get_Sibling_Not_Current_Not_Safe = function(leading_subject, top_delimiter) {
+
+                    var current_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Current_Value');
+                    var safe_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Safe_Value');
+
+                    var all_array = Get_Sibling_All(leading_subject, top_delimiter);
+
+                    all_array = Remove_Matches(all_array, safe_array);
+                    all_array = Remove_Matches(all_array, current_array);
+
+                    return all_array;
+                }
+
+
+
+
+                var Find_Sibling_Match = function(leading_subject, top_delimiter, class_to_match) {
+
+
+                    var top_element = Get_Top_Element(leading_subject, top_delimiter);
+                    if(!top_element) {
+                        return null;
+                    }
+
+                    var match_array = top_element.getElementsByClassName(class_to_match);
+
+                    var return_array = new array();
+
+                    for(var i=0; i<match_array.length; i++) {
+                        if(match_array[i].tagName == 'li'){
+
+                            if(match_array[i] != leading_subject) {
+                                return_array.push(match_array[i]); 
+                            }
+                        }
+                    }
+                    return return_array;
+                }
+
+
+
+
+
+
+
+                var Remove_Matches = function(to_remove_from, to_match) {
+                    //iterate through to_remove_from, see if theres a match in to_match
+                        //if theres no match then add to filtered list 
+                    if(!to_remove_from || !to_match) {
+                        return -1;
+                    }
+                    if(!isArray(to_remove_from) || !isArray(to_match)){
+                        return -1;
+                    }
+                    var return_array = new array();
+                    for(var i=0; i<to_remove_from.length; i++) {
+
+                        if(!to_match.indexOf(to_remove_from[i])) {
+                            return_array.push(to_remove_from[i]);
+                        }
+                    }
+                    return return_array;
+                }
+                
+
+                var Get_Attribute_Class = function(leading_subject) {
+                    if(!leading_subject || typeof leading_subject != 'string') {
+                        return -1;
+                    }
+                    var attribute_class = null;
+                    var classes = leading_subject.className.split(' ');
+
+                    for(var i=0; i<classes.length; i++) {
+                        if(classes[i].indexOf('attribute_')){
+                            attribute_class = classes[i];
+                            break;
+                        }
+                    }
+                    return attribute_class;
+                }
+
+
+                var Get_Top_Element = function(leading_subject, top_delimiter) {
+                    if(!leading_subject || typeof leading_subject != 'string') {
+                        return -1;
+                    }
+                    if(!top_delimiter || typeof top_delimiter != 'string') {
+                        return -1;
+                    }
+                    var tag = leading_subject.tagName;
+                    var top_element = null;
+
+                    while(tagName != top_delimiter) {
+                        if(top_element == document.body) {
+                            return null;
+                        }
+                        top_element = leading_subject.parentNode;
+                    }
+                    return top_element;
+                }
+
+
+                // function Get_Matching_Child_Nodes(classesToMatch, top_element) {
+                //     var return_array = new Array();
+
+                //     if(top_element.childNodes.length == 0) {
+                //         return return_array;
+                //     }
+
+                //     for(var i=0; i<top_element.childNodes.length; i++) {
+                //         new_array = Get_Matching_Child_Nodes(classesToMatch, top_element.childNodes[i]);
+
+                //         for(var j=0; j<new_array.length; j++) {
+                //             return_array.push(new_array[j]);
+                //         }
+                //         var is_good = true;
+
+                //         for(var j=0; j<classesToMatch; j++) {
+                //             if(top_element.childNodes[i].className.indexOf(classesToMatch[j]) < 0) {
+                //                 is_good = false;
+                //                 //not going to add this child if not good
+                //             }
+                //         }
+                //         if(is_good == true) {
+                //             return_array.push(top_element.childNodes[i]);
+                //         }
+
+                //     }
+                //     return return_array;
+
+                // }
+
+
+
+                if(args[2] == 'Exists'){
+
+                }
+                if(args[2] == 'Not_Exists'){
+
+                }
+                if(args[2] == 'Checked'){
+
+                }
+                if(args[2] == 'Not_Checked'){
+
+                }
+            }
+            if(args[1] == 'Other') {
+                if(args[2] == 'Exists'){
+
+                }
+                if(args[2] == 'Not_Exists'){
+
+                }
+                if(args[2] == 'Checked'){
+
+                }
+                if(args[2] == 'Not_Checked'){
+
+                }
+            }
+            if(args[1] == 'Current_Value') {
+                
+                if(args[2] == 'Exists'){
+
+                }
+                if(args[2] == 'Not_Exists'){
+
+                }
+                if(args[2] == 'Checked'){
+
+                }
+                if(args[2] == 'Not_Checked'){
+
+                }
+            }
+            if(args[1] == 'Safe_Value') {
+                
+                if(args[2] == 'Exists'){
+
+                }
+                if(args[2] == 'Not_Exists'){
+
+                }
+                if(args[2] == 'Checked'){
+
+                }
+                if(args[2] == 'Not_Checked'){
+
+                }
+            }
+
+            for(var i=0; i>safe_value_elements.length; i++) {
+
+            }
+        }
+    }
+
+    function uncheck_all_Safe_Value_OR([any, other, current], [Exists, Not_Exists, Checked, Not_Checked]) {
 
     }
 
