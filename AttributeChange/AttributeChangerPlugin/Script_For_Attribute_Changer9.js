@@ -6,6 +6,31 @@
         }
     }
 
+
+
+
+    function list_element_clicked(e) {
+
+        var classes = e.className.split(' ');
+       // window.alert(e.className);
+        var index = classes.indexOf('Checked');
+        var selector = e.getElementsByTagName('input')[0];
+
+        if(index > -1){
+            classes.splice(index, 1);
+            selector.checked= false;
+        }
+        else{
+            classes.push('Checked');
+            selector.checked = true;
+        }
+
+        e.className = classes.join(' ');
+        selector.className = e.className;
+
+       // window.alert(e.className);
+    }
+
     function checkAll_NewEntry_Emails() {
         var element_blocks = document.getElementsByClassName('New_Entry_Email');
         var i;

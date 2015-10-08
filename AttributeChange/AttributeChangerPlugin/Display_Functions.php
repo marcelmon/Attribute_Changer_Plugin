@@ -332,7 +332,11 @@ function GetNewEntryTableRow(&$dom, $email_key) {
     $row->appendChild(GetEmailBlock($dom, $email_key));
 
     foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
-        $row->appendChild(Get_New_Entry_Attribute_Block($dom, $email_key, $attribute_id));
+
+        $cell = $dom->createElement('td');
+        $cell->appendChild(Create_Attribute_Table_Elements($dom, $attribute_id, $email_key));
+
+        $row->appendChild($cell);
     }
     return $row;
 }
@@ -738,19 +742,15 @@ function GetModifyTableRow(&$dom, $email_key) {
     foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
         $cell = $dom->createElement('td');
 
-            
+
             //print_r($Session->Current_User_Values);
             //print("<br><br>".$email_key.'<br>');
-        $cell->appendChild( Get_Current_Attribute_Block($dom, $email_key, $attribute_id));
-        if($case_array[$attribute_info['type']] == 'case_3') {
-             
-            $cell->appendChild(Get_Modify_Attribute_Value_Display_Checkboxgroup_New_Vals($dom, $email_key, $attribute_id));
-        }
-        else{
-            
-            $cell->appendChild(Get_Modify_Attribute_Value_Display_Other_Type_New_Vals($dom, $email_key, $attribute_id));
+        if(isset($Session->Modify_Entry_List[$email_key][$attribute_id])) {
 
+            $cell->appendChild( Create_Attribute_Table_Elements($dom, $attribute_id, $email_key));
         }
+
+
         $row->appendChild($cell);
 
     }
@@ -758,10 +758,191 @@ function GetModifyTableRow(&$dom, $email_key) {
 }
 
 
-function Get_Attribute_Block($email_key, $attribute_id){
+// function Get_Attribute_Block($email_key, $attribute_id){
 
 
-        $case_array = array(
+//         $case_array = array(
+//         'textarea' => 'case_1',
+//         'textline' => 'case_1',
+//         'hidden' => 'case_1',
+//         'date' => 'case_1',
+
+//         'checkbox' => 'case_2',
+
+//         'radio' => 'case_2',
+//         'select' => 'case_2',
+
+//         'checkboxgroup' => 'case_3',
+//         );
+
+
+//     $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+//     $HTML_block = $dom->createElement('div');
+
+//     $domList = $dom->createElement('ui'); 
+
+//     $attribute_type = $Session->attribute_list[$attribute_id]['type'];
+
+//     $has_safe = false;
+
+
+
+//     $Current_User_Values = $Session->Current_User_Values[$email_key][$attribute_id];
+//     $Modify_Entry_List = $Session->Modify_Entry_List[$email_key][$attribute_id];
+    
+//     $list = $dom->createElement('ui');
+//     if(isset($Session->Modify_Entry_List[$email_key])) {
+//         $Committed_Attribute_Values = $Session->Committed_Modify_Entries[$email_key][$attribute_id];
+
+
+//         foreach (array_merge($Current_User_Values, $Modify_Entry_List) as $key => $value) {
+            
+//             $class = 'Modify_Entry';
+//             $list_element = $dom->createElement('li');
+
+//             if(in_array($value, $Current_User_Values)) {
+//                 $class .= ' Current_Value';
+//             }
+
+//             else if($key == 0) {
+//                 $class .= ' Safe_Value'
+//             }
+
+//             if($case_array[$attribute_type] == 'case_1'){
+
+//                 $radio = $dom->createElement('input', $value);
+//                 $radio->setAttribute('type', 'radio');
+                
+//                 if (in_array($value, $Committed_Attribute_Values)) {
+//                     $class .= ' Checked';
+//                     $radio->setAttribute('checked', 'Checked');
+//                     $radio->setAttribute('class', $class);
+
+//                     $list_element->appendChild($radio);
+//                 }
+//             }
+//             else if($case_array[$attribute_type] == 'case_2') {
+//                 $radio = $dom->createElement('input', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+//                 $radio->setAttribute('type', 'radio');
+                
+//                 if (in_array($value, $Committed_Attribute_Values)) {
+//                     $class .= ' Checked';
+//                     $radio->setAttribute('checked', 'Checked');
+//                     $radio->setAttribute('class', $class);
+//                     $list_element->appendChild($radio);
+//                 }
+//             }
+
+//             else if($case_array[$attribute_type] == 'case_3') {
+//                 $checkbox = $dom->createElement('input', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+//                 $checkbox->setAttribute('type', 'checkbox');
+//                 $class .= ' Checkbox_Value';
+//                 if (in_array($value, $Committed_Attribute_Values)) {
+//                     $class .= ' Checked';
+//                     $checkbox->setAttribute('checked', 'Checked');
+//                     $checkbox->setAttribute('class', $class);
+//                     $list_element->appendChild($checkbox);
+//                 }
+//             }
+
+//             $list_element->setAttribute('class', $class);
+//         }
+
+//     }
+//     else if(isset($Session->New_Entry_List[$email_key])){
+
+//         $attribute_values = $Session->New_Entry_List[$email_key][$attribute_id];
+//         $Committed_Attribute_Values = $Session->Committed_New_Entries[$email_key][$attribute_id];
+
+//         foreach ($attribute_values as $key => $value) {
+
+//             $class = 'New_Entry';
+//             $list_element = $dom->createElement('li');
+
+//             if($key == 0) {
+//                 $class .= ' Safe_Value'
+//             }
+
+
+// function Create_New_Entry_Elements($attribute_id, $email_key) {
+//     $case_array = array(
+//         'textarea' => 'case_1',
+//         'textline' => 'case_1',
+//         'hidden' => 'case_1',
+//         'date' => 'case_1',
+
+//         'checkbox' => 'case_2',
+
+//         'radio' => 'case_2',
+//         'select' => 'case_2',
+
+//         'checkboxgroup' => 'case_3',
+//     );
+
+//     $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
+
+//     $attribute_type = $case_array[$Session->attribute_list[$attribute_id]['type']];
+
+//     $attribute_allowed_values = $Session->attribute_list[$attribute_id]['allowed_value_ids'];
+
+//     $New_Entry_List = $Session->New_Entry_List[$email_key][$attribute_id];
+
+//     $Committed_Attribute_Values = $Session->Committed_New_Entries[$email_key][$attribute_id];
+
+//     $New_entry = 'New_Entry';
+
+//     $list = $dom->createElement('ui');
+
+//     foreach ($New_Entry_List as $key => $value) {
+
+//         if($key == 0) {
+//             $class = $New_entry.' Safe_Value'
+//         }
+
+//         $list_element = $dom->createElement('li');
+
+//         if($attribute_type == 'case_1') {
+
+//             $selector = $dom->createElement('input', $value);
+//             $selector->setAttribute('type', 'radio');
+//             $selector->setAttribute('name', 'New_Entry_List['$email_key']['$attribute_id']');
+//             $selector->setAttribute('value', $value);
+//         }
+//         else if($attribute_type == 'case_2') {
+
+//             $selector = $dom->createElement('input', $attribute_allowed_values[$value]);
+//             $selector->setAttribute('type', 'radio');
+//             $selector->setAttribute('name', 'New_Entry_List['$email_key']['$attribute_id']');
+//             $selector->setAttribute('value', $value);
+//         }
+//         if($attribute_type == 'case_3') {
+            
+//             $class = $New_entry.' Checkbox_Value';
+//             $selector = $dom->createElement('input', $attribute_allowed_values[$value]);
+//             $selector->setAttribute('type', 'checkbox');
+
+//             $selector->setAttribute('name', 'New_Entry_List['$email_key']['$attribute_id']['$value']');
+//             $selector->setAttribute('value', $value);
+//         }
+
+//         if (in_array($value, $Committed_Attribute_Values)) {
+//             $class .= ' Checked';
+//             $radio->setAttribute('checked', 'Checked');
+//             $radio->setAttribute('class', $class);
+//         }
+//         $selector->setAttribute('class', $class);
+//         $list_element->appendChild($selector);
+//         $list_element->setAttribute('class', $class);
+
+//         $list->appendChild($list_element);
+//     }
+//     return $list;
+// }
+
+
+
+function Create_Attribute_Table_Elements(&$dom, $attribute_id, $email_key) {
+    $case_array = array(
         'textarea' => 'case_1',
         'textline' => 'case_1',
         'hidden' => 'case_1',
@@ -773,127 +954,377 @@ function Get_Attribute_Block($email_key, $attribute_id){
         'select' => 'case_2',
 
         'checkboxgroup' => 'case_3',
-        );
-
+    );
 
     $Session = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session;
-    $HTML_block = $dom->createElement('div');
 
-    $domList = $dom->createElement('ui'); 
+    $attribute_type = $case_array[$Session->attribute_list[$attribute_id]['type']];
 
-    $attribute_type = $Session->attribute_list[$attribute_id]['type'];
 
-    $has_safe = false;
-    if(isset($Session->Current_User_Values[$email_key]) && isset($Session->Modify_Entry_List[$email_key])) {
-        $class = 'Modify_Entry';
-        if(isset($Session->Current_User_Values[$email_key][$attribute_id])) {
+    $attribute_allowed_values = $Session->attribute_list[$attribute_id]['allowed_value_ids'];
 
-            if($case_array[$attribute_type] == 'case_1'){
-                $list_element = $dom->createElement('li', $Session->Current_User_Values[$email_key][$attribute_id]);
-                $list_element->setAttribute('class', $class.' Selected Safe_Value');
-                $has_safe = true;
+    $Current_User_Values = null;
 
-                $domList->appendChild($list_element);
-            }
+    if(isset($Session->New_Entry_List[$email_key])){
+        $Entry_Type = 'New_Entry_List';
+        $Entry_List = $Session->New_Entry_List[$email_key][$attribute_id];
+        $class_head = 'New_Entry';
 
-            else if ($case_array[$attribute_type] == 'case_2'){
-                $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$Session->Current_User_Values[$email_key][$attribute_id]]);
-                $list_element->setAttribute('class', $class.' Selected Safe_Value');
-                $has_safe = true;
+        $Committed_Attribute_Values = $Session->Committed_New_Entries[$email_key][$attribute_id];
+    }
 
-                $domList->appendChild($list_element);
-            }
+    else if(isset($Session->Modify_Entry_List[$email_key])){
 
-            else if($case_array[$attribute_type] == 'case_3'){
-                foreach ($Session->Current_User_Values[$email_key][$attribute_id] as $key => $value) {
 
-                    $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
-                    $list_element->setAttribute('class', $class.' Selected Checkbox_Value');
-                    
-                    $domList->appendChild($list_element);
-                }
-            }
+        $Entry_Type = 'Modify_Entry_List';
+        $Entry_List = array();
+
+        foreach ($Session->Current_User_Values[$email_key][$attribute_id] as $value) {
+            $Entry_List[] = $value;
         }
 
         foreach ($Session->Modify_Entry_List[$email_key][$attribute_id] as $value) {
-            if($case_array[$attribute_type] == 'case_1'){
-                $list_element = $dom->createElement('li', $value);
-                if($Session->Committed_Modify_Entries[$email_key][$attribute_id] == $value) {
-                    
-                    if(!$has_safe) {
-                        $class .= ' Safe_Value'
-                        $has_safe = true;
-                    }
-                }
+            $Entry_List[] = $value;
+        }
 
-                $domList->appendChild($list_element);
-            }
+        $class_head = 'Modify_Entry';
+        $Current_User_Values = $Session->Current_User_Values[$email_key][$attribute_id];
 
-            else if ($case_array[$attribute_type] == 'case_2'){
-                $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
-                $class .= ' Selected';
+        $Committed_Attribute_Values = $Session->Committed_Modify_Entries[$email_key][$attribute_id];
+    }
 
-                if(!$has_safe) {
-                    $class .= ' Safe_Value'
-                    $has_safe = true;
-                }
-                $domList->appendChild($list_element);
-            }
 
-            else if($case_array[$attribute_type] == 'case_3'){
-                foreach ($Session->Current_User_Values[$email_key][$attribute_id] as $key => $value) {
+    $list = $dom->createElement('ul');
+    $list->setAttribute('style', "list-style-type:none");
 
-                    $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
-                    $list_element->setAttribute('class', $class.' Selected Checkbox_Value');
-                    
-                    $domList->appendChild($list_element);
-                }
+    foreach ($Entry_List as $key => $value) {
+
+        $class = '';
+        $class .= $class_head;
+
+        if($key == 0) {
+            $class .= ' Safe_Value';
+        }
+
+
+
+        if($Current_User_Values) {
+            if(in_array($value, $Current_User_Values)) {
+                $class .= ' Current_Value';
             }
         }
-    }
 
-    else{
-        $class = 'New_Entry';
+        if($attribute_type == 'case_1') {
 
-        foreach ($Session->New_Entry_List[$email_key][$attribute_id] as $value) {
-            if($case_array[$attribute_type] == 'case_1'){
-                $list_element = $dom->createElement('li', $Session->Current_User_Values[$email_key][$attribute_id]);
-                $class .= ' Selected';
-                if(!$has_safe) {
-                    $class .= ' Safe_Value'
-                    $has_safe = true;
-                }
-                $domList->appendChild($list_element);
-            }
-
-            else if ($case_array[$attribute_type] == 'case_2'){
-                $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$Session->Current_User_Values[$email_key][$attribute_id]]);
-                $class .= ' Selected';
-
-                if(!$has_safe) {
-                    $class .= ' Safe_Value'
-                    $has_safe = true;
-                }
-                $domList->appendChild($list_element);
-            }
-
-            else if($case_array[$attribute_type] == 'case_3'){
-                foreach ($Session->Current_User_Values[$email_key][$attribute_id] as $key => $value) {
-
-                    $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
-                    $list_element->setAttribute('class', $class.' Selected Checkbox_Value');
-                    
-                    $domList->appendChild($list_element);
-                }
-            }
+            $selector = $dom->createElement('input');
+            $selector->setAttribute('type', 'radio');
+            $selector->setAttribute('name', $Entry_Type.'['.$email_key.']['.$attribute_id.']');
+            $selector->setAttribute('value', $value);
+            $list_element = $dom->createElement('li', $value);
         }
+
+        else if($attribute_type == 'case_2') {
+
+            $selector = $dom->createElement('input');
+            $selector->setAttribute('type', 'radio');
+            $selector->setAttribute('name', $Entry_Type.'['.$email_key.']['.$attribute_id.']');
+            $selector->setAttribute('value', $value);
+            $list_element = $dom->createElement('li', $attribute_allowed_values[$value]);
+        }
+
+        else if($attribute_type == 'case_3') {
+            
+            $class .= ' Checkbox_Value';
+            $selector = $dom->createElement('input');
+            $selector->setAttribute('type', 'checkbox');
+
+            $selector->setAttribute('name', $Entry_Type.'['.$email_key.']['.$attribute_id.']['.$value.']');
+            $selector->setAttribute('value', $value);
+            $list_element = $dom->createElement('li', $attribute_allowed_values[$value]);
+        }
+
+        else{
+            //blank due to no set case_3 error
+            return $dom->createElement('div');
+        }
+
+        if (in_array($value, $Committed_Attribute_Values)) {
+            $class .= ' Checked';
+            $selector->setAttribute('checked', 'Checked');
+            $selector->setAttribute('class', $class);
+        }
+
+        $class .= ' attribute_'.$attribute_id;
+
+        $selector->setAttribute('class', $class);
+
+        //$selector->setAttribute('onclick', 'selector_clicked(this)');
+
+
+        $list_element->appendChild($selector);
+        $list_element->setAttribute('class', $class);
+        $list_element->setAttribute('onclick', 'list_element_clicked(this)');
+
+        $list->appendChild($list_element);
     }
 
-    foreach ($variable as $key => $value) {
-        # code...
-    }
-
+    return $list;
 }
+// function Create_Case_One_Element($Committed_Attribute_Values, $attribute_id) {
+//     $radio = $dom->createElement('input', $value);
+//     $radio->setAttribute('type', 'radio');
+    
+//     if (in_array($value, $Committed_Attribute_Values)) {
+//         $class .= ' Checked';
+//         $radio->setAttribute('checked', 'Checked');
+//         $radio->setAttribute('class', $class);
+//     }
+//     $list_element->appendChild($radio);
+// }
+
+//             if($case_array[$attribute_type] == 'case_1'){
+
+//                 $radio = $dom->createElement('input', $value);
+//                 $radio->setAttribute('type', 'radio');
+                
+//                 if (in_array($value, $Committed_Attribute_Values)) {
+//                     $class .= ' Checked';
+//                     $radio->setAttribute('checked', 'Checked');
+//                     $radio->setAttribute('class', $class);
+//                 }
+//                 $list_element->appendChild($radio);
+//             }
+//             else if($case_array[$attribute_type] == 'case_2') {
+//                 $radio = $dom->createElement('input', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+//                 $radio->setAttribute('type', 'radio');
+                
+//                 if (in_array($value, $Committed_Attribute_Values)) {
+//                     $class .= ' Checked';
+//                     $radio->setAttribute('checked', 'Checked');
+//                     $radio->setAttribute('class', $class);
+//                 }
+//                 $list_element->appendChild($radio);
+//             }
+
+//             else if($case_array[$attribute_type] == 'case_3') {
+//                 $checkbox = $dom->createElement('input', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+//                 $checkbox->setAttribute('type', 'checkbox');
+//                 $class .= ' Checkbox_Value';
+//                 if (in_array($value, $Committed_Attribute_Values)) {
+//                     $class .= ' Checked';
+//                     $checkbox->setAttribute('checked', 'Checked');
+//                     $checkbox->setAttribute('class', $class);
+//                 }
+//                 $list_element->appendChild($checkbox);
+//             }
+
+//             if(in_array($value, $Committed_Attribute_Values)) {
+//                 $class .= ' Checked';
+//             }
+//         }
+//     }
+        
+
+
+    /*
+
+                }
+
+                else if($case_array[$attribute_type] == 'case_2'){
+
+
+                    $radio = $dom->createElement('input', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+                    $radio->setAttribute('type', 'radio');
+
+                    if (in_array($value, $Committed_Attribute_Values)) {
+                        $class .= ' Checked';
+                        $radio->setAttribute('checked', 'Checked');
+                    }
+
+                    $radio->setAttribute('class', $class);
+                    $list_element = $dom->createElement('li');
+
+                    $list_element->appendChild($radio);
+                    $list_element->setAttribute('class', $class);
+                    
+                }
+
+                if(in_array($value, $Current_User_Values)) {
+                    $class .= ' Current_Value';
+                }
+                
+                else if($key == 0) {
+                    $class .= ' Safe_Value'
+                }
+
+ 
+                $radio->setAttribute('class', $class);
+                $list_element = $dom->createElement('li');
+
+                $list_element->appendChild($radio);
+                $list_element->setAttribute('class', $class);
+                $list->appendChild($list_element);
+
+
+
+                else if($case_array[$attribute_type] == 'case_3'){
+                
+                }
+
+                if($key == 0) {
+                    $class .= ' Safe_Value';
+                }
+
+                if( in_array($value, $Current_User_Values)) {
+                    $class .= ' Current_Value';
+                }
+
+                $list_element = $dom->createElement('li');
+                $
+            }
+        
+
+        if($case_array[$attribute_type] == 'case_1') {
+            $has_safe = false;
+            if($Current_User_Values){
+
+            }
+        }
+
+        if($case_array[$attribute_type] == 'case_1') {
+            $has_safe = false;
+            if($Current_User_Values){
+
+            }
+        }*/
+
+
+
+//     if (in_array($attribute_value, $Committed_Attribute_Values)) {
+//         $class .= ' Checked';
+//         $dom_object->checked = 'checked';
+//     }
+
+//     if(!$has_safe) {
+//         $class .= ' Safe_Value';
+//         $has_safe = true;
+//     }
+
+//     if( in_array($value, $Current_User_Values)) {
+//         $class .= ' Current_Value';
+//     }
+
+
+//     if(isset($Session->Modify_Entry_List[$email_key])) {
+//         $class = 'Modify_Entry';
+//         if(isset($Session->Current_User_Values[$email_key][$attribute_id])) {
+
+//             if($case_array[$attribute_type] == 'case_1'){
+//                 $list_element = $dom->createElement('li', $Session->Current_User_Values[$email_key][$attribute_id]);
+//                 $list_element->setAttribute('class', $class.' Selected Safe_Value');
+//                 $has_safe = true;
+
+//                 $domList->appendChild($list_element);
+//             }
+
+//             else if ($case_array[$attribute_type] == 'case_2'){
+
+//                 $attribute_value_id = $Session->Current_User_Values[$email_key][$attribute_id];
+//                 $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$attribute_value_id]);
+//                 if (isset($Session->Committed_Modify_Entries[$email_key][$attribute_id])
+//                 $list_element->setAttribute('class', $class.' Selected Safe_Value');
+//                 $has_safe = true;
+
+//                 $domList->appendChild($list_element);
+//             }
+
+//             else if($case_array[$attribute_type] == 'case_3'){
+//                 foreach ($Session->Current_User_Values[$email_key][$attribute_id] as $key => $value) {
+
+//                     $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+//                     $list_element->setAttribute('class', $class.' Selected Checkbox_Value');
+                    
+//                     $domList->appendChild($list_element);
+//                 }
+//             }
+//         }
+
+//         foreach ($Session->Modify_Entry_List[$email_key][$attribute_id] as $value) {
+//             $class = 'Modify_Entry';
+//             if($case_array[$attribute_type] == 'case_1'){
+//                 $list_element = $dom->createElement('li', $value);
+//                 if(isset($Session->Committed_Modify_Entries[$email_key][$attribute_id]) && $Session->Committed_Modify_Entries[$email_key][$attribute_id] == $value) {
+
+//                 }
+//                 if(!$has_safe) {
+//                     $class .= ' Safe_Value'
+//                     $has_safe = true;
+//                 }
+
+//                 $domList->appendChild($list_element);
+//             }
+
+//             else if ($case_array[$attribute_type] == 'case_2'){
+//                 $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+//                 $class .= ' Selected';
+
+//                 if(!$has_safe) {
+//                     $class .= ' Safe_Value'
+//                     $has_safe = true;
+//                 }
+//                 $domList->appendChild($list_element);
+//             }
+
+//             else if($case_array[$attribute_type] == 'case_3'){
+//                 foreach ($Session->Current_User_Values[$email_key][$attribute_id] as $key => $value) {
+
+//                     $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+//                     $list_element->setAttribute('class', $class.' Selected Checkbox_Value');
+                    
+//                     $domList->appendChild($list_element);
+//                 }
+//             }
+//         }
+//     }
+
+//     else if(isset($Session->New_Entry_List[$email_key]){
+//         $class = 'New_Entry';
+
+//         foreach ($Session->New_Entry_List[$email_key][$attribute_id] as $value) {
+//             if($case_array[$attribute_type] == 'case_1'){
+//                 $list_element = $dom->createElement('li', $Session->Current_User_Values[$email_key][$attribute_id]);
+//                 $class .= ' Selected';
+//                 if(!$has_safe) {
+//                     $class .= ' Safe_Value'
+//                     $has_safe = true;
+//                 }
+//                 $domList->appendChild($list_element);
+//             }
+
+//             else if ($case_array[$attribute_type] == 'case_2'){
+//                 $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$Session->Current_User_Values[$email_key][$attribute_id]]);
+//                 $class .= ' Selected';
+
+//                 if(!$has_safe) {
+//                     $class .= ' Safe_Value'
+//                     $has_safe = true;
+//                 }
+//                 $domList->appendChild($list_element);
+//             }
+
+//             else if($case_array[$attribute_type] == 'case_3'){
+//                 foreach ($Session->Current_User_Values[$email_key][$attribute_id] as $key => $value) {
+
+//                     $list_element = $dom->createElement('li', $Session->attribute_list[$attribute_id]['allowed_value_ids'][$value]);
+//                     $list_element->setAttribute('class', $class.' Selected Checkbox_Value');
+                    
+//                     $domList->appendChild($list_element);
+//                 }
+//             }
+//         }
+//     }
+
+// }
 
 // //---------------------------------------8.5
 

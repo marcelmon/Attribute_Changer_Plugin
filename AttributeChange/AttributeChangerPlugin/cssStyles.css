@@ -16,8 +16,8 @@
 
 
 
-.Selected {
-	outline: 5px solid green;
+.Checked {
+	border: inset 5px green
 }
 
 .Checkbox_Value {
