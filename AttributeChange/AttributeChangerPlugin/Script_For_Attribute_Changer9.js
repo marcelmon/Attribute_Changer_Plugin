@@ -360,6 +360,24 @@ or, id="hello" is checked
 
 
 
+
+
+
+//////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //check or uncheck the email_block, change the class, un/check the selector
 //Checked elements have class 'Checked', 'Email_Block'
     function email_block_clicked(e) {
@@ -403,7 +421,7 @@ or, id="hello" is checked
         e.className = classes.join(' ');
         selector.className = e.className;
 
-       // window.alert(e.className);
+       
     }
 
 
@@ -496,23 +514,23 @@ or, id="hello" is checked
     
 */
 
-
+ 
 //DOM CLASSES ARE:  Safe_Value, Current_Value, Checkbox_Value, Other_Value, Email_Block, Checked
-var command_0 = ['Check','Uncheck'];
+// var command_0 = ['Check','Uncheck'];
 
-var command_1_not_checkbox = ['All','Safe_Value','Current_Value', 'Other_Value'];
-var command_1_checkbox = ['All','Checkbox_Value','Current_Value', 'Other_Value'];
+// var command_1_not_checkbox = ['All','Safe_Value','Current_Value', 'Other_Value'];
+// var command_1_checkbox = ['All','Checkbox_Value','Current_Value', 'Other_Value'];
 
-var command_2 = ['Unless', 'If'];
+// var command_2 = ['Unless', 'If'];
 
-var command_3_not_checkbox = ['Any', 'Safe_Value', 'Current_Value', 'Other_Value'];
-var command_3_checkbox = ['Any', 'Checkbox_Value', 'Current_Value', 'Other_Value'];
+// var command_3_not_checkbox = ['Any', 'Safe_Value', 'Current_Value', 'Other_Value'];
+// var command_3_checkbox = ['Any', 'Checkbox_Value', 'Current_Value', 'Other_Value'];
 
-var command_4 = ['Exists', 'Not_Exists', 'Checked', 'Not_Checked'];
+// var command_4 = ['Exists', 'Not_Exists', 'Checked', 'Not_Checked'];
 
 
-var command_array_not_checkbox = [command_0, command_1_not_checkbox, command_2, command_3_not_checkbox, command_4];
-var command_array_checkbox = [command_0, command_1_checkbox, command_2, command_3_checkbox, command_4];
+// var command_array_not_checkbox = [command_0, command_1_not_checkbox, command_2, command_3_not_checkbox, command_4];
+// var command_array_checkbox = [command_0, command_1_checkbox, command_2, command_3_checkbox, command_4];
 
 
 //Parse input command array
@@ -541,6 +559,25 @@ var command_array_checkbox = [command_0, command_1_checkbox, command_2, command_
         }
         return true;
     }
+
+function execute_command(e, attribute_id) {
+
+    var the_table = document.getElementById('command_selector_table_'.concat(attribute_id));
+    var cells = the_table.getElementsByTagName('td');
+    var command_string = '';
+    for(var i=0; i<cells.length; i++){
+        var the_select = cells[i].getElementsByTagName('select');
+        var the_value =the_select.options[ the_select.selectedIndex ].value;
+        if(!the_value || the_value == '') {
+            break;
+        }
+        else{
+            command_string += ' ' + the_value;
+        }
+    }
+    Process_Commands(attribute_id, command_string);
+    
+}
 
 //check if the command string syntax is ok
 //use dom class structure to execute processing
@@ -815,9 +852,9 @@ var Get_Subject = function(subject_type) {
 
 
 
-    863 
-
-/*   Here I willingly ignite the candle, the night approaches. There is none left to burn, spare
+     
+/*
+   Here I willingly ignite the candle, the night approaches. There is none left to burn, spare
     a tiny fragment. That which remains must carry itself though, and reaching the end, will find success. 
 So heartedly free a man is, to be.
 Be never, buyt whence to be but the thing that decideldly spoke and said it was. Ha, damn, NO , that is a string,
@@ -825,7 +862,7 @@ this is a thing, and all are left to cheer, the rain sits, hanging over the hori
 The clock had struck noon, the ring had scared the dog long off, carrying his limp tail behind, twilring as if some strange tail system technician inside the dog's lower back had decided that up and down was too plain for today, and additional motion from side to was the answer.
 A faint howl came from behind, Curly turned around and saw the dog, now yelling at flock of birds, all of whom were perched on the hydro wire. All except one. This one was sitting just underneath, almost hunched over. The dog ran too it, and picked it up in his mouth, all without a sound from the bird.
 He brought the black mess of feathers over to us. After a better look at the bird, it was obvious this create was onto the next life. The dog spat it out, sitting over it and howling softly to the setting sun. One of the men sitting nearest had attempted to console the dog by calling him over.
-There was no such luck. The dog continued it mourning. Another man got up and approached him when a high pitched screech filled the air. However faint, we eventually discovered that it came from infront of us, some ways under the setting sun, now taunting the horizon. This would be it, our last day in paradise, our final sunset.
+There was no such luck. The dog continued its cry. Another man got up and approached him when a high pitched screech filled the air. However faint, we eventually discovered that it came from infront of us, some ways under the setting sun, now taunting the horizon. This would be it, our last day in paradise, our final sunset.
 
 --> Margin creator , write text starting any point on screen, create boxes with =======+||
                                                                                         ||
@@ -863,6 +900,8 @@ There was no such luck. The dog continued it mourning. Another man got up and ap
 
 //ADD 'Attribute_X'
 //or !none!
+
+
     //This is the interface to find the sibling subject class
             var Get_Sibling = function(class_to_match) {
 
@@ -1334,3 +1373,6 @@ There was no such luck. The dog continued it mourning. Another man got up and ap
             }
         }
     }
+
+
+

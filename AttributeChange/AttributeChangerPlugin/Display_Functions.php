@@ -276,7 +276,6 @@ class Table_1 {
         $table->setAttribute('id', 'command_selector_table_'.$attr_id);
 
         $row = $dom->createElement('tr');
-        $table->appendChild($row);
         
         foreach ($command_array as $argument_type => $current_argument_list) {
 
@@ -293,7 +292,13 @@ class Table_1 {
         
             $cell->appendChild($select_input);
             $row->appendChild($cell);
-        }       
+        }
+
+        $button = $dom->createElement('button', 'Execute Order 66');
+        $button->setAttribute('type', 'button');
+        $button->setAttribute('onclick', 'execute_command(this, "'.$attr_id.'")');
+        $table->appendChild($button);
+        $table->appendChild($row);
         return $table;
     }
 
