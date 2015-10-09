@@ -1,17 +1,7 @@
 .Email_Block {
     background-color: blue;
+	border: 5px solid blue;
 }
-
-
-.Current_Value {
-    border: 5px solid blue;
-}
-
-.Email_Block {
-    border: 5px solid blue;
-}
-
-
 
 .Safe_Value {
 	border: 5px solid purple;
@@ -19,15 +9,20 @@
 
 
 
+.Current_Value {
+    border: 5px solid blue;
+}
+
+
+.Checkbox_Value {
+	outline: 5px solid blue;
+}
 
 
 .Checked {
 	border: inset 5px green
 }
 
-.Checkbox_Value {
-	outline: 5px solid blue;
-}
 
 
 
