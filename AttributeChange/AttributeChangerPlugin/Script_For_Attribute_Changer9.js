@@ -565,16 +565,17 @@ function execute_command(e, attribute_id) {
     var the_table = document.getElementById('command_selector_table_'.concat(attribute_id));
     var cells = the_table.getElementsByTagName('td');
     var command_string = '';
-    for(var i=0; i<cells.length; i++){
-        var the_select = cells[i].getElementsByTagName('select');
-        var the_value =the_select.options[ the_select.selectedIndex ].value;
-        if(!the_value || the_value == '') {
-            break;
-        }
-        else{
-            command_string += ' ' + the_value;
-        }
+    var i;
+    for(i=0; i<cells.length; i++){
+
+        var the_select = cells[i].childNodes;
+
+        var the_value =the_select[0].value;
+        command_string += ' ';
+        command_string += the_value;
+
     }
+
     Process_Commands(attribute_id, command_string);
     
 }
