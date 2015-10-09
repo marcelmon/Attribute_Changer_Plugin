@@ -104,7 +104,7 @@ or, id="hello" is checked
 //                 this.check_subject(this.subject);
 //             }
 //             else{
-//                 var new_subject = new array();
+//                 var new_subject = new Array();
 //                 for(var j=0; j<this.subject.length; j++){
 //                     if(this.conditional.execute(this.subject[i])){
 //                         new_subject.push(this.subject)
@@ -208,7 +208,7 @@ or, id="hello" is checked
 //     var Other_Value= function(attribute_id) {
 //         var all = All(attribute_id);
 
-//         var others = new array();
+//         var others = new Array();
 //         //now have 2 arrays to compare to all, all the reset 
 //         for(var i=0; i<all.length; i++) {
 //             if(all[i].className.indexOf('Current_Value') > -1){
@@ -516,21 +516,21 @@ or, id="hello" is checked
 
  
 //DOM CLASSES ARE:  Safe_Value, Current_Value, Checkbox_Value, Other_Value, Email_Block, Checked
-// var command_0 = ['Check','Uncheck'];
+var command_0 = ['Check','Uncheck'];
 
-// var command_1_not_checkbox = ['All','Safe_Value','Current_Value', 'Other_Value'];
-// var command_1_checkbox = ['All','Checkbox_Value','Current_Value', 'Other_Value'];
+var command_1_not_checkbox = ['All','Safe_Value','Current_Value', 'Other_Value'];
+var command_1_checkbox = ['All','Checkbox_Value','Current_Value', 'Other_Value'];
 
-// var command_2 = ['Unless', 'If'];
+var command_2 = ['Unless', 'If'];
 
-// var command_3_not_checkbox = ['Any', 'Safe_Value', 'Current_Value', 'Other_Value'];
-// var command_3_checkbox = ['Any', 'Checkbox_Value', 'Current_Value', 'Other_Value'];
+var command_3_not_checkbox = ['Any', 'Safe_Value', 'Current_Value', 'Other_Value'];
+var command_3_checkbox = ['Any', 'Checkbox_Value', 'Current_Value', 'Other_Value'];
 
-// var command_4 = ['Exists', 'Not_Exists', 'Checked', 'Not_Checked'];
+var command_4 = ['Exists', 'Not_Exists', 'Checked', 'Not_Checked'];
 
 
-// var command_array_not_checkbox = [command_0, command_1_not_checkbox, command_2, command_3_not_checkbox, command_4];
-// var command_array_checkbox = [command_0, command_1_checkbox, command_2, command_3_checkbox, command_4];
+var command_array_not_checkbox = [command_0, command_1_not_checkbox, command_2, command_3_not_checkbox, command_4];
+var command_array_checkbox = [command_0, command_1_checkbox, command_2, command_3_checkbox, command_4];
 
 
 //Parse input command array
@@ -539,24 +539,33 @@ or, id="hello" is checked
         if(commands.length != 5 && commands.length != 2) {
             return -1;
         }
+
+
         var is_checkbox = true;
         var is_good_command = true;
+
         for(var i=0; i<commands.length; i++) {
             if(!command_array_checkbox[i].indexOf(commands[i])){
                 is_checkbox = false;
             }
         }
+
+        
+
         if(!is_checkbox) {
             for(var i=0; i<commands.length; i++) {
-                if(!command_array_not_checkbox[i].indexOf(commands[i])) {
+                if(command_array_not_checkbox[i].indexOf(commands[i]) < 0) {
                     is_good_command = false;
                 }
             }
         }
 
-        if(!is_good_command) {
+        if(is_good_command == false) {
+
            return -1;
         }
+
+        
         return true;
     }
 
@@ -583,21 +592,39 @@ function execute_command(e, attribute_id) {
 //check if the command string syntax is ok
 //use dom class structure to execute processing
 function Process_Commands(attribute_id, commandString){
-    commands = commandString.split(' ');
 
+    in_commands = commandString.split(' ');
+
+    var commands = new Array();
+
+
+    for(var i=0; i<in_commands.length; i++) {
+        if(in_commands[i] != null) {
+            if(in_commands[i] != '') {
+                if(typeof in_commands[i] == 'string') {
+                    commands.push(in_commands[i]);
+                }
+            }
+        }
+    }
+ 
     if(!Check_If_Good_Command(commands)) {
         return -1;
     }
-
+            
     var attribute_class = 'attribute_'.concat(attribute_id);
 
-    var action_function = Get_Action(attribute_class);
-    var subject_function = Get_Subject(attribute_class);
+    var action_function = Get_Action(commands[0]);
+    var subject_function = Get_Subject(commands[1]);
 
-    
-    if(subject_function == -1 || subject_function == -1) {
+
+
+    if(action_function == -1 || subject_function == -1) { 
+        
         return -1;
     }
+
+
 
     var subject = subject_function(attribute_class);
 
@@ -605,8 +632,13 @@ function Process_Commands(attribute_id, commandString){
         return 'NONE TO ACT ON';
     }
 
+
+
     if(commands.length == 2) {
-        action_function(subject_function);
+
+        for(var i=0; i<subject.length; i++) {
+            action_function(subject[i]);
+        }
         return true;
     }
     else{
@@ -691,7 +723,7 @@ function Process_Long_Commands(commands, subject, action_function) {
 //for the element passed, it is assumed it is of type 'li' for the sake of this project, To become varible later
 //set class to contain 'Checked' and also for contained Selector set the class and 'checked'
 var check_element = function (element) {
-
+window.alert(element);
     if(element.className.indexOf('Checked') < 0){
         element.className += ' Checked';
 
@@ -743,7 +775,7 @@ var uncheck_elements = function (element) {
 //the default does not need to be checked if previously itterated all arguments
 var Get_Subject = function(subject_type) {
     switch(subject_type) {
-        case 'Any':
+        case 'All':
             return Get_All;
             break;
 
@@ -770,7 +802,7 @@ var Get_Subject = function(subject_type) {
 
         //Main Subject accessor  -- Get any elements with matching attribute + class_to_match that are 'li'
             var Get_All = function(attribute_class) {
-
+                
                 var return_array = Filter_Class(attribute_class, null);
 
                 return return_array;
@@ -780,17 +812,34 @@ var Get_Subject = function(subject_type) {
         //Main Subject accessor
             var Filter_Class = function(attribute_class, class_to_match) {
 
-                var attribute_array = document.getElementsByClassName(attribute_class);
-                var return_array = new array();
 
-                for(var i=0; i<elements.length; i++) {
-                    if(elements[i].className.indexOf(class_to_match) > -1) {
-                        if(elements[i].tagName == 'li') {
+
+                var elements = document.getElementsByClassName(attribute_class);
+                var return_array = new Array();
+
+                if(class_to_match == null) {
+                
+
+                   for(var i=0; i<elements.length; i++) {
+
+                        if(elements[i].tagName.toLowerCase() == 'li') {
+
                             return_array.push(elements[i]);
+                        }   
+                    } 
+                }
+
+                else{
+                    
+                    for(var i=0; i<elements.length; i++) {
+                        if(elements[i].className.indexOf(class_to_match) > -1) {
+                            if(elements[i].tagName.toLowerCase() == 'li') {
+                                return_array.push(elements[i]);
+                            }
                         }
                     }
                 }
-
+                
                 return return_array;
             }
     //THESE ARE THE VARIOUS FUNCTIONS TO GET SUBJECTS
@@ -826,7 +875,7 @@ var Get_Subject = function(subject_type) {
                 var current_array = Filter_Class(attribute_class, 'Checkbox_Value');
                 var checkbox_array = Filter_Class(attribute_class, 'Checkbox_Value');
 
-                var return_array = new array();
+                var return_array = new Array();
 
                 for(var i=0; i<checkbox_array.length; i++) {
                     if(current_array.indexOf(checkbox_array[i]) > -1){
@@ -1000,10 +1049,10 @@ There was no such luck. The dog continued its cry. Another man got up and approa
 
                 var match_array = top_element.getElementsByClassName(class_to_match);
 
-                var return_array = new array();
+                var return_array = new Array();
 
                 for(var i=0; i<match_array.length; i++) {
-                    if(match_array[i].tagName == 'li'){
+                    if(match_array[i].tagName.toLowerCase() == 'li'){
 
                         if(match_array[i] != leading_subject) {
                             return_array.push(match_array[i]); 
@@ -1088,7 +1137,7 @@ There was no such luck. The dog continued its cry. Another man got up and approa
                 if(!isArray(to_remove_from) || !isArray(to_match)){
                     return -1;
                 }
-                var return_array = new array();
+                var return_array = new Array();
                 for(var i=0; i<to_remove_from.length; i++) {
 
                     if(!to_match.indexOf(to_remove_from[i])) {
