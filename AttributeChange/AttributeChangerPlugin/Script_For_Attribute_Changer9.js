@@ -467,6 +467,23 @@ or, id="hello" is checked
                                                     |Other_Value    |Not_Checked
 */
 
+
+/*
+
+    To Do: 
+
+    Allow for updates to commands easily, must be able to create a function, append to a list and be reachable by the processor 
+        Also to be guarenteed
+    
+    Action set can be made to use AJAX 
+
+    Make the Processor Occur in Incremental steps, building dynamicaly for different action types
+        Right now is only using 1 type : un/check
+
+
+*/
+
+
 //DOM CLASSES ARE:  Safe_Value, Current_Value, Checkbox_Value, Other_Value, Email_Block, Checked
 var command_0 = ['Check','Uncheck'];
 
@@ -646,7 +663,7 @@ var uncheck_elements = function (element) {
 }
 
 
-//This is an interface to return the action argument's corresponding function
+//This is an interface to return the Subject argument's corresponding function
 //the default does not need to be checked if previously itterated all arguments
 var Get_Subject = function(subject_type) {
     switch(subject_type) {
@@ -673,7 +690,7 @@ var Get_Subject = function(subject_type) {
             return -1;
     }
 }
-
+    //THESE ARE THE VARIOUS FUNCTIONS TO GET SUBJECTS
             var Get_Checked = function(attribute_id) {
 
                 var return_array = Filter_Class(attribute_id, 'Checked');
@@ -720,9 +737,15 @@ var Get_Subject = function(subject_type) {
 
     863 
 
-    Here I willingly ignite the candle, the night approaches and will soon arrive. There is none left, spare
-    a tiny fragment, that which remains must carry itself though, reaching the end, will find it had succeeded. 
-
+    Here I willingly ignite the candle, the night approaches. There is none left to burn, spare
+    a tiny fragment. That which remains must carry itself though, and reaching the end, will find success. 
+So heartedly free a man is, to be.
+Be never, buyt whence to be but the thing that decideldly spoke and said it was. Ha, damn, NO , that is a string,
+this is a thing, and all are left to cheer, the rain sits, hanging over the horizon, a damp stillness sits atop this day, its weight keeping all things within the calm. We rest, always weary that something might stir, remaining poised on the distance. 
+The clock had struck noon, the ring had scared the dog long off, carrying his limp tail behind, twilring as if some strange tail system technician inside the dog's lower back had decided that up and down was too plain for today, and additional motion from side to was the answer.
+A faint howl came from behind, Curly turned around and saw the dog, now yelling at flock of birds, all of whom were perched on the hydro wire. All except one. This one was sitting just underneath, almost hunched over. The dog ran too it, and picked it up in his mouth, all without a sound from the bird.
+He brought the black mess of feathers over to us. After a better look at the bird, it was obvious this create was onto the next life. The dog spat it out, sitting over it and howling softly to the setting sun. One of the men sitting nearest had attempted to console the dog by calling him over.
+There was no such luck. The dog continued it mourning. Another man got up and approached him when a high pitched screech filled the air. However faint, we eventually discovered that it came from infront of us, some ways under the setting sun, now taunting the horizon. This would be it, our last day in paradise, our final sunset.
 
 --> Margin creator , write text starting any point on screen, create boxes with =======+||
                                                                                         ||
@@ -739,17 +762,11 @@ var Get_Subject = function(subject_type) {
 
 
 
-
-
-
-
-
-
-
-
-
-
             */
+
+
+
+
 
             var Get_Other = function(attribute_id) {
                 var attribute_array = Get_All(attribute_id);
@@ -809,7 +826,10 @@ var Get_Subject = function(subject_type) {
 */
 
 
+    //This is the interface to find the sibling subject class
             var Get_Sibling = function(class_to_match) {
+
+                //update switch/case to extend this application command set
                 switch(class_to_match):
                     case 'Current_Value':
                         return Get_Sibling_Current_Value;
@@ -831,7 +851,8 @@ var Get_Subject = function(subject_type) {
             }
 
 
-
+        //THese are the varous sibling type to be found
+        //have a way of updating the above list
             var Get_Sibling_Checked = function(leading_subject, top_delimiter) {
                 var return_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Checked');
                 return return_array;
@@ -927,25 +948,26 @@ var Get_Subject = function(subject_type) {
 
 
 
+//This is an interface to return the Predicate argument's corresponding function
+//the default does not need to be checked if previously itterated all arguments
+    var Get_Predicate = function(to_match) {
+        switch(to_match) {
+            case 'Exists':
+                return Test_Checked;
 
-            var Get_Predicate = function(to_match) {
-                switch(to_match) {
-                    case 'Exists':
-                        return Test_Checked;
+            case 'Not_Exists':
+                return Test_Not_hecked;
+                
+            case 'Checked':
+                return Test_Exists;
 
-                    case 'Not_Exists':
-                        return Test_Not_hecked;
-                        
-                    case 'Checked':
-                        return Test_Exists;
+            case 'Not_Checked':
+                return Test_Not_Exists;
 
-                    case 'Not_Checked':
-                        return Test_Not_Exists;
-
-                    default:
-                        return -1;
-                }
-            }
+            default:
+                return -1;
+        }
+    }
 
 
 
