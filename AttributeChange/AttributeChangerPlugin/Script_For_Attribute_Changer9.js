@@ -723,6 +723,8 @@ function Process_Long_Commands(commands, subject, action_function) {
 //for the element passed, it is assumed it is of type 'li' for the sake of this project, To become varible later
 //set class to contain 'Checked' and also for contained Selector set the class and 'checked'
 var check_element = function (element) {
+
+    ////heeeeeeeereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 window.alert(element);
     if(element.className.indexOf('Checked') < 0){
         element.className += ' Checked';
