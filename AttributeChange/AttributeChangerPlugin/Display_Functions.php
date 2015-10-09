@@ -192,18 +192,117 @@ class Table_1 {
     }
 
 
-$case_array = array(
-    'textarea' => 'case_1',
-    'textline' => 'case_1',
-    'hidden' => 'case_1',
-    'date' => 'case_1',
 
-    'checkbox' => 'case_2',
-    'radio' => 'case_2',
-    'select' => 'case_2',
 
-    'checkboxgroup' => 'case_3',
-    );
+
+
+
+
+
+
+
+
+
+
+
+
+    function Get_Column_Opertation_Block(&$dom, $attr_id){
+        //DOM CLASSES ARE:  Safe_Value, Current_Value, Checkbox_Value, Other_Value, Email_Block, Checked
+        $command_0 = array('Check','Uncheck');
+
+        $command_1_not_checkbox = array('All','Safe_Value','Current_Value', 'Other_Value');
+        $command_1_checkbox = array('All','Checkbox_Value','Current_Value', 'Other_Value');
+
+        $command_2 = array('', 'Unless', 'If');
+
+        $command_3_not_checkbox = array('', 'Any', 'Safe_Value', 'Current_Value', 'Other_Value');
+        $command_3_checkbox = array('', 'Any', 'Checkbox_Value', 'Current_Value', 'Other_Value');
+
+        $command_4 = array('', 'Exists', 'Not_Exists', 'Checked', 'Not_Checked');
+
+        $command_array_not_checkbox = array(
+
+                    'Action' => $command_0, 
+                    'Subject' => $command_1_not_checkbox,
+                    'Conditional' => $command_2, 
+                    'Subject_2' => $command_3_not_checkbox,
+                    'Predicate' => $command_4, 
+                    );
+        $command_array_checkbox = array(
+
+                    'Action' => $command_0, 
+                    'Subject' => $command_1_checkbox,
+                    'Conditional' => $command_2, 
+                    'Subject_2' => $command_3_checkbox,
+                    'Predicate' => $command_4, 
+                    );
+        
+        $case_array = array(
+            'textarea' => 'case_1',
+            'textline' => 'case_1',
+            'hidden' => 'case_1',
+            'date' => 'case_1',
+
+            'checkbox' => 'case_2',
+            'radio' => 'case_2',
+            'select' => 'case_2',
+
+            'checkboxgroup' => 'case_3',
+        );
+
+        $attr_list = $GLOBALS['plugins']['AttributeChangerPlugin']->Current_Session->attribute_list;
+
+        if(!isset($attr_list[$attr_id])) {
+            return null;
+        }
+        $type = $case_array[$attr_list[$attr_id]['type']];
+
+        $command_array = array();
+
+        if($type == 'case_1' || $type == 'case_2') {
+            $command_array = $command_array_not_checkbox;
+        }
+
+        else if($type == 'case_3') {
+            $command_array = $command_array_checkbox;
+        }
+
+        else{
+            return null;
+        }
+
+        $table = $dom->createElement('table');
+
+        $table->setAttribute('id', 'command_selector_table_'.$attr_id);
+
+        $row = $dom->createElement('tr');
+        $table->appendChild($row);
+        
+        foreach ($command_array as $argument_type => $current_argument_list) {
+
+            $cell = $dom->createElement('td');
+            $select_input = $dom->createElement('select');
+            $select_input->setAttribute('name', $argument_type);
+
+            foreach ($current_argument_list as $value) {
+
+                $this_option = $dom->createElement('option', $value);
+                $this_option->setAttribute('value', $value);
+                $select_input->appendChild($this_option);
+            }
+        
+            $cell->appendChild($select_input);
+            $row->appendChild($cell);
+        }       
+        return $table;
+    }
+
+
+
+
+
+
+
 //------------------1
 function BuilNewEntryDom() {
 
@@ -648,9 +747,13 @@ function GetModifyEntryTableHeader_And_Append_To_Table(&$dom,  &$table) {
     $table->AddColumn($dom, $emailColumnHead);
 
     foreach ($Session->attribute_list as $attribute_id => $attribute_info) {
+
            
         $attributeColumnHead = $dom->createElement('div',"Attribute: ".$attribute_info['name']);
 
+        print("<br>arrararar<br>");
+        $attributeColumnHead->appendChild(Get_Column_Opertation_Block($dom, $attribute_id));
+        print("<br>222222arar<br>");
         $includeCheckbox = new Input($dom, 'Include this attribute', 'checkbox','Modify_Entry_Attribute_Column_Select['.$attribute_id.']', 'checked');
         
         if(in_array($attribute_id, $Session->Modify_Entries_Columns_To_Select)) {
@@ -959,6 +1062,17 @@ function GetModifyTableRow(&$dom, $email_key) {
 // }
 
 
+function create_selector($type, &$dom, $value, $name){
+    if($type != 'checkbox' && $type != 'radio') {
+        return -1;
+    }
+    $selector = $dom->createElement('input');
+    $selector->setAttribute('type', $type);
+    $selector->setAttribute('name', $name);
+    $selector->setAttribute('value', $value);
+    return $selector;
+}
+
 
 function Create_Attribute_Table_Elements(&$dom, $attribute_id, $email_key) {
     $case_array = array(
@@ -1021,13 +1135,7 @@ function Create_Attribute_Table_Elements(&$dom, $attribute_id, $email_key) {
         $class = '';
         $class .= $class_head;
 
-        if($key == 0) {
-            $class .= ' Safe_Value';
-        }
-
-
-
-        if($Current_User_Values) {
+        if($Current_User_Values != null) {
             if(in_array($value, $Current_User_Values)) {
                 $class .= ' Current_Value';
             }
@@ -1035,30 +1143,33 @@ function Create_Attribute_Table_Elements(&$dom, $attribute_id, $email_key) {
 
         if($attribute_type == 'case_1') {
 
-            $selector = $dom->createElement('input');
-            $selector->setAttribute('type', 'radio');
-            $selector->setAttribute('name', $Entry_Type.'['.$email_key.']['.$attribute_id.']');
-            $selector->setAttribute('value', $value);
+            if($key == 0) {
+                $class .= ' Safe_Value';
+            }
+
+            $name =$Entry_Type.'['.$email_key.']['.$attribute_id.']';
+            $selector = create_selector('radio', $dom, $value, $name);
             $list_element = $dom->createElement('li', $value);
         }
 
         else if($attribute_type == 'case_2') {
 
-            $selector = $dom->createElement('input');
-            $selector->setAttribute('type', 'radio');
-            $selector->setAttribute('name', $Entry_Type.'['.$email_key.']['.$attribute_id.']');
-            $selector->setAttribute('value', $value);
+            if($key == 0) {
+                $class .= ' Safe_Value';
+            }
+
+            $name =$Entry_Type.'['.$email_key.']['.$attribute_id.']';
+            $selector = create_selector('radio', $dom, $value, $name);
+
             $list_element = $dom->createElement('li', $attribute_allowed_values[$value]);
         }
 
         else if($attribute_type == 'case_3') {
             
             $class .= ' Checkbox_Value';
-            $selector = $dom->createElement('input');
-            $selector->setAttribute('type', 'checkbox');
+            $name =$Entry_Type.'['.$email_key.']['.$attribute_id.']';
 
-            $selector->setAttribute('name', $Entry_Type.'['.$email_key.']['.$attribute_id.']['.$value.']');
-            $selector->setAttribute('value', $value);
+            $selector = create_selector('checkbox', $dom, $value, $name);
             $list_element = $dom->createElement('li', $attribute_allowed_values[$value]);
         }
 

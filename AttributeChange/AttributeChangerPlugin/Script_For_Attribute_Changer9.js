@@ -474,13 +474,26 @@ or, id="hello" is checked
 
     Allow for updates to commands easily, must be able to create a function, append to a list and be reachable by the processor 
         Also to be guarenteed
+        Make some form of array to build command tree possible paths, one way
+        
+
+     __q q
+    =___/
+       \\
+        v
+        v \
+        | v
+        | v\
+        |/\v
+        v  v
+        v  v
     
     Action set can be made to use AJAX 
 
     Make the Processor Occur in Incremental steps, building dynamicaly for different action types
         Right now is only using 1 type : un/check
 
-
+    
 */
 
 
@@ -537,14 +550,18 @@ function Process_Commands(attribute_id, commandString){
     if(!Check_If_Good_Command(commands)) {
         return -1;
     }
-    var action_function = Get_Action(commands[0]);
-    var subject_function = Get_Subject(commands[1]);
+
+    var attribute_class = 'attribute_'.concat(attribute_id);
+
+    var action_function = Get_Action(attribute_class);
+    var subject_function = Get_Subject(attribute_class);
+
     
     if(subject_function == -1 || subject_function == -1) {
         return -1;
     }
 
-    var subject = subject_function(attribute_id);
+    var subject = subject_function(attribute_class);
 
     if(!subject || subject.length == 0) {
         return 'NONE TO ACT ON';
@@ -555,7 +572,7 @@ function Process_Commands(attribute_id, commandString){
         return true;
     }
     else{
-        return Process_Long_Commands(attribute_id, commands, subject, action_function);
+        return Process_Long_Commands(commands, subject, action_function);
     }
 }
 
@@ -563,7 +580,28 @@ function Process_Commands(attribute_id, commandString){
 //additional commands will be conditional, subject, predicate
 //requires comparing each of the subject's siblings to some predicate
 //if requrements are met, execute the command through action_function()
-function Process_Long_Commands(attribute_id, commands, subject, action_function) {
+
+//this transition between 2 and 5 arg long commands is rough, make it through tables
+
+/*
+
+    __a__->__a1__->__a2___->__a3__->__a4___
+                   __a21__          __a41__
+                                    __a42__
+
+    __b__->__b-1___->__b-1-2__->__b-1-2-3___
+          |__b-1.1__           v__b-1-2-3.1__
+          |__b-1.2__->
+          v__b-1.3__->__b-1.3-2____
+                     v__b-1.3-2.1__
+
+
+
+-->generalize assignment of a class
+-->for each in new/mod entry_list - > if this matches some class rule -> assign
+
+*/              
+function Process_Long_Commands(commands, subject, action_function) {
 
     for(var i=0; i++; i<subject.length) {
 
@@ -663,7 +701,7 @@ var uncheck_elements = function (element) {
 }
 
 
-//This is an interface to return the Subject argument's corresponding function
+//This is an interface to return the Subject's corresponding accessor function
 //the default does not need to be checked if previously itterated all arguments
 var Get_Subject = function(subject_type) {
     switch(subject_type) {
@@ -690,37 +728,65 @@ var Get_Subject = function(subject_type) {
             return -1;
     }
 }
+
+
+        //Main Subject accessor  -- Get any elements with matching attribute + class_to_match that are 'li'
+            var Get_All = function(attribute_class) {
+
+                var return_array = Filter_Class(attribute_class, null);
+
+                return return_array;
+            }
+
+
+        //Main Subject accessor
+            var Filter_Class = function(attribute_class, class_to_match) {
+
+                var attribute_array = document.getElementsByClassName(attribute_class);
+                var return_array = new array();
+
+                for(var i=0; i<elements.length; i++) {
+                    if(elements[i].className.indexOf(class_to_match) > -1) {
+                        if(elements[i].tagName == 'li') {
+                            return_array.push(elements[i]);
+                        }
+                    }
+                }
+
+                return return_array;
+            }
     //THESE ARE THE VARIOUS FUNCTIONS TO GET SUBJECTS
-            var Get_Checked = function(attribute_id) {
+    //SEVERAL function not used because are covered by other arguments, ex Get_Checked()
+            var Get_Checked = function(attribute_class) {
 
-                var return_array = Filter_Class(attribute_id, 'Checked');
+                var return_array = Filter_Class(attribute_class, 'Checked');
                 return return_array;
             }
 
-            var Get_Safe_Value = function(attribute_id) {
+            var Get_Safe_Value = function(attribute_class) {
 
-                var safe_array = Filter_Class(attribute_id, 'Safe_value');
-                return return_array;
-            }
-
-
-            var Get_Current_Value = function(attribute_id) {
-
-                var current_array = Filter_Class(attribute_id, 'Current_Value');
+                var safe_array = Filter_Class(attribute_class, 'Safe_value');
                 return return_array;
             }
 
 
+            var Get_Current_Value = function(attribute_class) {
 
-            var Get_Checkbox_Value = function(attribute_id) {
+                var current_array = Filter_Class(attribute_class, 'Current_Value');
+                return return_array;
+            }
 
-                var checkbox_array = Filter_Class(attribute_id, 'Checkbox_Value');
+
+
+            var Get_Checkbox_Value = function(attribute_class) {
+
+                var checkbox_array = Filter_Class(attribute_class, 'Checkbox_Value');
                 return checkbox_array;
             }
 
-            var Get_Current_Checkbox = function(attribute_id) {
-                var current_array = Filter_Class(attribute_id, 'Checkbox_Value');
-                var checkbox_array = Filter_Class(attribute_id, 'Checkbox_Value');
+            var Get_Current_Checkbox = function(attribute_class) {
+                var current_array = Filter_Class(attribute_class, 'Checkbox_Value');
+                var checkbox_array = Filter_Class(attribute_class, 'Checkbox_Value');
 
                 var return_array = new array();
 
@@ -732,12 +798,26 @@ var Get_Subject = function(subject_type) {
                 return return_array;
             }
 
-            /*
+
+
+            var Get_Other = function(attribute_class) {
+                var attribute_array = Get_All(attribute_class);
+
+                var current_array = Filter_Class(attribute_class, 'Current_Value');
+                var safe_array = Filter_Class(attribute_class, 'Safe_Value');
+
+                attribute_array = Remove_Matches(attribute_array, current_array);
+                attribute_array = Remove_Matches(attribute_array, safe_array);
+
+                return attribute_array;
+            }
+
+
 
 
     863 
 
-    Here I willingly ignite the candle, the night approaches. There is none left to burn, spare
+/*   Here I willingly ignite the candle, the night approaches. There is none left to burn, spare
     a tiny fragment. That which remains must carry itself though, and reaching the end, will find success. 
 So heartedly free a man is, to be.
 Be never, buyt whence to be but the thing that decideldly spoke and said it was. Ha, damn, NO , that is a string,
@@ -754,55 +834,11 @@ There was no such luck. The dog continued it mourning. Another man got up and ap
             """docstring"""
 
 
-
 --> Highlight + Click --> drag = copy   &&  unclick = paste
+*/
 
 
 
-
-
-
-            */
-
-
-
-
-
-            var Get_Other = function(attribute_id) {
-                var attribute_array = Get_All(attribute_id);
-
-                var current_array = Filter_Class(attribute_id, 'Current_Value');
-                var safe_array = Filter_Class(attribute_id, 'Safe_Value');
-
-                attribute_array = Remove_Matches(attribute_array, current_array);
-                attribute_array = Remove_Matches(attribute_array, safe_array);
-
-                return attribute_array;
-            }
-
-
-            var Filter_Class = function(attribute_id, class_to_match) {
-                var attribute_array = document.getElementsByClassName('attribute_'.concat(attribute_id));
-                var return_array = new array();
-
-                for(var i=0; i<elements.length; i++) {
-                    if(elements[i].className.indexOf(class_to_match) > -1) {
-                        if(elements[i].tagName == 'li') {
-                            return_array.push(elements[i]);
-                        }
-                    }
-                }
-
-                return return_array;
-            }
-
-            var Get_All = function(attribute_id) {
-
-                var attribute_class = 'attribute_'.concat(attribute_id);
-                var return_array = Filter_Class(attribute_id, attribute_class);
-
-                return return_array;
-            }
 
 /*
     Require easy to initiate operation using selects
@@ -825,19 +861,20 @@ There was no such luck. The dog continued it mourning. Another man got up and ap
                                                     |Other_Value    |Not_Checked
 */
 
-
+//ADD 'Attribute_X'
+//or !none!
     //This is the interface to find the sibling subject class
             var Get_Sibling = function(class_to_match) {
 
                 //update switch/case to extend this application command set
-                switch(class_to_match):
+                switch(class_to_match) {
                     case 'Current_Value':
                         return Get_Sibling_Current_Value;
 
                     case 'Safe_Value':
                         return Get_Sibling_Safe_Value;
 
-                    case 'Other_Value'
+                    case 'Other_Value':
                         return Get_Sibling_Not_Current_Not_Safe;
 
                     case 'Any':
@@ -848,10 +885,13 @@ There was no such luck. The dog continued it mourning. Another man got up and ap
 
                     default:
                         return -1;
+                }
             }
 
 
-        //THese are the varous sibling type to be found
+        //These are the varous sibling accessor functions for each type to be found
+        //Some are not needed as covered by predicate ex: get_sibling_checked
+
         //have a way of updating the above list
             var Get_Sibling_Checked = function(leading_subject, top_delimiter) {
                 var return_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Checked');
@@ -891,17 +931,6 @@ There was no such luck. The dog continued it mourning. Another man got up and ap
 
                 var all_array = Get_Sibling_All(leading_subject, top_delimiter);
                 var current_array = Get_Sibling_Current_Value(leading_subject, top_delimiter);
-            }
-
-
-            var Get_Sibling_Not_Other = function(leading_subject, top_delimiter) {
-
-                var return_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Current_Value');
-                var safe_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Safe_Value');
-
-                for(var i=0; i<safe_array.length; i++) {
-                    if(safe_array[i].)
-                }
             }
 
 
@@ -950,6 +979,9 @@ There was no such luck. The dog continued it mourning. Another man got up and ap
 
 //This is an interface to return the Predicate argument's corresponding function
 //the default does not need to be checked if previously itterated all arguments
+
+//predicate returns a true or false because is testing if the subject_2 element is/not checked or does/not exist
+//can change this based on the operation type, check if
     var Get_Predicate = function(to_match) {
         switch(to_match) {
             case 'Exists':
@@ -968,9 +1000,6 @@ There was no such luck. The dog continued it mourning. Another man got up and ap
                 return -1;
         }
     }
-
-
-
 
             var Test_Checked = function(elements) {
                 for(var i=0; i<elements.length; i++) {
