@@ -642,7 +642,9 @@ function Process_Commands(attribute_id, commandString){
         return true;
     }
     else{
-        return Process_Long_Commands(commands, subject, action_function);
+        //window.alert(subject);
+        var to_return = Process_Long_Commands_With_Subject_Groups(commands, subject, action_function);
+        return to_return;
     }
 }
 
@@ -670,20 +672,129 @@ function Process_Commands(attribute_id, commandString){
 -->generalize assignment of a class
 -->for each in new/mod entry_list - > if this matches some class rule -> assign
 
-*/              
+*/     
+
+function Process_Long_Commands_With_Subject_Groups(commands, subject, action_function){
+//NEED TO GROUP SUBJECTS THAT ARE IN THE SAME CELL
+
+    //ORGANIZE USING PARENT NODE AS ARRAY INDEX
+
+
+
+    //for each group, run a predicate test on each_node, must either false or true for ALL
+
+    var subject_groups = new Array();
+
+    var parent_node_index_map = new Array();
+
+    for(var i=0; i<subject.length; i++) {
+
+        var already_indexed = false;
+        for(var j=0; j<parent_node_index_map.length; j++) {
+            if(subject[i].parentNode == parent_node_index_map[j]) {
+
+                subject_groups[j].push(subject[i]);
+                already_indexed = true;
+                break;
+            }
+        }
+
+        if(already_indexed == false) {
+            parent_node_index_map.push(subject[i].parentNode);
+            subject_groups[parent_node_index_map.length-1] = new Array(subject[i]);
+        }
+
+    }
+
+    var subject_2_function = Get_Sibling(commands[3]);
+    
+
+    for(var i=0; i<subject_groups.length; i++) {
+        
+        //now have subject_groups and subject_2_group
+        //because the subject_groups is one entity, just check once, act on all
+
+
+
+        var predicate_function = Get_Predicate(commands[4]);
+
+        if(predicate_function == -1 || subject_2_function == -1){
+            return -1;
+        }
+
+        switch(commands[2]) {
+            case 'Unless':
+
+                var predicate_result = false;
+
+                for(var j=0; j<subject_groups[i].length; j++) {
+
+
+                    var subject_2_group = subject_2_function(subject_groups[i][j], 'td');
+
+                    if(predicate_function(subject_2_group) == false){
+                        predicate_result = false;
+                    }
+                    else{
+                        predicate_result = true;
+                        break;
+                    }
+                }
+                if(predicate_result == false) { 
+                    for(var j=0; j<subject_groups[i].length; j++) {
+                        action_function(subject_groups[i][j]); 
+                    }
+                } 
+                break;
+                
+            case 'If':
+                var predicate_result = true;
+
+                for(var j=0; j<subject_groups[i].length; j++) {
+
+                    var subject_2_group = subject_2_function(subject_groups[i][j], 'td');
+
+                    if(predicate_function(subject_2_group) == true){
+                        predicate_result = true;
+                    }
+                    else{
+                        predicate_result = false;
+                        break;
+                    }
+
+                }
+                if(predicate_result == false) { 
+                    for(var j=0; j<subject_groups[i].length; j++) {
+                        action_function(subject_groups[i][j]); 
+                    }
+                } 
+                break;
+
+            default:
+                return -1;
+        }
+    }
+}
+
 function Process_Long_Commands(commands, subject, action_function) {
+    
 
-    for(var i=0; i++; i<subject.length) {
 
+    for(var i=0; i<subject.length; i++) {
+    
         var subject_2_function = Get_Sibling(commands[3]);
 
         var subject_2 = subject_2_function(subject[i], 'td');
+
+
+
         var predicate_function = Get_Predicate(commands[4]);
 
         if(predicate_function == -1 || subject_2_function == -1){
             return -1;
         }
         var predicate_result = predicate_function(subject_2);
+        
 
         switch(commands[2]) {
             case 'Unless':
@@ -725,7 +836,7 @@ function Process_Long_Commands(commands, subject, action_function) {
 var check_element = function (element) {
 
     ////heeeeeeeereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
-window.alert(element);
+
     if(element.className.indexOf('Checked') < 0){
         element.className += ' Checked';
 
@@ -733,10 +844,11 @@ window.alert(element);
 
         for(var i=0; i<element_children.length; i++) {
             if(element_children[i].type == 'checkbox' || element_children[i].type == 'radio') {
+
                 if(element_children[i].className.indexOf('Checked') < 0) {
                     element_children.className += 'Checked';
                 }
-                element_children[i].checked = false;
+                element_children[i].checked = true;
             }
         }
     }       
@@ -747,12 +859,15 @@ window.alert(element);
 //for the element passed, it is assumed it is of type 'li' for the sake of this project, To become varible later
 //set class to not contain 'Checked' and also for contained Selector remove 'Checked' class
 var uncheck_elements = function (element) {
-
+ //window.alert('arf');
     var classes = element.className.split(' ');
     var index = classes.indexOf('Checked');
     if(index > -1){
+
+         
+
         classes.splice(index, 1);
-        elements.className = classes.join(' ');
+        element.className = classes.join(' ');
 
         var element_children = element.childNodes;
 
@@ -790,6 +905,7 @@ var Get_Subject = function(subject_type) {
             break;
 
         case 'Other_Value':
+
             return Get_Other;
 
 
@@ -815,13 +931,11 @@ var Get_Subject = function(subject_type) {
             var Filter_Class = function(attribute_class, class_to_match) {
 
 
-
                 var elements = document.getElementsByClassName(attribute_class);
                 var return_array = new Array();
 
                 if(class_to_match == null) {
                 
-
                    for(var i=0; i<elements.length; i++) {
 
                         if(elements[i].tagName.toLowerCase() == 'li') {
@@ -835,7 +949,9 @@ var Get_Subject = function(subject_type) {
                     
                     for(var i=0; i<elements.length; i++) {
                         if(elements[i].className.indexOf(class_to_match) > -1) {
+
                             if(elements[i].tagName.toLowerCase() == 'li') {
+
                                 return_array.push(elements[i]);
                             }
                         }
@@ -855,14 +971,14 @@ var Get_Subject = function(subject_type) {
             var Get_Safe_Value = function(attribute_class) {
 
                 var safe_array = Filter_Class(attribute_class, 'Safe_value');
-                return return_array;
+                return safe_array;
             }
 
 
             var Get_Current_Value = function(attribute_class) {
 
                 var current_array = Filter_Class(attribute_class, 'Current_Value');
-                return return_array;
+                return current_array;
             }
 
 
@@ -890,6 +1006,8 @@ var Get_Subject = function(subject_type) {
 
 
             var Get_Other = function(attribute_class) {
+                
+
                 var attribute_array = Get_All(attribute_class);
 
                 var current_array = Filter_Class(attribute_class, 'Current_Value');
@@ -960,6 +1078,7 @@ There was no such luck. The dog continued its cry. Another man got up and approa
                 //update switch/case to extend this application command set
                 switch(class_to_match) {
                     case 'Current_Value':
+                        
                         return Get_Sibling_Current_Value;
 
                     case 'Safe_Value':
@@ -998,16 +1117,19 @@ There was no such luck. The dog continued its cry. Another man got up and approa
 
                 var attribute_class = Get_Attribute_Class(leading_subject);
                 if(!attribute_class) {
+
                     return -1;
                 }
-
                 var return_array = Find_Sibling_Match(leading_subject, top_delimiter, attribute_class);
+                
                 return return_array;
             }
 
             var Get_Sibling_Current_Value = function(leading_subject, top_delimiter) {
+                
 
                 var current_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Current_Value');
+                
                 return current_array;
             }
 
@@ -1026,7 +1148,6 @@ There was no such luck. The dog continued its cry. Another man got up and approa
 
 
             var Get_Sibling_Not_Current_Not_Safe = function(leading_subject, top_delimiter) {
-
                 var current_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Current_Value');
                 var safe_array = Find_Sibling_Match(leading_subject, top_delimiter, 'Safe_Value');
 
@@ -1045,10 +1166,10 @@ There was no such luck. The dog continued its cry. Another man got up and approa
             var Find_Sibling_Match = function(leading_subject, top_delimiter, class_to_match) {
 
                 var top_element = Get_Top_Element(leading_subject, top_delimiter);
-                if(!top_element) {
+                if(top_element == null) {
                     return null;
                 }
-
+                
                 var match_array = top_element.getElementsByClassName(class_to_match);
 
                 var return_array = new Array();
@@ -1076,16 +1197,17 @@ There was no such luck. The dog continued its cry. Another man got up and approa
     var Get_Predicate = function(to_match) {
         switch(to_match) {
             case 'Exists':
-                return Test_Checked;
-
-            case 'Not_Exists':
-                return Test_Not_hecked;
-                
-            case 'Checked':
                 return Test_Exists;
 
-            case 'Not_Checked':
+            case 'Not_Exists':
                 return Test_Not_Exists;
+                
+            case 'Checked':
+
+                return Test_Checked;
+
+            case 'Not_Checked':
+                return Test_Not_Checked;
 
             default:
                 return -1;
@@ -1093,16 +1215,19 @@ There was no such luck. The dog continued its cry. Another man got up and approa
     }
 
             var Test_Checked = function(elements) {
+
                 for(var i=0; i<elements.length; i++) {
-                    if(elements[i].className.indexOf('Checked')){
-                        return true;
+                    if(elements[i].className.indexOf('Checked') < 0){
+                        return false;
                     }
                 }
-                return false;
+                return true;
             }
+            
             var Test_Not_Checked = function(elements) {
+
                 for(var i=0; i<elements.length; i++) {
-                    if(elements[i].className.indexOf('Checked')){
+                    if(elements[i].className.indexOf('Checked') > -1){
                         return false;
                     }
                 }
@@ -1133,16 +1258,20 @@ There was no such luck. The dog continued its cry. Another man got up and approa
             var Remove_Matches = function(to_remove_from, to_match) {
                 //iterate through to_remove_from, see if theres a match in to_match
                     //if theres no match then add to filtered list 
+
                 if(!to_remove_from || !to_match) {
                     return -1;
                 }
-                if(!isArray(to_remove_from) || !isArray(to_match)){
+
+                if(!Array.isArray(to_remove_from) || !Array.isArray(to_match)){
+                    
                     return -1;
                 }
-                var return_array = new Array();
-                for(var i=0; i<to_remove_from.length; i++) {
 
-                    if(!to_match.indexOf(to_remove_from[i])) {
+                var return_array = new Array();
+
+                for(var i=0; i<to_remove_from.length; i++) {
+                    if(to_match.indexOf(to_remove_from[i]) < 0) {
                         return_array.push(to_remove_from[i]);
                     }
                 }
@@ -1151,14 +1280,17 @@ There was no such luck. The dog continued its cry. Another man got up and approa
             
             //STRING HELPER FUNCTION
             var Get_Attribute_Class = function(leading_subject) {
-                if(!leading_subject || typeof leading_subject != 'string') {
+
+                if(leading_subject==null || !isElement_1(leading_subject)) {
+                    
                     return -1;
                 }
+
                 var attribute_class = null;
                 var classes = leading_subject.className.split(' ');
 
                 for(var i=0; i<classes.length; i++) {
-                    if(classes[i].indexOf('attribute_')){
+                    if(classes[i].indexOf('attribute_') > -1){
                         attribute_class = classes[i];
                         break;
                     }
@@ -1166,23 +1298,52 @@ There was no such luck. The dog continued its cry. Another man got up and approa
                 return attribute_class;
             }
 
+
+            function isElement_1(obj) {
+              try {
+                //Using W3 DOM2 (works for FF, Opera and Chrom)
+                return obj instanceof HTMLElement;
+              }
+              catch(e){
+                //Browsers not supporting W3 DOM2 don't have HTMLElement and
+                //an exception is thrown and we end up here. Testing some
+                //properties that all elements have. (works on IE7)
+                return (typeof obj==="object") &&
+                  (obj.nodeType===1) && (typeof obj.style === "object") &&
+                  (typeof obj.ownerDocument ==="object");
+              }
+            }
+
+
             //DOM TRAVERSAL HELPER
             var Get_Top_Element = function(leading_subject, top_delimiter) {
-                if(!leading_subject || typeof leading_subject != 'string') {
+
+                if(!leading_subject || !isElement_1(leading_subject) ) {
+                    
                     return -1;
+                
                 }
                 if(!top_delimiter || typeof top_delimiter != 'string') {
                     return -1;
                 }
-                var tag = leading_subject.tagName;
-                var top_element = null;
+                
+                
+                
+                var top_element = leading_subject;
+                var tag = top_element.tagName;
 
-                while(tagName != top_delimiter) {
+                
+
+                while(tag.toLowerCase() != top_delimiter) {
+
                     if(top_element == document.body) {
+                        window.alert('ERROR GETTING TOP NODE');
                         return null;
                     }
-                    top_element = leading_subject.parentNode;
+                    top_element = top_element.parentNode;
+                    tag = top_element.tagName;
                 }
+
                 return top_element;
             }
 

@@ -1145,7 +1145,7 @@ function Create_Attribute_Table_Elements(&$dom, $attribute_id, $email_key) {
                 $class .= ' Current_Value';
             }
         }
-
+        
         if($attribute_type == 'case_1') {
 
             if($key == 0) {
